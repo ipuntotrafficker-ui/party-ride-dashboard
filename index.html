@@ -5,34 +5,21 @@
 <title>Insights organicos - Meta</title>
 <style>
   :root {
-    --surface-1:      #fcfcfb;
-    --page-plane:     #f9f9f7;
-    --text-primary:   #0b0b0b;
-    --text-secondary: #52514e;
-    --text-muted:     #898781;
-    --gridline:       #e1e0d9;
-    --baseline:       #c3c2b7;
-    --border:         rgba(11,11,11,0.10);
-    --fb:             #2a78d6;
-    --ig:             #1baf7a;
-    --positive:       #1baf7a;
-    --warning:        #c9822a;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --surface-1:      #1a1a19;
-      --page-plane:     #0d0d0d;
-      --text-primary:   #ffffff;
-      --text-secondary: #c3c2b7;
-      --text-muted:     #898781;
-      --gridline:       #2c2c2a;
-      --baseline:       #383835;
-      --border:         rgba(255,255,255,0.10);
-      --fb:             #3987e5;
-      --ig:             #199e70;
-      --positive:       #199e70;
-      --warning:        #e0a349;
-    }
+    /* Paleta de marca i.punto Marketing Digital: negro + amarillo del logo. */
+    --surface-1:      #161616;
+    --page-plane:     #0a0a0a;
+    --text-primary:   #ffffff;
+    --text-secondary: #b9b8b2;
+    --text-muted:     #8a8a83;
+    --gridline:       #2a2a2a;
+    --baseline:       #3a3a3a;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #f4dc00;
+    --accent-contrast:#0a0a0a;
+    --fb:             #3987e5;
+    --ig:             #199e70;
+    --positive:       #199e70;
+    --warning:        #e0a349;
   }
   * { box-sizing: border-box; }
   body {
@@ -61,8 +48,8 @@
     cursor: pointer; margin-bottom: 4px; font-family: inherit;
   }
   .nav-btn:hover { background: var(--page-plane); }
-  .nav-btn.active { background: var(--gridline); color: var(--text-primary); font-weight: 600; }
-  .nav-btn:focus-visible { outline: 2px solid var(--fb); outline-offset: 2px; }
+  .nav-btn.active { background: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+  .nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
   h1 { font-size: 20px; margin: 0 0 4px; }
@@ -80,7 +67,7 @@
   .dot.ig { background: var(--ig); }
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
   .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-  .kpi .value { font-size: 26px; font-weight: 600; }
+  .kpi .value { font-size: 26px; font-weight: 600; color: var(--accent); }
   .kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
@@ -89,7 +76,7 @@
   th.num { text-align: right; }
   .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--gridline); }
   .post-caption { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  a.permalink { color: var(--fb); text-decoration: none; }
+  a.permalink { color: var(--accent); text-decoration: none; }
   .chart-wrap { position: relative; }
   .tooltip {
     position: absolute; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
@@ -111,7 +98,7 @@
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Dashboard</button>
       <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
-      <p class="subtitle">Generado el 2026-07-03 19:12 UTC</p>
+      <p class="subtitle">Generado el 2026-07-03 20:57 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -1708,4 +1695,3 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 </script>
 </body>
 </html>
-<!-- redeploy retrigger: 2026-07-03T19:20:22Z -->

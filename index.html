@@ -85,16 +85,46 @@
   }
   .empty { color: var(--text-muted); font-size: 13px; }
   .date-filter { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px; }
-  .date-filter label { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-  .date-filter input[type="date"] {
+  .date-range-picker { position: relative; }
+  .date-pill {
     background: var(--page-plane); color: var(--text-primary); border: 1px solid var(--border);
-    border-radius: 6px; padding: 5px 8px; font-size: 13px; font-family: inherit;
+    border-radius: 6px; padding: 7px 14px; font-size: 13px; font-family: inherit; cursor: pointer;
+    font-variant-numeric: tabular-nums;
   }
-  .date-filter button {
+  .date-pill:hover { border-color: var(--accent); }
+  #filter-reset {
     background: transparent; color: var(--accent); border: 1px solid var(--accent);
     border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: inherit;
   }
-  .date-filter button:hover { background: var(--accent); color: var(--accent-contrast); }
+  #filter-reset:hover { background: var(--accent); color: var(--accent-contrast); }
+  .calendar-popup {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .calendar-header button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 6px; line-height: 1;
+  }
+  .calendar-header button:hover { background: var(--page-plane); }
+  .calendar-header span { font-size: 13px; font-weight: 600; }
+  .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .calendar-weekdays span { font-size: 10px; color: var(--text-muted); padding: 4px 0; }
+  .calendar-grid button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 12px;
+    padding: 6px 0; border-radius: 6px; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .calendar-grid button:hover:not(:disabled) { background: var(--page-plane); }
+  .calendar-grid button:disabled { color: var(--text-muted); opacity: 0.35; cursor: default; }
+  /* !important: estas dos marcan el estado de seleccion vigente y no deben
+     desaparecer si el mouse queda posicionado encima (:hover tiene mas
+     especificidad que una sola clase de estado). */
+  .calendar-grid button.in-range { background: rgba(244,220,0,0.15) !important; }
+  .calendar-grid button.range-endpoint {
+    background: var(--accent) !important; color: var(--accent-contrast) !important; font-weight: 700;
+  }
+  .calendar-hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; text-align: center; min-height: 14px; }
   .rec-card h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
   .rec-card .dot.alerta { background: var(--warning); }
   .rec-card .dot.positivo { background: var(--positive); }
@@ -109,13 +139,26 @@
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Dashboard</button>
       <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
-      <p class="subtitle">Generado el 2026-07-03 23:38 UTC</p>
+      <p class="subtitle">Generado el 2026-07-04 00:03 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
         <div class="card date-filter">
-          <label>Desde <input type="date" id="filter-since"></label>
-          <label>Hasta <input type="date" id="filter-until"></label>
+          <div class="date-range-picker">
+            <button type="button" id="filter-trigger" class="date-pill"></button>
+            <div id="calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="cal-month-label"></span>
+                <button type="button" id="cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="cal-grid" class="calendar-grid"></div>
+              <p id="cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
           <button id="filter-reset" type="button">Ver todo</button>
         </div>
 
@@ -1588,7 +1631,7 @@ Pregunta por n</td>
   </div>
       </section>
       <section id="tab-recomendaciones" class="tab-panel">
-        <div class="kpi-row"><div class="kpi"><div class="value">122</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">14.317</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">405</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Febrero 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mes mas flojo</div></div></div>
+        <div class="kpi-row"><div class="kpi"><div class="value">122</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">14.317</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">405</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Febrero 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Julio 2026</div><div class="label">Mes mas flojo</div></div></div>
 
         
   <div class="card">
@@ -1663,7 +1706,7 @@ Pregunta por n</td>
           <td class="num">0</td>
           <td class="num">30</td>
           <td class="num">4.7</td>
-          <td>mes en curso</td>
+          <td>-81% vs mes anterior</td>
         </tr></tbody>
     </table>
   </div>
@@ -1776,17 +1819,31 @@ function renderLineChart(containerId, points, color) {
   });
 }
 
-const sinceInput = document.getElementById('filter-since');
-const untilInput = document.getElementById('filter-until');
 const resetBtn = document.getElementById('filter-reset');
+const trigger = document.getElementById('filter-trigger');
+const popup = document.getElementById('calendar-popup');
+const calGrid = document.getElementById('cal-grid');
+const calMonthLabel = document.getElementById('cal-month-label');
+const calHint = document.getElementById('cal-hint');
+
+const DOW_ES = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+const MONTH_ES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
 
 const allLabels = Object.values(chartData).flatMap(({ points }) => points.map(p => p.label)).sort();
 const minDate = allLabels[0];
 const maxDate = allLabels[allLabels.length - 1];
 
+let selStart = minDate;
+let selEnd = maxDate;
+let pendingStart = null;
+let viewDate = maxDate ? new Date(maxDate + 'T00:00:00') : new Date();
+
 function applyDateFilter() {
-  const since = sinceInput.value;
-  const until = untilInput.value;
+  const since = selStart;
+  const until = selEnd;
   if (!since || !until || since > until) return;
 
   Object.keys(chartData).forEach(id => {
@@ -1801,23 +1858,101 @@ function applyDateFilter() {
   });
 }
 
-if (minDate && maxDate) {
-  [sinceInput, untilInput].forEach(input => {
-    input.min = minDate;
-    input.max = maxDate;
-  });
-  sinceInput.value = minDate;
-  untilInput.value = maxDate;
+function fmtShort(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d} ${MONTH_ES[parseInt(m, 10) - 1].slice(0, 3)} ${y}`;
 }
 
-sinceInput.addEventListener('change', applyDateFilter);
-untilInput.addEventListener('change', applyDateFilter);
+function updateTriggerLabel() {
+  trigger.textContent = (selStart && selEnd) ? `${fmtShort(selStart)} - ${fmtShort(selEnd)}` : 'Elegir rango';
+}
+
+function renderCalendar() {
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  calMonthLabel.textContent = `${MONTH_ES[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7; // semana arranca en lunes
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const rangeStart = pendingStart || selStart;
+  const rangeEnd = pendingStart ? null : selEnd;
+
+  calGrid.innerHTML = '';
+  for (let i = 0; i < startOffset; i++) {
+    calGrid.appendChild(document.createElement('span'));
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = day;
+    const disabled = (minDate && iso < minDate) || (maxDate && iso > maxDate);
+    btn.disabled = disabled;
+    if (!disabled) {
+      if (iso === rangeStart || iso === rangeEnd) btn.classList.add('range-endpoint');
+      else if (rangeEnd && iso > rangeStart && iso < rangeEnd) btn.classList.add('in-range');
+      // stopPropagation: onDayClick reconstruye la grilla (renderCalendar),
+      // lo que desprende este boton del DOM antes de que el listener de
+      // "clic afuera" (a nivel document) evalue popup.contains(e.target) --
+      // sin esto, el chequeo da falso y cierra el popup por error.
+      btn.addEventListener('click', (e) => { e.stopPropagation(); onDayClick(iso); });
+    }
+    calGrid.appendChild(btn);
+  }
+}
+
+function onDayClick(iso) {
+  if (!pendingStart) {
+    pendingStart = iso;
+    calHint.textContent = 'Elegi la fecha final';
+    renderCalendar();
+    return;
+  }
+  selStart = iso < pendingStart ? iso : pendingStart;
+  selEnd = iso < pendingStart ? pendingStart : iso;
+  pendingStart = null;
+  calHint.textContent = '';
+  updateTriggerLabel();
+  applyDateFilter();
+  popup.hidden = true;
+}
+
+document.getElementById('cal-prev').addEventListener('click', (e) => {
+  e.stopPropagation();
+  viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+  renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', (e) => {
+  e.stopPropagation();
+  viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+  renderCalendar();
+});
+
+trigger.addEventListener('click', () => {
+  popup.hidden = !popup.hidden;
+  if (!popup.hidden) {
+    pendingStart = null;
+    calHint.textContent = '';
+    viewDate = selEnd ? new Date(selEnd + 'T00:00:00') : new Date();
+    renderCalendar();
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!popup.hidden && !popup.contains(e.target) && e.target !== trigger) {
+    popup.hidden = true;
+  }
+});
+
 resetBtn.addEventListener('click', () => {
-  sinceInput.value = minDate;
-  untilInput.value = maxDate;
+  selStart = minDate;
+  selEnd = maxDate;
+  updateTriggerLabel();
   applyDateFilter();
 });
 
+updateTriggerLabel();
 applyDateFilter();
 
 document.querySelectorAll('.nav-btn').forEach(btn => {

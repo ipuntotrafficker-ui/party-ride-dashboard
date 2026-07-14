@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Insights organicos - Meta</title>
+<style>
+  :root {
+    /* Paleta de marca i.punto Marketing Digital: negro + amarillo del logo. */
+    --surface-1:      #161616;
+    --page-plane:     #0a0a0a;
+    --text-primary:   #ffffff;
+    --text-secondary: #b9b8b2;
+    --text-muted:     #8a8a83;
+    --gridline:       #2a2a2a;
+    --baseline:       #3a3a3a;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #f4dc00;
+    --accent-contrast:#0a0a0a;
+    --fb:             #3987e5;
+    --ig:             #199e70;
+    --positive:       #199e70;
+    --warning:        #e0a349;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .app-shell { display: flex; align-items: flex-start; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .content { flex: 1; min-width: 0; padding: 24px; }
+  .brand { font-size: 15px; font-weight: 600; margin: 0 0 16px; padding: 0 12px; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left; background: transparent; border: none;
+    color: var(--text-secondary); padding: 10px 12px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; margin-bottom: 4px; font-family: inherit;
+  }
+  .nav-btn:hover { background: var(--page-plane); }
+  .nav-btn.active { background: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+  .nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin: 20px 0 0; padding: 0 12px; }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 14px; display:flex; align-items:center; gap:8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+  .dot.fb { background: var(--fb); }
+  .dot.ig { background: var(--ig); }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .kpi .value { font-size: 26px; font-weight: 600; color: var(--accent); }
+  .kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--gridline); }
+  .post-caption { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  a.permalink { color: var(--accent); text-decoration: none; }
+  .chart-wrap { position: relative; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
+    font-size: 11px; padding: 4px 8px; border-radius: 6px; opacity: 0; transform: translate(-50%, -120%);
+    white-space: nowrap; transition: opacity 0.1s;
+  }
+  .empty { color: var(--text-muted); font-size: 13px; }
+  /* Marcas solo-pauta (el token no administra su Pagina): no hay nada organico
+     que enseñar, asi que se ocultan esas dos pestañas en vez de dejarlas vacias. */
+  .app-shell.pauta-only .nav-btn[data-tab="dashboard"],
+  .app-shell.pauta-only .nav-btn[data-tab="recomendaciones"],
+  .app-shell.pauta-only #tab-dashboard,
+  .app-shell.pauta-only #tab-recomendaciones { display: none; }
+  .range-note {
+    color: var(--text-muted); font-size: 12px; line-height: 1.5;
+    margin: -6px 0 18px; padding: 0 4px;
+  }
+  .kpi .value.na { color: var(--text-muted); }
+  .date-filter { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px; }
+  .date-range-picker { position: relative; }
+  .date-pill {
+    background: var(--page-plane); color: var(--text-primary); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 14px; font-size: 13px; font-family: inherit; cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-pill:hover { border-color: var(--accent); }
+  #filter-reset {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  #filter-reset:hover { background: var(--accent); color: var(--accent-contrast); }
+  .calendar-popup {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .calendar-header button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 6px; line-height: 1;
+  }
+  .calendar-header button:hover { background: var(--page-plane); }
+  .calendar-header span { font-size: 13px; font-weight: 600; }
+  .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .calendar-weekdays span { font-size: 10px; color: var(--text-muted); padding: 4px 0; }
+  .calendar-grid button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 12px;
+    padding: 6px 0; border-radius: 6px; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .calendar-grid button:hover:not(:disabled) { background: var(--page-plane); }
+  .calendar-grid button:disabled { color: var(--text-muted); opacity: 0.35; cursor: default; }
+  /* !important: estas dos marcan el estado de seleccion vigente y no deben
+     desaparecer si el mouse queda posicionado encima (:hover tiene mas
+     especificidad que una sola clase de estado). */
+  .calendar-grid button.in-range { background: rgba(244,220,0,0.15) !important; }
+  .calendar-grid button.range-endpoint {
+    background: var(--accent) !important; color: var(--accent-contrast) !important; font-weight: 700;
+  }
+  .calendar-hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; text-align: center; min-height: 14px; }
+  .rec-card h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .rec-card .dot.alerta { background: var(--warning); }
+  .rec-card .dot.positivo { background: var(--positive); }
+  .rec-card .dot.info { background: var(--fb); }
+  .rec-stat { font-size: 13px; font-weight: 600; margin: 0 0 6px; font-variant-numeric: tabular-nums; }
+  .rec-detail { font-size: 13px; color: var(--text-secondary); margin: 0; }
+</style>
+</head>
+<body>
+  <div class="app-shell pauta-only">
+    <nav class="sidebar">
+      <div class="brand">Pauta</div>
+      <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
+      <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
+      <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
+      <p class="subtitle">Generado el 2026-07-14 20:16 UTC</p>
+    </nav>
+    <main class="content">
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="filter-trigger" class="date-pill"></button>
+            <div id="calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="cal-month-label"></span>
+                <button type="button" id="cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="cal-grid" class="calendar-grid"></div>
+              <p id="cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="filter-reset" type="button">Ver todo</button>
+        </div>
+
+        <div class="kpi-row"><p class="empty">Sin datos.</p></div>
+
+        
+
+        <div class="card"><h2>Posts</h2><p class="empty">No se encontraron posts.</p></div>
+      </section>
+      <section id="tab-pautas" class="tab-panel">
+        <h1>Pauta (anuncios pagados)</h1>
+        <p class="subtitle" style="padding:0;margin:2px 0 18px;">Cuenta: iPunto Pauta Digital · Moneda: MXN · Campañas: Maca</p>
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="p-filter-trigger" class="date-pill"></button>
+            <div id="p-calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="p-cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="p-cal-month-label"></span>
+                <button type="button" id="p-cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="p-cal-grid" class="calendar-grid"></div>
+              <p id="p-cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="p-filter-reset" type="button">Ver todo</button>
+        </div>
+        <div class="kpi-row" id="ads-kpi-row"><div class="kpi"><div class="value">195</div><div class="label">Conversaciones iniciadas</div></div><div class="kpi"><div class="value">$26,75 MXN</div><div class="label">Costo por resultado</div></div><div class="kpi"><div class="value">$5.216,47 MXN</div><div class="label">Importe gastado</div></div><div class="kpi"><div class="value">42.256</div><div class="label">Alcance</div></div><div class="kpi"><div class="value">160.806</div><div class="label">Impresiones</div></div><div class="kpi"><div class="value">5.571</div><div class="label">Clics</div></div><div class="kpi"><div class="value">3,46%</div><div class="label">CTR</div></div><div class="kpi"><div class="value">$0,94 MXN</div><div class="label">CPC</div></div><div class="kpi"><div class="value">$32,44 MXN</div><div class="label">CPM</div></div></div>
+        <p id="ads-range-note" class="range-note" hidden></p>
+        
+  <div class="card">
+    <h2><span class="dot" style="background:var(--accent)"></span>Resultados diarios</h2>
+    <div class="chart-wrap"><div id="ads_results_chart"></div></div>
+  </div>
+        
+  <div class="card">
+    <h2>Campañas (ordenadas por inversion)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Campaña</th><th class="num">Inversion</th><th class="num">Alcance</th>
+          <th class="num">Impresiones</th><th class="num">Clics</th><th class="num">CTR</th>
+          <th class="num">CPC</th><th class="num">Resultados</th><th class="num">Costo/result.</th>
+        </tr>
+      </thead>
+      <tbody id="ads-campaigns-body">
+        <tr>
+          <td class="post-caption" title="Maca_Msgs_Junio">Maca_Msgs_Junio</td>
+          <td class="num">$1.942,57 MXN</td>
+          <td class="num">26.773</td>
+          <td class="num">76.987</td>
+          <td class="num">2.258</td>
+          <td class="num">2,93%</td>
+          <td class="num">$0,86 MXN</td>
+          <td class="num">59</td>
+          <td class="num">$32,92 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="MACA_MSGS_COMIDA_ARABE">MACA_MSGS_COMIDA_ARABE</td>
+          <td class="num">$1.244,79 MXN</td>
+          <td class="num">6.397</td>
+          <td class="num">24.629</td>
+          <td class="num">1.027</td>
+          <td class="num">4,17%</td>
+          <td class="num">$1,21 MXN</td>
+          <td class="num">43</td>
+          <td class="num">$28,95 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="MACA_MSGS_PLATON_V2">MACA_MSGS_PLATON_V2</td>
+          <td class="num">$1.010,00 MXN</td>
+          <td class="num">11.321</td>
+          <td class="num">31.615</td>
+          <td class="num">1.072</td>
+          <td class="num">3,39%</td>
+          <td class="num">$0,94 MXN</td>
+          <td class="num">36</td>
+          <td class="num">$28,06 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="MACA_Msjs_10_Mayo">MACA_Msjs_10_Mayo</td>
+          <td class="num">$424,77 MXN</td>
+          <td class="num">3.286</td>
+          <td class="num">9.735</td>
+          <td class="num">422</td>
+          <td class="num">4,33%</td>
+          <td class="num">$1,01 MXN</td>
+          <td class="num">28</td>
+          <td class="num">$15,17 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="MACA_MSGS_ROSCA">MACA_MSGS_ROSCA</td>
+          <td class="num">$365,47 MXN</td>
+          <td class="num">4.636</td>
+          <td class="num">12.214</td>
+          <td class="num">604</td>
+          <td class="num">4,95%</td>
+          <td class="num">$0,61 MXN</td>
+          <td class="num">17</td>
+          <td class="num">$21,50 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="MACA_MSGS_PLATON">MACA_MSGS_PLATON</td>
+          <td class="num">$153,83 MXN</td>
+          <td class="num">2.145</td>
+          <td class="num">2.978</td>
+          <td class="num">116</td>
+          <td class="num">3,90%</td>
+          <td class="num">$1,33 MXN</td>
+          <td class="num">11</td>
+          <td class="num">$13,98 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="Maca_Msgs_Julio">Maca_Msgs_Julio</td>
+          <td class="num">$75,04 MXN</td>
+          <td class="num">1.552</td>
+          <td class="num">2.648</td>
+          <td class="num">72</td>
+          <td class="num">2,72%</td>
+          <td class="num">$1,04 MXN</td>
+          <td class="num">1</td>
+          <td class="num">$75,04 MXN</td>
+        </tr></tbody>
+    </table>
+  </div>
+      </section>
+      <section id="tab-recomendaciones" class="tab-panel">
+        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">0</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">0</div><div class="label">Engagement total (Facebook)</div></div></div>
+        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido en Insights o en Pauta.
+        El desglose mensual y las recomendaciones analizan siempre el periodo completo.</p>
+
+        
+  <div class="card">
+    <h2>Analisis mensual</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th><th class="num">Posts FB</th><th class="num">Posts IG</th>
+          <th class="num">Engagement prom. FB</th><th class="num">Alcance prom. IG</th>
+          <th class="num">Cadencia (post/sem)</th><th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Enero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Febrero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Marzo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Abril 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Mayo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Junio 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Julio 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>mes en curso</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+        
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Facebook</h3>
+    <p class="rec-stat">0.0 dias con post/semana (minimo recomendado: 3)</p>
+    <p class="rec-detail">En los ultimos 195 dias hubo posts en solo 0 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const chartData = {"ads_results_chart": {"color": "#f4dc00", "points": [{"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 7}, {"label": "2026-01-08", "value": 5}, {"label": "2026-01-09", "value": 1}, {"label": "2026-01-10", "value": 4}, {"label": "2026-01-11", "value": 0}, {"label": "2026-01-12", "value": 0}, {"label": "2026-01-13", "value": 0}, {"label": "2026-01-16", "value": 1}, {"label": "2026-01-17", "value": 3}, {"label": "2026-01-18", "value": 2}, {"label": "2026-01-19", "value": 1}, {"label": "2026-01-20", "value": 3}, {"label": "2026-01-21", "value": 0}, {"label": "2026-01-22", "value": 6}, {"label": "2026-01-23", "value": 2}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 1}, {"label": "2026-01-26", "value": 1}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-29", "value": 2}, {"label": "2026-01-30", "value": 10}, {"label": "2026-01-31", "value": 5}, {"label": "2026-02-01", "value": 5}, {"label": "2026-02-02", "value": 1}, {"label": "2026-02-03", "value": 0}, {"label": "2026-02-04", "value": 0}, {"label": "2026-03-27", "value": 2}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 10}, {"label": "2026-03-31", "value": 10}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 3}, {"label": "2026-04-03", "value": 4}, {"label": "2026-04-04", "value": 2}, {"label": "2026-04-05", "value": 2}, {"label": "2026-04-06", "value": 3}, {"label": "2026-04-07", "value": 4}, {"label": "2026-04-08", "value": 4}, {"label": "2026-04-09", "value": 2}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 1}, {"label": "2026-05-05", "value": 2}, {"label": "2026-05-06", "value": 7}, {"label": "2026-05-07", "value": 2}, {"label": "2026-05-08", "value": 4}, {"label": "2026-05-09", "value": 8}, {"label": "2026-05-10", "value": 5}, {"label": "2026-05-11", "value": 0}, {"label": "2026-05-16", "value": 0}, {"label": "2026-06-03", "value": 2}, {"label": "2026-06-04", "value": 2}, {"label": "2026-06-05", "value": 4}, {"label": "2026-06-06", "value": 4}, {"label": "2026-06-07", "value": 2}, {"label": "2026-06-08", "value": 0}, {"label": "2026-06-10", "value": 5}, {"label": "2026-06-11", "value": 4}, {"label": "2026-06-12", "value": 1}, {"label": "2026-06-13", "value": 1}, {"label": "2026-06-14", "value": 1}, {"label": "2026-06-15", "value": 7}, {"label": "2026-06-16", "value": 1}, {"label": "2026-06-17", "value": 1}, {"label": "2026-06-18", "value": 3}, {"label": "2026-06-19", "value": 2}, {"label": "2026-06-20", "value": 5}, {"label": "2026-06-21", "value": 2}, {"label": "2026-06-22", "value": 2}, {"label": "2026-06-23", "value": 0}, {"label": "2026-06-24", "value": 5}, {"label": "2026-06-25", "value": 1}, {"label": "2026-06-26", "value": 4}, {"label": "2026-06-27", "value": 0}, {"label": "2026-06-28", "value": 0}, {"label": "2026-06-29", "value": 0}, {"label": "2026-07-01", "value": 0}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-13", "value": 1}, {"label": "2026-07-14", "value": 0}]}};
+// Datos de pauta con granularidad DIARIA: permiten recalcular los KPIs y la
+// tabla de campañas para cualquier rango sin volver a llamar a la Graph API
+// (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
+const ADS = {"hasData": true, "currency": "MXN", "resultActionType": "onsite_conversion.messaging_conversation_started_7d", "resultLabel": "Conversaciones iniciadas", "totals": {"spend": 5216.47, "impressions": 160806, "clicks": 5571, "results": 195, "reach": 42256, "ctr": 3.46, "cpc": 0.94, "cpm": 32.44, "costPerResult": 26.75}, "reachByCampaign": {"Maca_Msgs_Junio": 26773, "MACA_MSGS_COMIDA_ARABE": 6397, "MACA_MSGS_PLATON_V2": 11321, "MACA_Msjs_10_Mayo": 3286, "MACA_MSGS_ROSCA": 4636, "MACA_MSGS_PLATON": 2145, "Maca_Msgs_Julio": 1552}, "daily": [{"date": "2026-01-06", "spend": 18.34, "impressions": 917, "clicks": 71, "actions": {"link_click": 13.0, "post_reaction": 11.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 305.0, "like": 1.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 306.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 15.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 9.0, "video_view": 279.0}}, {"date": "2026-01-07", "spend": 84.55, "impressions": 3043, "clicks": 180, "actions": {"link_click": 40.0, "post_reaction": 18.0, "onsite_conversion.messaging_conversation_replied_7d": 4.0, "onsite_conversion.total_messaging_connection": 8.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 550.0, "post_interaction_gross": 20.0, "comment": 2.0, "page_engagement": 550.0, "onsite_conversion.messaging_welcome_message_view": 15.0, "post_interaction_net": 21.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 4.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 17.0, "onsite_conversion.messaging_conversation_started_7d": 7.0, "video_view": 489.0}}, {"date": "2026-01-08", "spend": 148.43, "impressions": 5286, "clicks": 234, "actions": {"onsite_conversion.lead": 1.0, "offsite_complete_registration_add_meta_leads": 1.0, "link_click": 63.0, "offsite_search_add_meta_leads": 1.0, "post_reaction": 22.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_web_lead": 1.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 1133.0, "like": 4.0, "post_interaction_gross": 25.0, "comment": 2.0, "page_engagement": 1137.0, "onsite_conversion.messaging_welcome_message_view": 22.0, "post_interaction_net": 25.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 22.0, "onsite_conversion.messaging_user_depth_5_message_send": 2.0, "lead": 1.0, "offsite_content_view_add_meta_leads": 1.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "onsite_conversion.lead_grouped": 1.0, "video_view": 1045.0}}, {"date": "2026-01-09", "spend": 52.18, "impressions": 1131, "clicks": 46, "actions": {"link_click": 12.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 162.0, "page_engagement": 162.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 150.0}}, {"date": "2026-01-10", "spend": 61.97, "impressions": 1837, "clicks": 73, "actions": {"link_click": 19.0, "post_reaction": 10.0, "onsite_conversion.messaging_conversation_replied_7d": 4.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 207.0, "post_interaction_gross": 10.0, "page_engagement": 207.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 10.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 4.0, "photo_view": 1.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 177.0}}, {"date": "2026-01-11", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-01-12", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_block": 1.0, "onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-01-13", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-01-16", "spend": 30.22, "impressions": 921, "clicks": 51, "actions": {"link_click": 14.0, "post_reaction": 7.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 342.0, "post_interaction_gross": 7.0, "page_engagement": 342.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 7.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 321.0}}, {"date": "2026-01-17", "spend": 67.14, "impressions": 1864, "clicks": 68, "actions": {"link_click": 16.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 3.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 574.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 574.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 14.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 545.0}}, {"date": "2026-01-18", "spend": 78.73, "impressions": 1835, "clicks": 93, "actions": {"link_click": 25.0, "post_reaction": 11.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 626.0, "post_interaction_gross": 16.0, "comment": 3.0, "page_engagement": 626.0, "onsite_conversion.messaging_welcome_message_view": 13.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 2.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 585.0}}, {"date": "2026-01-19", "spend": 80.06, "impressions": 1653, "clicks": 98, "actions": {"link_click": 24.0, "post_reaction": 9.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 516.0, "post_interaction_gross": 13.0, "comment": 2.0, "page_engagement": 516.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 14.0, "post_uncomment": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 9.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 479.0}}, {"date": "2026-01-20", "spend": 82.06, "impressions": 1496, "clicks": 73, "actions": {"link_click": 18.0, "post_reaction": 14.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 500.0, "post_interaction_gross": 16.0, "comment": 1.0, "page_engagement": 500.0, "onsite_conversion.messaging_welcome_message_view": 13.0, "post_interaction_net": 16.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 3.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 14.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 466.0}}, {"date": "2026-01-21", "spend": 66.24, "impressions": 1307, "clicks": 71, "actions": {"link_click": 21.0, "post_reaction": 13.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 449.0, "post_interaction_gross": 14.0, "page_engagement": 449.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 16.0, "post": 1.0, "onsite_conversion.post_net_like": 11.0, "video_view": 414.0}}, {"date": "2026-01-22", "spend": 72.66, "impressions": 1135, "clicks": 42, "actions": {"link_click": 11.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 6.0, "post_engagement": 364.0, "post_interaction_gross": 4.0, "page_engagement": 364.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 6.0, "video_view": 349.0}}, {"date": "2026-01-23", "spend": 62.86, "impressions": 1084, "clicks": 45, "actions": {"link_click": 12.0, "post_reaction": 8.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 333.0, "post_interaction_gross": 10.0, "comment": 1.0, "page_engagement": 333.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 12.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 311.0}}, {"date": "2026-01-24", "spend": 59.35, "impressions": 1360, "clicks": 37, "actions": {"link_click": 6.0, "post_reaction": 3.0, "post_engagement": 386.0, "like": 1.0, "post_interaction_gross": 4.0, "comment": 1.0, "page_engagement": 387.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 4.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 3.0, "video_view": 376.0}}, {"date": "2026-01-25", "spend": 79.27, "impressions": 1591, "clicks": 57, "actions": {"link_click": 27.0, "post_reaction": 7.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 517.0, "like": 1.0, "post_interaction_gross": 9.0, "comment": 1.0, "page_engagement": 518.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 10.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 481.0}}, {"date": "2026-01-26", "spend": 65.29, "impressions": 1571, "clicks": 51, "actions": {"link_click": 16.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 427.0, "like": 2.0, "post_interaction_gross": 5.0, "page_engagement": 429.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 406.0}}, {"date": "2026-01-27", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-01-29", "spend": 118.28, "impressions": 2262, "clicks": 82, "actions": {"link_click": 27.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 3.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 647.0, "like": 2.0, "post_interaction_gross": 14.0, "comment": 1.0, "page_engagement": 649.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 15.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 606.0}}, {"date": "2026-01-30", "spend": 123.9, "impressions": 1915, "clicks": 68, "actions": {"link_click": 26.0, "post_reaction": 8.0, "onsite_conversion.messaging_conversation_replied_7d": 6.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 10.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 513.0, "post_interaction_gross": 10.0, "comment": 1.0, "page_engagement": 513.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 9.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 10.0, "video_view": 477.0}}, {"date": "2026-01-31", "spend": 115.41, "impressions": 1917, "clicks": 86, "actions": {"link_click": 26.0, "post_reaction": 6.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 548.0, "like": 1.0, "post_interaction_gross": 11.0, "comment": 4.0, "page_engagement": 549.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_user_depth_2_message_send": 5.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_comment": 4.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 511.0}}, {"date": "2026-02-01", "spend": 87.7, "impressions": 1730, "clicks": 66, "actions": {"link_click": 19.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 473.0, "post_interaction_gross": 6.0, "comment": 1.0, "page_engagement": 473.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 448.0}}, {"date": "2026-02-02", "spend": 55.62, "impressions": 988, "clicks": 39, "actions": {"link_click": 13.0, "post_reaction": 5.0, "onsite_conversion.messaging_conversation_replied_7d": 5.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 290.0, "post_interaction_gross": 7.0, "comment": 1.0, "page_engagement": 290.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 270.0}}, {"date": "2026-02-03", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 5.0}}, {"date": "2026-02-04", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 2.0}}, {"date": "2026-03-27", "spend": 47.84, "impressions": 1660, "clicks": 79, "actions": {"link_click": 13.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 55.0, "post_interaction_gross": 6.0, "comment": 2.0, "page_engagement": 55.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 36.0}}, {"date": "2026-03-28", "spend": 53.69, "impressions": 2271, "clicks": 119, "actions": {"link_click": 45.0, "post_reaction": 13.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "post_engagement": 95.0, "like": 2.0, "post_interaction_gross": 16.0, "comment": 1.0, "page_engagement": 97.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 16.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "post": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 13.0, "video_view": 34.0}}, {"date": "2026-03-29", "spend": 45.97, "impressions": 1754, "clicks": 73, "actions": {"link_click": 27.0, "post_reaction": 8.0, "post_engagement": 53.0, "post_interaction_gross": 8.0, "page_engagement": 53.0, "onsite_conversion.messaging_welcome_message_view": 2.0, "post_interaction_net": 8.0, "onsite_conversion.post_net_like": 8.0, "video_view": 18.0}}, {"date": "2026-03-30", "spend": 162.24, "impressions": 5156, "clicks": 189, "actions": {"link_click": 80.0, "post_reaction": 14.0, "onsite_conversion.messaging_conversation_replied_7d": 5.0, "onsite_conversion.total_messaging_connection": 10.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 371.0, "like": 3.0, "post_interaction_gross": 17.0, "comment": 2.0, "page_engagement": 374.0, "onsite_conversion.messaging_welcome_message_view": 15.0, "post_interaction_net": 18.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 8.0, "post": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 3.0, "onsite_conversion.post_net_like": 13.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 10.0, "video_view": 274.0}}, {"date": "2026-03-31", "spend": 171.85, "impressions": 4655, "clicks": 142, "actions": {"link_click": 66.0, "post_reaction": 8.0, "onsite_conversion.messaging_conversation_replied_7d": 11.0, "onsite_conversion.total_messaging_connection": 11.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 233.0, "like": 3.0, "post_interaction_gross": 11.0, "comment": 1.0, "page_engagement": 236.0, "onsite_conversion.messaging_welcome_message_view": 21.0, "post_interaction_net": 12.0, "onsite_conversion.messaging_user_depth_2_message_send": 7.0, "onsite_conversion.messaging_first_reply": 8.0, "post": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 10.0, "video_view": 156.0}}, {"date": "2026-04-01", "spend": 64.95, "impressions": 1634, "clicks": 30, "actions": {"link_click": 9.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 17.0, "post_interaction_gross": 4.0, "page_engagement": 17.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 4.0, "video_view": 4.0}}, {"date": "2026-04-02", "spend": 64.05, "impressions": 1472, "clicks": 46, "actions": {"link_click": 17.0, "post_reaction": 2.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 30.0, "like": 1.0, "post_interaction_gross": 4.0, "comment": 1.0, "page_engagement": 31.0, "onsite_conversion.messaging_welcome_message_view": 13.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 3.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 9.0}}, {"date": "2026-04-03", "spend": 76.07, "impressions": 2829, "clicks": 76, "actions": {"link_click": 19.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 56.0, "post_interaction_gross": 4.0, "page_engagement": 56.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 33.0}}, {"date": "2026-04-04", "spend": 71.16, "impressions": 2173, "clicks": 57, "actions": {"link_click": 16.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 28.0, "like": 2.0, "post_interaction_gross": 6.0, "page_engagement": 30.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 6.0}}, {"date": "2026-04-05", "spend": 79.86, "impressions": 2083, "clicks": 47, "actions": {"link_click": 14.0, "post_reaction": 2.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 35.0, "like": 1.0, "post_interaction_gross": 3.0, "comment": 1.0, "page_engagement": 36.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 3.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 18.0}}, {"date": "2026-04-06", "spend": 57.54, "impressions": 1942, "clicks": 70, "actions": {"link_click": 19.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 42.0, "like": 3.0, "post_interaction_gross": 5.0, "page_engagement": 45.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 18.0}}, {"date": "2026-04-07", "spend": 64.24, "impressions": 1596, "clicks": 54, "actions": {"link_click": 13.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 32.0, "like": 2.0, "post_interaction_gross": 7.0, "comment": 1.0, "page_engagement": 34.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 12.0}}, {"date": "2026-04-08", "spend": 78.94, "impressions": 2035, "clicks": 55, "actions": {"link_click": 15.0, "post_reaction": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 54.0, "post_interaction_gross": 1.0, "page_engagement": 54.0, "onsite_conversion.messaging_welcome_message_view": 12.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_first_reply": 3.0, "onsite_conversion.post_net_like": 1.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 38.0}}, {"date": "2026-04-09", "spend": 78.53, "impressions": 2100, "clicks": 100, "actions": {"link_click": 33.0, "post_reaction": 3.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 42.0, "like": 1.0, "post_interaction_gross": 4.0, "comment": 1.0, "page_engagement": 43.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 5.0}}, {"date": "2026-04-10", "spend": 46.9, "impressions": 1233, "clicks": 51, "actions": {"link_click": 20.0, "post_reaction": 2.0, "post_engagement": 38.0, "like": 2.0, "post_interaction_gross": 2.0, "page_engagement": 40.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 2.0, "onsite_conversion.post_net_like": 2.0, "video_view": 16.0}}, {"date": "2026-04-11", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 4.0}}, {"date": "2026-04-12", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-04-13", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_welcome_message_view": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.messaging_conversation_started_7d": 1.0}}, {"date": "2026-05-05", "spend": 38.15, "impressions": 1140, "clicks": 85, "actions": {"link_click": 15.0, "post_reaction": 7.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 31.0, "post_interaction_gross": 10.0, "comment": 1.0, "page_engagement": 31.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "photo_view": 2.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 4.0}}, {"date": "2026-05-06", "spend": 75.33, "impressions": 1557, "clicks": 76, "actions": {"link_click": 14.0, "onsite_conversion.messaging_conversation_replied_7d": 5.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 23.0, "post_interaction_gross": 3.0, "comment": 3.0, "page_engagement": 23.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 3.0, "onsite_conversion.messaging_first_reply": 5.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_conversation_started_7d": 7.0, "video_view": 5.0}}, {"date": "2026-05-07", "spend": 59.71, "impressions": 970, "clicks": 35, "actions": {"link_click": 11.0, "post_reaction": 2.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 14.0, "post_interaction_gross": 3.0, "comment": 1.0, "page_engagement": 14.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 3.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 2.0}}, {"date": "2026-05-08", "spend": 52.75, "impressions": 1040, "clicks": 40, "actions": {"link_click": 12.0, "post_reaction": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 23.0, "post_interaction_gross": 2.0, "page_engagement": 23.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 2.0, "onsite_conversion.messaging_first_reply": 3.0, "post": 1.0, "photo_view": 2.0, "onsite_conversion.post_net_like": 1.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 7.0}}, {"date": "2026-05-09", "spend": 87.18, "impressions": 2169, "clicks": 101, "actions": {"link_click": 28.0, "post_reaction": 5.0, "onsite_conversion.messaging_conversation_replied_7d": 9.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 54.0, "like": 1.0, "post_interaction_gross": 6.0, "page_engagement": 55.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_user_depth_2_message_send": 7.0, "onsite_conversion.messaging_first_reply": 6.0, "post": 1.0, "photo_view": 5.0, "onsite_conversion.messaging_user_depth_3_message_send": 3.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 8.0, "video_view": 15.0}}, {"date": "2026-05-10", "spend": 93.23, "impressions": 2392, "clicks": 77, "actions": {"link_click": 22.0, "post_reaction": 7.0, "onsite_conversion.messaging_conversation_replied_7d": 4.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 8.0, "page_engagement": 48.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "photo_view": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 16.0}}, {"date": "2026-05-11", "spend": 18.42, "impressions": 467, "clicks": 8, "actions": {"link_click": 1.0, "post_reaction": 2.0, "post_engagement": 7.0, "post_interaction_gross": 2.0, "page_engagement": 7.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 2.0, "onsite_conversion.post_net_like": 2.0, "video_view": 4.0}}, {"date": "2026-05-16", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-06-03", "spend": 20.92, "impressions": 959, "clicks": 66, "actions": {"link_click": 14.0, "post_reaction": 8.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 454.0, "post_interaction_gross": 8.0, "page_engagement": 454.0, "onsite_conversion.messaging_welcome_message_view": 1.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_like": 8.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 432.0}}, {"date": "2026-06-04", "spend": 57.7, "impressions": 2203, "clicks": 115, "actions": {"link_click": 18.0, "post_reaction": 21.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 901.0, "like": 3.0, "post_interaction_gross": 26.0, "comment": 2.0, "page_engagement": 904.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 26.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 3.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.post_net_like": 21.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 857.0}}, {"date": "2026-06-05", "spend": 61.68, "impressions": 2124, "clicks": 109, "actions": {"link_click": 29.0, "post_reaction": 19.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 759.0, "post_interaction_gross": 25.0, "comment": 3.0, "page_engagement": 759.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 25.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 2.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 19.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 705.0}}, {"date": "2026-06-06", "spend": 94.12, "impressions": 2611, "clicks": 95, "actions": {"link_click": 31.0, "post_reaction": 19.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 762.0, "like": 1.0, "post_interaction_gross": 26.0, "comment": 4.0, "page_engagement": 763.0, "onsite_conversion.messaging_welcome_message_view": 12.0, "post_interaction_net": 26.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.post_net_comment": 4.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 19.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 705.0}}, {"date": "2026-06-07", "spend": 16.04, "impressions": 551, "clicks": 20, "actions": {"link_click": 4.0, "post_reaction": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 199.0, "like": 2.0, "post_interaction_gross": 1.0, "page_engagement": 201.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_like": 1.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 194.0}}, {"date": "2026-06-08", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_block": 1.0, "onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-06-10", "spend": 72.14, "impressions": 2203, "clicks": 109, "actions": {"link_click": 31.0, "post_reaction": 19.0, "onsite_conversion.total_messaging_connection": 5.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 582.0, "post_interaction_gross": 22.0, "page_engagement": 582.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 23.0, "onsite_conversion.messaging_first_reply": 5.0, "photo_view": 1.0, "onsite_conversion.post_save": 3.0, "onsite_conversion.post_net_save": 3.0, "onsite_conversion.post_net_like": 18.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 528.0}}, {"date": "2026-06-11", "spend": 121.6, "impressions": 3559, "clicks": 164, "actions": {"link_click": 42.0, "post_reaction": 22.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 4.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 360.0, "like": 1.0, "post_interaction_gross": 26.0, "comment": 2.0, "page_engagement": 361.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 28.0, "post_uncomment": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 2.0, "photo_view": 2.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.post_net_like": 21.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 290.0}}, {"date": "2026-06-12", "spend": 121.48, "impressions": 2923, "clicks": 110, "actions": {"link_click": 23.0, "post_reaction": 17.0, "onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 469.0, "post_interaction_gross": 19.0, "comment": 1.0, "page_engagement": 469.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 20.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "photo_view": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 16.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 426.0}}, {"date": "2026-06-13", "spend": 93.26, "impressions": 2045, "clicks": 69, "actions": {"link_click": 19.0, "post_reaction": 11.0, "onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 403.0, "post_interaction_gross": 12.0, "comment": 1.0, "page_engagement": 403.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_first_reply": 1.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 371.0}}, {"date": "2026-06-14", "spend": 108.7, "impressions": 1801, "clicks": 73, "actions": {"link_click": 23.0, "post_reaction": 15.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 377.0, "post_interaction_gross": 17.0, "page_engagement": 377.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 2.0, "photo_view": 1.0, "onsite_conversion.post_net_like": 15.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 336.0}}, {"date": "2026-06-15", "spend": 100.4, "impressions": 2178, "clicks": 78, "actions": {"link_click": 34.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 341.0, "like": 1.0, "post_interaction_gross": 6.0, "comment": 1.0, "page_engagement": 342.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 6.0, "post": 1.0, "photo_view": 3.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 7.0, "video_view": 298.0}}, {"date": "2026-06-16", "spend": 121.36, "impressions": 2032, "clicks": 79, "actions": {"link_click": 25.0, "post_reaction": 11.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 454.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 454.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 415.0}}, {"date": "2026-06-17", "spend": 96.36, "impressions": 2209, "clicks": 88, "actions": {"link_click": 22.0, "post_reaction": 13.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 376.0, "like": 1.0, "post_interaction_gross": 18.0, "comment": 1.0, "page_engagement": 377.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 19.0, "post_uncomment": 1.0, "post": 1.0, "photo_view": 2.0, "onsite_conversion.post_save": 3.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.post_net_save": 3.0, "onsite_conversion.post_net_like": 13.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 334.0}}, {"date": "2026-06-18", "spend": 92.92, "impressions": 2190, "clicks": 86, "actions": {"link_click": 26.0, "post_reaction": 9.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 321.0, "post_interaction_gross": 11.0, "comment": 2.0, "page_engagement": 321.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 2.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 9.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 283.0}}, {"date": "2026-06-19", "spend": 78.5, "impressions": 3056, "clicks": 85, "actions": {"link_click": 25.0, "post_reaction": 13.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 649.0, "like": 4.0, "post_interaction_gross": 14.0, "comment": 1.0, "page_engagement": 653.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 14.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 13.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 610.0}}, {"date": "2026-06-20", "spend": 100.01, "impressions": 4888, "clicks": 104, "actions": {"link_click": 40.0, "post_reaction": 9.0, "onsite_conversion.total_messaging_connection": 5.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 700.0, "like": 1.0, "post_interaction_gross": 11.0, "comment": 1.0, "page_engagement": 701.0, "onsite_conversion.messaging_welcome_message_view": 16.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 649.0}}, {"date": "2026-06-21", "spend": 116.51, "impressions": 6437, "clicks": 144, "actions": {"link_click": 63.0, "post_reaction": 8.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 1148.0, "post_interaction_gross": 9.0, "comment": 1.0, "page_engagement": 1148.0, "onsite_conversion.messaging_welcome_message_view": 17.0, "post_interaction_net": 10.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 1076.0}}, {"date": "2026-06-22", "spend": 82.39, "impressions": 4022, "clicks": 69, "actions": {"link_click": 24.0, "post_reaction": 11.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 678.0, "like": 1.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 679.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 641.0}}, {"date": "2026-06-23", "spend": 18.64, "impressions": 1495, "clicks": 25, "actions": {"link_click": 9.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 236.0, "page_engagement": 236.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 1.0, "onsite_conversion.post_net_like": 0.0, "video_view": 227.0}}, {"date": "2026-06-24", "spend": 115.61, "impressions": 7515, "clicks": 153, "actions": {"link_click": 67.0, "post_reaction": 8.0, "onsite_conversion.total_messaging_connection": 5.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 1110.0, "post_interaction_gross": 8.0, "page_engagement": 1110.0, "onsite_conversion.messaging_welcome_message_view": 14.0, "post_interaction_net": 9.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 1035.0}}, {"date": "2026-06-25", "spend": 161.5, "impressions": 12261, "clicks": 253, "actions": {"link_click": 120.0, "post_reaction": 15.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 2146.0, "like": 2.0, "post_interaction_gross": 15.0, "page_engagement": 2148.0, "onsite_conversion.messaging_welcome_message_view": 15.0, "post_interaction_net": 15.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_like": 15.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 2011.0}}, {"date": "2026-06-26", "spend": 90.73, "impressions": 7725, "clicks": 164, "actions": {"link_click": 82.0, "post_reaction": 10.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 1508.0, "like": 1.0, "post_interaction_gross": 12.0, "page_engagement": 1509.0, "onsite_conversion.messaging_welcome_message_view": 20.0, "post_interaction_net": 12.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 1414.0}}, {"date": "2026-06-27", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 8.0}}, {"date": "2026-06-28", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 2.0}}, {"date": "2026-06-29", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 2.0}}, {"date": "2026-07-01", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-07-02", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-07-13", "spend": 42.99, "impressions": 1545, "clicks": 49, "actions": {"link_click": 12.0, "post_reaction": 7.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 180.0, "post_interaction_gross": 7.0, "page_engagement": 180.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 161.0}}, {"date": "2026-07-14", "spend": 32.05, "impressions": 1103, "clicks": 23, "actions": {"link_click": 5.0, "post_engagement": 36.0, "page_engagement": 36.0, "onsite_conversion.messaging_welcome_message_view": 2.0, "video_view": 31.0}}], "campaignDaily": [{"date": "2026-01-06", "name": "MACA_MSGS_ROSCA", "spend": 18.34, "impressions": 917, "clicks": 71, "actions": {"link_click": 13.0, "post_reaction": 11.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 305.0, "like": 1.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 306.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 15.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 9.0, "video_view": 279.0}}, {"date": "2026-01-07", "name": "MACA_MSGS_ROSCA", "spend": 84.55, "impressions": 3043, "clicks": 180, "actions": {"link_click": 40.0, "post_reaction": 18.0, "onsite_conversion.messaging_conversation_replied_7d": 4.0, "onsite_conversion.total_messaging_connection": 8.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 550.0, "post_interaction_gross": 20.0, "comment": 2.0, "page_engagement": 550.0, "onsite_conversion.messaging_welcome_message_view": 15.0, "post_interaction_net": 21.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 4.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 17.0, "onsite_conversion.messaging_conversation_started_7d": 7.0, "video_view": 489.0}}, {"date": "2026-01-08", "name": "MACA_MSGS_ROSCA", "spend": 148.43, "impressions": 5286, "clicks": 234, "actions": {"onsite_conversion.lead": 1.0, "offsite_complete_registration_add_meta_leads": 1.0, "link_click": 63.0, "offsite_search_add_meta_leads": 1.0, "post_reaction": 22.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_web_lead": 1.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 1133.0, "like": 4.0, "post_interaction_gross": 25.0, "comment": 2.0, "page_engagement": 1137.0, "onsite_conversion.messaging_welcome_message_view": 22.0, "post_interaction_net": 25.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 22.0, "onsite_conversion.messaging_user_depth_5_message_send": 2.0, "lead": 1.0, "offsite_content_view_add_meta_leads": 1.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "onsite_conversion.lead_grouped": 1.0, "video_view": 1045.0}}, {"date": "2026-01-09", "name": "MACA_MSGS_ROSCA", "spend": 52.18, "impressions": 1131, "clicks": 46, "actions": {"link_click": 12.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 162.0, "page_engagement": 162.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 150.0}}, {"date": "2026-01-10", "name": "MACA_MSGS_ROSCA", "spend": 61.97, "impressions": 1837, "clicks": 73, "actions": {"link_click": 19.0, "post_reaction": 10.0, "onsite_conversion.messaging_conversation_replied_7d": 4.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 207.0, "post_interaction_gross": 10.0, "page_engagement": 207.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 10.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 4.0, "photo_view": 1.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 177.0}}, {"date": "2026-01-11", "name": "MACA_MSGS_ROSCA", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-01-12", "name": "MACA_MSGS_ROSCA", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_block": 1.0, "onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-01-13", "name": "MACA_MSGS_ROSCA", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-01-16", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 30.22, "impressions": 921, "clicks": 51, "actions": {"link_click": 14.0, "post_reaction": 7.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 342.0, "post_interaction_gross": 7.0, "page_engagement": 342.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 7.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 321.0}}, {"date": "2026-01-17", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 67.14, "impressions": 1864, "clicks": 68, "actions": {"link_click": 16.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 3.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 574.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 574.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 14.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 545.0}}, {"date": "2026-01-18", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 78.73, "impressions": 1835, "clicks": 93, "actions": {"link_click": 25.0, "post_reaction": 11.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 626.0, "post_interaction_gross": 16.0, "comment": 3.0, "page_engagement": 626.0, "onsite_conversion.messaging_welcome_message_view": 13.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 2.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 585.0}}, {"date": "2026-01-19", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 80.06, "impressions": 1653, "clicks": 98, "actions": {"link_click": 24.0, "post_reaction": 9.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 516.0, "post_interaction_gross": 13.0, "comment": 2.0, "page_engagement": 516.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 14.0, "post_uncomment": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 9.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 479.0}}, {"date": "2026-01-20", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 82.06, "impressions": 1496, "clicks": 73, "actions": {"link_click": 18.0, "post_reaction": 14.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 500.0, "post_interaction_gross": 16.0, "comment": 1.0, "page_engagement": 500.0, "onsite_conversion.messaging_welcome_message_view": 13.0, "post_interaction_net": 16.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 3.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 14.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 466.0}}, {"date": "2026-01-21", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 66.24, "impressions": 1307, "clicks": 71, "actions": {"link_click": 21.0, "post_reaction": 13.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 449.0, "post_interaction_gross": 14.0, "page_engagement": 449.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 16.0, "post": 1.0, "onsite_conversion.post_net_like": 11.0, "video_view": 414.0}}, {"date": "2026-01-22", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 72.66, "impressions": 1135, "clicks": 42, "actions": {"link_click": 11.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 6.0, "post_engagement": 364.0, "post_interaction_gross": 4.0, "page_engagement": 364.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 6.0, "video_view": 349.0}}, {"date": "2026-01-23", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 62.86, "impressions": 1084, "clicks": 45, "actions": {"link_click": 12.0, "post_reaction": 8.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 333.0, "post_interaction_gross": 10.0, "comment": 1.0, "page_engagement": 333.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 12.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 311.0}}, {"date": "2026-01-24", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 59.35, "impressions": 1360, "clicks": 37, "actions": {"link_click": 6.0, "post_reaction": 3.0, "post_engagement": 386.0, "like": 1.0, "post_interaction_gross": 4.0, "comment": 1.0, "page_engagement": 387.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 4.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 3.0, "video_view": 376.0}}, {"date": "2026-01-25", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 79.27, "impressions": 1591, "clicks": 57, "actions": {"link_click": 27.0, "post_reaction": 7.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 517.0, "like": 1.0, "post_interaction_gross": 9.0, "comment": 1.0, "page_engagement": 518.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 10.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 481.0}}, {"date": "2026-01-26", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 65.29, "impressions": 1571, "clicks": 51, "actions": {"link_click": 16.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 427.0, "like": 2.0, "post_interaction_gross": 5.0, "page_engagement": 429.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 406.0}}, {"date": "2026-01-27", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-01-29", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 118.28, "impressions": 2262, "clicks": 82, "actions": {"link_click": 27.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 3.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 647.0, "like": 2.0, "post_interaction_gross": 14.0, "comment": 1.0, "page_engagement": 649.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 15.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 606.0}}, {"date": "2026-01-30", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 123.9, "impressions": 1915, "clicks": 68, "actions": {"link_click": 26.0, "post_reaction": 8.0, "onsite_conversion.messaging_conversation_replied_7d": 6.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 10.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 513.0, "post_interaction_gross": 10.0, "comment": 1.0, "page_engagement": 513.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 9.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 10.0, "video_view": 477.0}}, {"date": "2026-01-31", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 115.41, "impressions": 1917, "clicks": 86, "actions": {"link_click": 26.0, "post_reaction": 6.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 548.0, "like": 1.0, "post_interaction_gross": 11.0, "comment": 4.0, "page_engagement": 549.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_user_depth_2_message_send": 5.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_comment": 4.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 511.0}}, {"date": "2026-02-01", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 87.7, "impressions": 1730, "clicks": 66, "actions": {"link_click": 19.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 473.0, "post_interaction_gross": 6.0, "comment": 1.0, "page_engagement": 473.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 448.0}}, {"date": "2026-02-02", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 55.62, "impressions": 988, "clicks": 39, "actions": {"link_click": 13.0, "post_reaction": 5.0, "onsite_conversion.messaging_conversation_replied_7d": 5.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 290.0, "post_interaction_gross": 7.0, "comment": 1.0, "page_engagement": 290.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 270.0}}, {"date": "2026-02-03", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 5.0}}, {"date": "2026-02-04", "name": "MACA_MSGS_COMIDA_ARABE", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 2.0}}, {"date": "2026-03-27", "name": "MACA_MSGS_PLATON_V2", "spend": 47.84, "impressions": 1660, "clicks": 79, "actions": {"link_click": 13.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 55.0, "post_interaction_gross": 6.0, "comment": 2.0, "page_engagement": 55.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 36.0}}, {"date": "2026-03-28", "name": "MACA_MSGS_PLATON_V2", "spend": 53.69, "impressions": 2271, "clicks": 119, "actions": {"link_click": 45.0, "post_reaction": 13.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "post_engagement": 95.0, "like": 2.0, "post_interaction_gross": 16.0, "comment": 1.0, "page_engagement": 97.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 16.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "post": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 13.0, "video_view": 34.0}}, {"date": "2026-03-29", "name": "MACA_MSGS_PLATON_V2", "spend": 45.97, "impressions": 1754, "clicks": 73, "actions": {"link_click": 27.0, "post_reaction": 8.0, "post_engagement": 53.0, "post_interaction_gross": 8.0, "page_engagement": 53.0, "onsite_conversion.messaging_welcome_message_view": 2.0, "post_interaction_net": 8.0, "onsite_conversion.post_net_like": 8.0, "video_view": 18.0}}, {"date": "2026-03-30", "name": "MACA_MSGS_PLATON", "spend": 92.46, "impressions": 1800, "clicks": 69, "actions": {"link_click": 35.0, "post_reaction": 6.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 303.0, "post_interaction_gross": 6.0, "page_engagement": 303.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 3.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 262.0}}, {"date": "2026-03-30", "name": "MACA_MSGS_PLATON_V2", "spend": 69.78, "impressions": 3356, "clicks": 120, "actions": {"link_click": 45.0, "post_reaction": 8.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 6.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 68.0, "like": 3.0, "post_interaction_gross": 11.0, "comment": 2.0, "page_engagement": 71.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 12.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 6.0, "video_view": 12.0}}, {"date": "2026-03-31", "name": "MACA_MSGS_PLATON", "spend": 61.37, "impressions": 1178, "clicks": 47, "actions": {"link_click": 28.0, "post_reaction": 1.0, "onsite_conversion.messaging_conversation_replied_7d": 5.0, "onsite_conversion.total_messaging_connection": 8.0, "post_engagement": 183.0, "post_interaction_gross": 1.0, "page_engagement": 183.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 6.0, "onsite_conversion.post_net_like": 1.0, "onsite_conversion.messaging_conversation_started_7d": 7.0, "video_view": 154.0}}, {"date": "2026-03-31", "name": "MACA_MSGS_PLATON_V2", "spend": 110.48, "impressions": 3477, "clicks": 95, "actions": {"link_click": 38.0, "post_reaction": 7.0, "onsite_conversion.messaging_conversation_replied_7d": 6.0, "onsite_conversion.total_messaging_connection": 3.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 50.0, "like": 3.0, "post_interaction_gross": 10.0, "comment": 1.0, "page_engagement": 53.0, "onsite_conversion.messaging_welcome_message_view": 15.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 2.0}}, {"date": "2026-04-01", "name": "MACA_MSGS_PLATON", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-04-01", "name": "MACA_MSGS_PLATON_V2", "spend": 64.95, "impressions": 1634, "clicks": 30, "actions": {"link_click": 9.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 17.0, "post_interaction_gross": 4.0, "page_engagement": 17.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 4.0, "video_view": 4.0}}, {"date": "2026-04-02", "name": "MACA_MSGS_PLATON", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 2.0}}, {"date": "2026-04-02", "name": "MACA_MSGS_PLATON_V2", "spend": 64.05, "impressions": 1472, "clicks": 46, "actions": {"link_click": 17.0, "post_reaction": 2.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 30.0, "like": 1.0, "post_interaction_gross": 4.0, "comment": 1.0, "page_engagement": 31.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 3.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 9.0}}, {"date": "2026-04-03", "name": "MACA_MSGS_PLATON_V2", "spend": 76.07, "impressions": 2829, "clicks": 76, "actions": {"link_click": 19.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 56.0, "post_interaction_gross": 4.0, "page_engagement": 56.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 33.0}}, {"date": "2026-04-04", "name": "MACA_MSGS_PLATON_V2", "spend": 71.16, "impressions": 2173, "clicks": 57, "actions": {"link_click": 16.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 28.0, "like": 2.0, "post_interaction_gross": 6.0, "page_engagement": 30.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 6.0}}, {"date": "2026-04-05", "name": "MACA_MSGS_PLATON", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-04-05", "name": "MACA_MSGS_PLATON_V2", "spend": 79.86, "impressions": 2083, "clicks": 47, "actions": {"link_click": 14.0, "post_reaction": 2.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 35.0, "like": 1.0, "post_interaction_gross": 3.0, "comment": 1.0, "page_engagement": 36.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 3.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 18.0}}, {"date": "2026-04-06", "name": "MACA_MSGS_PLATON", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-04-06", "name": "MACA_MSGS_PLATON_V2", "spend": 57.54, "impressions": 1942, "clicks": 70, "actions": {"link_click": 19.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 42.0, "like": 3.0, "post_interaction_gross": 5.0, "page_engagement": 45.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 18.0}}, {"date": "2026-04-07", "name": "MACA_MSGS_PLATON", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-04-07", "name": "MACA_MSGS_PLATON_V2", "spend": 64.24, "impressions": 1596, "clicks": 54, "actions": {"link_click": 13.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 32.0, "like": 2.0, "post_interaction_gross": 7.0, "comment": 1.0, "page_engagement": 34.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 12.0}}, {"date": "2026-04-08", "name": "MACA_MSGS_PLATON_V2", "spend": 78.94, "impressions": 2035, "clicks": 55, "actions": {"link_click": 15.0, "post_reaction": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 54.0, "post_interaction_gross": 1.0, "page_engagement": 54.0, "onsite_conversion.messaging_welcome_message_view": 12.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_first_reply": 3.0, "onsite_conversion.post_net_like": 1.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 38.0}}, {"date": "2026-04-09", "name": "MACA_MSGS_PLATON_V2", "spend": 78.53, "impressions": 2100, "clicks": 100, "actions": {"link_click": 33.0, "post_reaction": 3.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 42.0, "like": 1.0, "post_interaction_gross": 4.0, "comment": 1.0, "page_engagement": 43.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 5.0}}, {"date": "2026-04-10", "name": "MACA_MSGS_PLATON_V2", "spend": 46.9, "impressions": 1233, "clicks": 51, "actions": {"link_click": 20.0, "post_reaction": 2.0, "post_engagement": 38.0, "like": 2.0, "post_interaction_gross": 2.0, "page_engagement": 40.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 2.0, "onsite_conversion.post_net_like": 2.0, "video_view": 16.0}}, {"date": "2026-04-11", "name": "MACA_MSGS_PLATON_V2", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 4.0}}, {"date": "2026-04-12", "name": "MACA_MSGS_PLATON_V2", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-04-13", "name": "MACA_MSGS_PLATON_V2", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_welcome_message_view": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.messaging_conversation_started_7d": 1.0}}, {"date": "2026-05-05", "name": "MACA_Msjs_10_Mayo", "spend": 38.15, "impressions": 1140, "clicks": 85, "actions": {"link_click": 15.0, "post_reaction": 7.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 31.0, "post_interaction_gross": 10.0, "comment": 1.0, "page_engagement": 31.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "photo_view": 2.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 4.0}}, {"date": "2026-05-06", "name": "MACA_Msjs_10_Mayo", "spend": 75.33, "impressions": 1557, "clicks": 76, "actions": {"link_click": 14.0, "onsite_conversion.messaging_conversation_replied_7d": 5.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 23.0, "post_interaction_gross": 3.0, "comment": 3.0, "page_engagement": 23.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 3.0, "onsite_conversion.messaging_first_reply": 5.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_conversation_started_7d": 7.0, "video_view": 5.0}}, {"date": "2026-05-07", "name": "MACA_Msjs_10_Mayo", "spend": 59.71, "impressions": 970, "clicks": 35, "actions": {"link_click": 11.0, "post_reaction": 2.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 14.0, "post_interaction_gross": 3.0, "comment": 1.0, "page_engagement": 14.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 3.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 2.0}}, {"date": "2026-05-08", "name": "MACA_Msjs_10_Mayo", "spend": 52.75, "impressions": 1040, "clicks": 40, "actions": {"link_click": 12.0, "post_reaction": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 23.0, "post_interaction_gross": 2.0, "page_engagement": 23.0, "onsite_conversion.messaging_welcome_message_view": 4.0, "post_interaction_net": 2.0, "onsite_conversion.messaging_first_reply": 3.0, "post": 1.0, "photo_view": 2.0, "onsite_conversion.post_net_like": 1.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 7.0}}, {"date": "2026-05-09", "name": "MACA_Msjs_10_Mayo", "spend": 87.18, "impressions": 2169, "clicks": 101, "actions": {"link_click": 28.0, "post_reaction": 5.0, "onsite_conversion.messaging_conversation_replied_7d": 9.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 54.0, "like": 1.0, "post_interaction_gross": 6.0, "page_engagement": 55.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_user_depth_2_message_send": 7.0, "onsite_conversion.messaging_first_reply": 6.0, "post": 1.0, "photo_view": 5.0, "onsite_conversion.messaging_user_depth_3_message_send": 3.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 8.0, "video_view": 15.0}}, {"date": "2026-05-10", "name": "MACA_Msjs_10_Mayo", "spend": 93.23, "impressions": 2392, "clicks": 77, "actions": {"link_click": 22.0, "post_reaction": 7.0, "onsite_conversion.messaging_conversation_replied_7d": 4.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 8.0, "page_engagement": 48.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "photo_view": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 16.0}}, {"date": "2026-05-11", "name": "MACA_Msjs_10_Mayo", "spend": 18.42, "impressions": 467, "clicks": 8, "actions": {"link_click": 1.0, "post_reaction": 2.0, "post_engagement": 7.0, "post_interaction_gross": 2.0, "page_engagement": 7.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 2.0, "onsite_conversion.post_net_like": 2.0, "video_view": 4.0}}, {"date": "2026-05-16", "name": "MACA_Msjs_10_Mayo", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-06-03", "name": "Maca_Msgs_Junio", "spend": 20.92, "impressions": 959, "clicks": 66, "actions": {"link_click": 14.0, "post_reaction": 8.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 454.0, "post_interaction_gross": 8.0, "page_engagement": 454.0, "onsite_conversion.messaging_welcome_message_view": 1.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_like": 8.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 432.0}}, {"date": "2026-06-04", "name": "Maca_Msgs_Junio", "spend": 57.7, "impressions": 2203, "clicks": 115, "actions": {"link_click": 18.0, "post_reaction": 21.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 901.0, "like": 3.0, "post_interaction_gross": 26.0, "comment": 2.0, "page_engagement": 904.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 26.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 3.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.post_net_like": 21.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 857.0}}, {"date": "2026-06-05", "name": "Maca_Msgs_Junio", "spend": 61.68, "impressions": 2124, "clicks": 109, "actions": {"link_click": 29.0, "post_reaction": 19.0, "onsite_conversion.total_messaging_connection": 3.0, "post_engagement": 759.0, "post_interaction_gross": 25.0, "comment": 3.0, "page_engagement": 759.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 25.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 2.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 19.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 705.0}}, {"date": "2026-06-06", "name": "Maca_Msgs_Junio", "spend": 94.12, "impressions": 2611, "clicks": 95, "actions": {"link_click": 31.0, "post_reaction": 19.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 762.0, "like": 1.0, "post_interaction_gross": 26.0, "comment": 4.0, "page_engagement": 763.0, "onsite_conversion.messaging_welcome_message_view": 12.0, "post_interaction_net": 26.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.post_net_comment": 4.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 19.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 705.0}}, {"date": "2026-06-07", "name": "Maca_Msgs_Junio", "spend": 16.04, "impressions": 551, "clicks": 20, "actions": {"link_click": 4.0, "post_reaction": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 199.0, "like": 2.0, "post_interaction_gross": 1.0, "page_engagement": 201.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_like": 1.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 194.0}}, {"date": "2026-06-08", "name": "Maca_Msgs_Junio", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_block": 1.0, "onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-06-10", "name": "Maca_Msgs_Junio", "spend": 72.14, "impressions": 2203, "clicks": 109, "actions": {"link_click": 31.0, "post_reaction": 19.0, "onsite_conversion.total_messaging_connection": 5.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 582.0, "post_interaction_gross": 22.0, "page_engagement": 582.0, "onsite_conversion.messaging_welcome_message_view": 9.0, "post_interaction_net": 23.0, "onsite_conversion.messaging_first_reply": 5.0, "photo_view": 1.0, "onsite_conversion.post_save": 3.0, "onsite_conversion.post_net_save": 3.0, "onsite_conversion.post_net_like": 18.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 528.0}}, {"date": "2026-06-11", "name": "Maca_Msgs_Junio", "spend": 121.6, "impressions": 3559, "clicks": 164, "actions": {"link_click": 42.0, "post_reaction": 22.0, "onsite_conversion.messaging_conversation_replied_7d": 3.0, "onsite_conversion.total_messaging_connection": 4.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 360.0, "like": 1.0, "post_interaction_gross": 26.0, "comment": 2.0, "page_engagement": 361.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 28.0, "post_uncomment": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 2.0, "photo_view": 2.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.post_net_like": 21.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 290.0}}, {"date": "2026-06-12", "name": "Maca_Msgs_Junio", "spend": 121.48, "impressions": 2923, "clicks": 110, "actions": {"link_click": 23.0, "post_reaction": 17.0, "onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 469.0, "post_interaction_gross": 19.0, "comment": 1.0, "page_engagement": 469.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 20.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "photo_view": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 16.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 426.0}}, {"date": "2026-06-13", "name": "Maca_Msgs_Junio", "spend": 93.26, "impressions": 2045, "clicks": 69, "actions": {"link_click": 19.0, "post_reaction": 11.0, "onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 403.0, "post_interaction_gross": 12.0, "comment": 1.0, "page_engagement": 403.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_first_reply": 1.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 371.0}}, {"date": "2026-06-14", "name": "Maca_Msgs_Junio", "spend": 108.7, "impressions": 1801, "clicks": 73, "actions": {"link_click": 23.0, "post_reaction": 15.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 377.0, "post_interaction_gross": 17.0, "page_engagement": 377.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 2.0, "photo_view": 1.0, "onsite_conversion.post_net_like": 15.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 336.0}}, {"date": "2026-06-15", "name": "Maca_Msgs_Junio", "spend": 100.4, "impressions": 2178, "clicks": 78, "actions": {"link_click": 34.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 7.0, "post_engagement": 341.0, "like": 1.0, "post_interaction_gross": 6.0, "comment": 1.0, "page_engagement": 342.0, "onsite_conversion.messaging_welcome_message_view": 10.0, "post_interaction_net": 6.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 6.0, "post": 1.0, "photo_view": 3.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_conversation_started_7d": 7.0, "video_view": 298.0}}, {"date": "2026-06-16", "name": "Maca_Msgs_Junio", "spend": 121.36, "impressions": 2032, "clicks": 79, "actions": {"link_click": 25.0, "post_reaction": 11.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 454.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 454.0, "onsite_conversion.messaging_welcome_message_view": 6.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "post": 1.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 415.0}}, {"date": "2026-06-17", "name": "Maca_Msgs_Junio", "spend": 96.36, "impressions": 2209, "clicks": 88, "actions": {"link_click": 22.0, "post_reaction": 13.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 376.0, "like": 1.0, "post_interaction_gross": 18.0, "comment": 1.0, "page_engagement": 377.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 19.0, "post_uncomment": 1.0, "post": 1.0, "photo_view": 2.0, "onsite_conversion.post_save": 3.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.post_net_save": 3.0, "onsite_conversion.post_net_like": 13.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 334.0}}, {"date": "2026-06-18", "name": "Maca_Msgs_Junio", "spend": 92.92, "impressions": 2190, "clicks": 86, "actions": {"link_click": 26.0, "post_reaction": 9.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 321.0, "post_interaction_gross": 11.0, "comment": 2.0, "page_engagement": 321.0, "onsite_conversion.messaging_welcome_message_view": 8.0, "post_interaction_net": 11.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 2.0, "photo_view": 1.0, "onsite_conversion.post_net_comment": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 9.0, "onsite_conversion.messaging_conversation_started_7d": 3.0, "video_view": 283.0}}, {"date": "2026-06-19", "name": "Maca_Msgs_Junio", "spend": 78.5, "impressions": 3056, "clicks": 85, "actions": {"link_click": 25.0, "post_reaction": 13.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 649.0, "like": 4.0, "post_interaction_gross": 14.0, "comment": 1.0, "page_engagement": 653.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 14.0, "onsite_conversion.messaging_first_reply": 2.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 13.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 610.0}}, {"date": "2026-06-20", "name": "Maca_Msgs_Junio", "spend": 100.01, "impressions": 4888, "clicks": 104, "actions": {"link_click": 40.0, "post_reaction": 9.0, "onsite_conversion.total_messaging_connection": 5.0, "onsite_conversion.post_unlike": 2.0, "post_engagement": 700.0, "like": 1.0, "post_interaction_gross": 11.0, "comment": 1.0, "page_engagement": 701.0, "onsite_conversion.messaging_welcome_message_view": 16.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 649.0}}, {"date": "2026-06-21", "name": "Maca_Msgs_Junio", "spend": 116.51, "impressions": 6437, "clicks": 144, "actions": {"link_click": 63.0, "post_reaction": 8.0, "onsite_conversion.total_messaging_connection": 2.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 1148.0, "post_interaction_gross": 9.0, "comment": 1.0, "page_engagement": 1148.0, "onsite_conversion.messaging_welcome_message_view": 17.0, "post_interaction_net": 10.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 1076.0}}, {"date": "2026-06-22", "name": "Maca_Msgs_Junio", "spend": 82.39, "impressions": 4022, "clicks": 69, "actions": {"link_click": 24.0, "post_reaction": 11.0, "onsite_conversion.total_messaging_connection": 2.0, "post_engagement": 678.0, "like": 1.0, "post_interaction_gross": 13.0, "comment": 1.0, "page_engagement": 679.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 13.0, "onsite_conversion.messaging_first_reply": 2.0, "post": 1.0, "onsite_conversion.post_net_comment": 1.0, "onsite_conversion.post_net_like": 11.0, "onsite_conversion.messaging_conversation_started_7d": 2.0, "video_view": 641.0}}, {"date": "2026-06-23", "name": "Maca_Msgs_Junio", "spend": 18.64, "impressions": 1495, "clicks": 25, "actions": {"link_click": 9.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 236.0, "page_engagement": 236.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 1.0, "onsite_conversion.post_net_like": 0.0, "video_view": 227.0}}, {"date": "2026-06-24", "name": "Maca_Msgs_Junio", "spend": 115.61, "impressions": 7515, "clicks": 153, "actions": {"link_click": 67.0, "post_reaction": 8.0, "onsite_conversion.total_messaging_connection": 5.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 1110.0, "post_interaction_gross": 8.0, "page_engagement": 1110.0, "onsite_conversion.messaging_welcome_message_view": 14.0, "post_interaction_net": 9.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 5.0, "video_view": 1035.0}}, {"date": "2026-06-25", "name": "Maca_Msgs_Junio", "spend": 161.5, "impressions": 12261, "clicks": 253, "actions": {"link_click": 120.0, "post_reaction": 15.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 2146.0, "like": 2.0, "post_interaction_gross": 15.0, "page_engagement": 2148.0, "onsite_conversion.messaging_welcome_message_view": 15.0, "post_interaction_net": 15.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_like": 15.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 2011.0}}, {"date": "2026-06-26", "name": "Maca_Msgs_Junio", "spend": 90.73, "impressions": 7725, "clicks": 164, "actions": {"link_click": 82.0, "post_reaction": 10.0, "onsite_conversion.messaging_block": 1.0, "onsite_conversion.total_messaging_connection": 4.0, "post_engagement": 1508.0, "like": 1.0, "post_interaction_gross": 12.0, "page_engagement": 1509.0, "onsite_conversion.messaging_welcome_message_view": 20.0, "post_interaction_net": 12.0, "onsite_conversion.messaging_first_reply": 4.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 10.0, "onsite_conversion.messaging_conversation_started_7d": 4.0, "video_view": 1414.0}}, {"date": "2026-06-27", "name": "Maca_Msgs_Junio", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 8.0}}, {"date": "2026-06-28", "name": "Maca_Msgs_Junio", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 2.0}}, {"date": "2026-06-29", "name": "Maca_Msgs_Junio", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 2.0}}, {"date": "2026-07-01", "name": "Maca_Msgs_Junio", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-07-02", "name": "Maca_Msgs_Junio", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}, {"date": "2026-07-13", "name": "Maca_Msgs_Julio", "spend": 42.99, "impressions": 1545, "clicks": 49, "actions": {"link_click": 12.0, "post_reaction": 7.0, "onsite_conversion.total_messaging_connection": 1.0, "post_engagement": 180.0, "post_interaction_gross": 7.0, "page_engagement": 180.0, "onsite_conversion.messaging_welcome_message_view": 3.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.post_net_like": 7.0, "onsite_conversion.messaging_conversation_started_7d": 1.0, "video_view": 161.0}}, {"date": "2026-07-14", "name": "Maca_Msgs_Julio", "spend": 32.05, "impressions": 1103, "clicks": 23, "actions": {"link_click": 5.0, "post_engagement": 36.0, "page_engagement": 36.0, "onsite_conversion.messaging_welcome_message_view": 2.0, "video_view": 31.0}}], "fullRange": {"since": "2026-01-01", "until": "2026-07-14"}};
+// Posts (organico) con su fecha, para recalcular el resumen por rango.
+const POSTS = [];
+
+function renderLineChart(containerId, points, color) {
+  const container = document.getElementById(containerId);
+  if (!points || points.length < 2) {
+    container.innerHTML = '<p class="empty">No hay suficientes datos para graficar esta serie.</p>';
+    return;
+  }
+  const width = container.clientWidth || 600;
+  const height = 180;
+  const padL = 40, padR = 12, padT = 12, padB = 24;
+  const xs = points.map((_, i) => i);
+  const ys = points.map(p => p.value);
+  const minY = Math.min(0, ...ys);
+  const maxY = Math.max(...ys) * 1.1 || 1;
+
+  const xScale = i => padL + (i / (points.length - 1)) * (width - padL - padR);
+  const yScale = v => height - padB - ((v - minY) / (maxY - minY)) * (height - padT - padB);
+
+  const path = xs.map(i => `${i === 0 ? 'M' : 'L'} ${xScale(i)},${yScale(ys[i])}`).join(' ');
+
+  const gridlines = 4;
+  let gridSvg = '';
+  for (let g = 0; g <= gridlines; g++) {
+    const v = minY + (g / gridlines) * (maxY - minY);
+    const y = yScale(v);
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${width - padR}" y2="${y}" stroke="var(--gridline)" stroke-width="1"/>`;
+    gridSvg += `<text x="${padL - 6}" y="${y + 3}" font-size="10" fill="var(--text-muted)" text-anchor="end">${Math.round(v)}</text>`;
+  }
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
+      ${gridSvg}
+      <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="tooltip"></div>
+  `;
+
+  const svg = container.querySelector('svg');
+  const tooltip = container.querySelector('.tooltip');
+  const hitLayer = document.createElementNS(svgNS, 'rect');
+  hitLayer.setAttribute('x', padL); hitLayer.setAttribute('y', 0);
+  hitLayer.setAttribute('width', width - padL - padR); hitLayer.setAttribute('height', height);
+  hitLayer.setAttribute('fill', 'transparent');
+  svg.appendChild(hitLayer);
+
+  const crosshair = document.createElementNS(svgNS, 'line');
+  crosshair.setAttribute('y1', padT); crosshair.setAttribute('y2', height - padB);
+  crosshair.setAttribute('stroke', 'var(--baseline)'); crosshair.setAttribute('stroke-width', '1');
+  crosshair.style.display = 'none';
+  svg.appendChild(crosshair);
+
+  svg.addEventListener('mousemove', (e) => {
+    const rect = svg.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (width / rect.width);
+    let idx = Math.round(((px - padL) / (width - padL - padR)) * (points.length - 1));
+    idx = Math.max(0, Math.min(points.length - 1, idx));
+    const cx = xScale(idx);
+    crosshair.setAttribute('x1', cx); crosshair.setAttribute('x2', cx);
+    crosshair.style.display = 'block';
+    tooltip.style.opacity = 1;
+    tooltip.style.left = `${(cx / width) * 100}%`;
+    tooltip.style.top = `${(yScale(ys[idx]) / height) * 100}%`;
+    tooltip.textContent = `${points[idx].label}: ${points[idx].value.toLocaleString()}`;
+  });
+  svg.addEventListener('mouseleave', () => {
+    crosshair.style.display = 'none';
+    tooltip.style.opacity = 0;
+  });
+}
+
+const MONTH_ES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+const allLabels = Object.values(chartData).flatMap(({ points }) => points.map(p => p.label)).sort();
+const minDate = allLabels[0];
+const maxDate = allLabels[allLabels.length - 1];
+
+// Estado del rango COMPARTIDO entre pestañas: los calendarios de Insights y de
+// Pauta controlan y reflejan el mismo [selStart, selEnd].
+let selStart = minDate;
+let selEnd = maxDate;
+
+// --- Formateo, identico al de report.py (miles con punto, decimales con coma) ---
+// No se usa toLocaleString('es-ES') porque no agrupa los numeros de 4 cifras
+// (daria "7307" donde Python escribe "7.307") y quedarian estilos mezclados.
+function groupThousands(intStr) {
+  return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function fmtNum(n) {
+  if (n === null || n === undefined) return '-';
+  return groupThousands(String(Math.round(n)));
+}
+function fmtDec(n) {
+  const [int, dec] = Math.abs(n).toFixed(2).split('.');
+  return `${n < 0 ? '-' : ''}${groupThousands(int)},${dec}`;
+}
+function fmtMoney(n) {
+  if (n === null || n === undefined) return '-';
+  return `$${fmtDec(n)} ${ADS.currency}`.trim();
+}
+function fmtPct(n) {
+  if (n === null || n === undefined) return '-';
+  return fmtDec(n) + '%';
+}
+function kpiTile(valueHtml, label, muted) {
+  return `<div class="kpi"><div class="value${muted ? ' na' : ''}">${valueHtml}</div>` +
+         `<div class="label">${label}</div></div>`;
+}
+
+// Suma las metricas ADITIVAS de las filas diarias que caen en el rango y deriva
+// CTR/CPC/CPM/costo por resultado. Reproduce exactamente lo que reporta Meta
+// para ese rango (verificado contra sus totales del periodo completo).
+function aggregate(rows, since, until) {
+  const inRange = rows.filter(r => r.date >= since && r.date <= until);
+  const spend = inRange.reduce((a, r) => a + r.spend, 0);
+  const impressions = inRange.reduce((a, r) => a + r.impressions, 0);
+  const clicks = inRange.reduce((a, r) => a + r.clicks, 0);
+  const results = ADS.resultActionType
+    ? inRange.reduce((a, r) => a + (r.actions[ADS.resultActionType] || 0), 0)
+    : 0;
+  return {
+    spend, impressions, clicks, results,
+    ctr: impressions ? (clicks / impressions) * 100 : null,
+    cpc: clicks ? spend / clicks : null,
+    cpm: impressions ? (spend / impressions) * 1000 : null,
+    costPerResult: results ? spend / results : null,
+  };
+}
+
+// El alcance es una metrica DEDUPLICADA (personas unicas): sumar el alcance de
+// cada dia contaria varias veces a la misma persona. Solo Meta puede calcularlo,
+// y solo para el rango que se le pidio. Por eso el valor exacto existe unicamente
+// para el periodo completo; en un subrango se muestra "n/d" en vez de inventarlo.
+//
+// "Periodo completo" = los limites del calendario (lo que deja el boton "Ver
+// todo"), no las fechas con las que se llamo a la API: minDate/maxDate cubren
+// todos los dias con datos, asi que el agregado sobre ese span es identico a los
+// totales que devolvio Meta.
+function isFullRange(since, until) {
+  return since === minDate && until === maxDate;
+}
+
+function renderAdsKpis(since, until) {
+  const row = document.getElementById('ads-kpi-row');
+  if (!row || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // En el rango completo se usan los totales EXACTOS de Meta (mismo numero que
+  // ve en el Administrador de anuncios); en un subrango se recalcula del diario.
+  const a = full ? ADS.totals : aggregate(ADS.daily, since, until);
+
+  const tiles = [];
+  if (a.results) {
+    tiles.push(kpiTile(fmtNum(a.results), ADS.resultLabel || 'Resultados'));
+    tiles.push(kpiTile(fmtMoney(a.costPerResult), 'Costo por resultado'));
+  }
+  tiles.push(kpiTile(fmtMoney(a.spend), 'Importe gastado'));
+  tiles.push(full
+    ? kpiTile(fmtNum(ADS.totals.reach), 'Alcance')
+    : kpiTile('n/d', 'Alcance', true));
+  tiles.push(kpiTile(fmtNum(a.impressions), 'Impresiones'));
+  tiles.push(kpiTile(fmtNum(a.clicks), 'Clics'));
+  tiles.push(kpiTile(fmtPct(a.ctr), 'CTR'));
+  tiles.push(kpiTile(fmtMoney(a.cpc), 'CPC'));
+  tiles.push(kpiTile(fmtMoney(a.cpm), 'CPM'));
+  row.innerHTML = tiles.join('');
+
+  const note = document.getElementById('ads-range-note');
+  if (note) {
+    note.hidden = full;
+    note.textContent = full ? '' :
+      'El alcance no se puede calcular para un rango personalizado: es una metrica de personas ' +
+      'unicas y sumar el alcance de cada dia contaria varias veces a la misma persona. ' +
+      'Pulsa "Ver todo" para ver el alcance real del periodo completo. El resto de metricas ' +
+      'si corresponden al rango elegido.';
+  }
+}
+
+function renderAdsCampaigns(since, until) {
+  const body = document.getElementById('ads-campaigns-body');
+  if (!body || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // Agrupa las filas campaña/dia del rango y reconstruye una fila por campaña.
+  const byName = {};
+  ADS.campaignDaily
+    .filter(r => r.date >= since && r.date <= until)
+    .forEach(r => {
+      (byName[r.name] = byName[r.name] || []).push(r);
+    });
+
+  const rows = Object.keys(byName).map(name => {
+    const a = aggregate(byName[name], since, until);
+    // El alcance por campaña tiene el mismo problema de deduplicacion: solo se
+    // muestra el de Meta cuando esta seleccionado el periodo completo.
+    const reach = full ? (ADS.reachByCampaign[name] ?? null) : null;
+    return { name, ...a, reach };
+  }).filter(c => c.spend > 0 || c.impressions > 0)
+    .sort((a, b) => b.spend - a.spend);
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="9" class="empty">No hay campañas con datos en el rango.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(c => `
+        <tr>
+          <td class="post-caption" title="${c.name}">${c.name}</td>
+          <td class="num">${fmtMoney(c.spend)}</td>
+          <td class="num">${full ? fmtNum(c.reach) : 'n/d'}</td>
+          <td class="num">${fmtNum(c.impressions)}</td>
+          <td class="num">${fmtNum(c.clicks)}</td>
+          <td class="num">${fmtPct(c.ctr)}</td>
+          <td class="num">${fmtMoney(c.cpc)}</td>
+          <td class="num">${c.results ? fmtNum(c.results) : '-'}</td>
+          <td class="num">${c.costPerResult ? fmtMoney(c.costPerResult) : '-'}</td>
+        </tr>`).join('');
+}
+
+// Resumen organico: cuenta los posts del rango y suma su engagement/alcance.
+function renderOrganicSummary(since, until) {
+  const row = document.getElementById('organic-summary-row');
+  if (!row) return;
+
+  const inRange = POSTS.filter(p => p.date >= since && p.date <= until);
+  const hasIg = inRange.some(p => p.platform === 'Instagram');
+  const engagement = inRange.reduce((a, p) => a + (p.engagement || 0), 0);
+  const reach = inRange.reduce((a, p) => a + (p.reach || 0), 0);
+
+  const tiles = [kpiTile(fmtNum(inRange.length), 'Posts publicados en el periodo')];
+  if (hasIg) tiles.push(kpiTile(fmtNum(reach), 'Alcance total (Instagram)'));
+  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Engagement total (FB + IG)' : 'Engagement total (Facebook)'));
+  row.innerHTML = tiles.join('');
+}
+
+function applyDateFilter() {
+  const since = selStart;
+  const until = selEnd;
+  if (!since || !until || since > until) return;
+
+  Object.keys(chartData).forEach(id => {
+    const { points, color } = chartData[id];
+    const filtered = points.filter(p => p.label >= since && p.label <= until);
+    renderLineChart(id, filtered, color);
+  });
+
+  document.querySelectorAll('tr[data-date]').forEach(row => {
+    const rowDate = row.getAttribute('data-date');
+    row.style.display = (rowDate >= since && rowDate <= until) ? '' : 'none';
+  });
+
+  renderAdsKpis(since, until);
+  renderAdsCampaigns(since, until);
+  renderOrganicSummary(since, until);
+}
+
+function fmtShort(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d} ${MONTH_ES[parseInt(m, 10) - 1].slice(0, 3)} ${y}`;
+}
+
+// Fabrica de calendarios: cada pestaña instancia el suyo con sus propios IDs,
+// pero todos comparten selStart/selEnd y sincronizan sus etiquetas al cambiar.
+const datePickers = [];
+
+function syncLabels() {
+  datePickers.forEach(p => p && p.updateTriggerLabel());
+}
+
+function createDatePicker(ids) {
+  const trigger = document.getElementById(ids.trigger);
+  const popup = document.getElementById(ids.popup);
+  const calGrid = document.getElementById(ids.grid);
+  const calMonthLabel = document.getElementById(ids.monthLabel);
+  const calHint = document.getElementById(ids.hint);
+  const resetBtn = document.getElementById(ids.reset);
+  if (!trigger) return null;
+
+  let pendingStart = null;
+  let viewDate = maxDate ? new Date(maxDate + 'T00:00:00') : new Date();
+
+  function updateTriggerLabel() {
+    trigger.textContent = (selStart && selEnd) ? `${fmtShort(selStart)} - ${fmtShort(selEnd)}` : 'Elegir rango';
+  }
+
+  function renderCalendar() {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    calMonthLabel.textContent = `${MONTH_ES[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // semana arranca en lunes
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const rangeStart = pendingStart || selStart;
+    const rangeEnd = pendingStart ? null : selEnd;
+
+    calGrid.innerHTML = '';
+    for (let i = 0; i < startOffset; i++) {
+      calGrid.appendChild(document.createElement('span'));
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = day;
+      const disabled = (minDate && iso < minDate) || (maxDate && iso > maxDate);
+      btn.disabled = disabled;
+      if (!disabled) {
+        if (iso === rangeStart || iso === rangeEnd) btn.classList.add('range-endpoint');
+        else if (rangeEnd && iso > rangeStart && iso < rangeEnd) btn.classList.add('in-range');
+        // stopPropagation: onDayClick reconstruye la grilla (renderCalendar),
+        // lo que desprende este boton del DOM antes de que el listener de
+        // "clic afuera" (a nivel document) evalue popup.contains(e.target) --
+        // sin esto, el chequeo da falso y cierra el popup por error.
+        btn.addEventListener('click', (e) => { e.stopPropagation(); onDayClick(iso); });
+      }
+      calGrid.appendChild(btn);
+    }
+  }
+
+  function onDayClick(iso) {
+    if (!pendingStart) {
+      pendingStart = iso;
+      calHint.textContent = 'Elegi la fecha final';
+      renderCalendar();
+      return;
+    }
+    selStart = iso < pendingStart ? iso : pendingStart;
+    selEnd = iso < pendingStart ? pendingStart : iso;
+    pendingStart = null;
+    calHint.textContent = '';
+    syncLabels();
+    applyDateFilter();
+    popup.hidden = true;
+  }
+
+  document.getElementById(ids.prev).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  document.getElementById(ids.next).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+    renderCalendar();
+  });
+
+  trigger.addEventListener('click', () => {
+    popup.hidden = !popup.hidden;
+    if (!popup.hidden) {
+      pendingStart = null;
+      calHint.textContent = '';
+      viewDate = selEnd ? new Date(selEnd + 'T00:00:00') : new Date();
+      renderCalendar();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!popup.hidden && !popup.contains(e.target) && e.target !== trigger) {
+      popup.hidden = true;
+    }
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      selStart = minDate;
+      selEnd = maxDate;
+      syncLabels();
+      applyDateFilter();
+    });
+  }
+
+  return { updateTriggerLabel };
+}
+
+datePickers.push(createDatePicker({
+  trigger: 'filter-trigger', popup: 'calendar-popup', grid: 'cal-grid',
+  monthLabel: 'cal-month-label', hint: 'cal-hint',
+  prev: 'cal-prev', next: 'cal-next', reset: 'filter-reset',
+}));
+datePickers.push(createDatePicker({
+  trigger: 'p-filter-trigger', popup: 'p-calendar-popup', grid: 'p-cal-grid',
+  monthLabel: 'p-cal-month-label', hint: 'p-cal-hint',
+  prev: 'p-cal-prev', next: 'p-cal-next', reset: 'p-filter-reset',
+}));
+
+syncLabels();
+applyDateFilter();
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Marcas solo-pauta: Insights y Recomendaciones estan ocultas por CSS, asi que
+// se abre directamente en Pauta (si no, el dashboard arrancaria en blanco).
+if (document.querySelector('.app-shell').classList.contains('pauta-only')) {
+  document.querySelector('.nav-btn[data-tab="pautas"]').click();
+}
+</script>
+</body>
+</html>

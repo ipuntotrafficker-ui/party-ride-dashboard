@@ -84,6 +84,12 @@
     white-space: nowrap; transition: opacity 0.1s;
   }
   .empty { color: var(--text-muted); font-size: 13px; }
+  /* Marcas solo-pauta (el token no administra su Pagina): no hay nada organico
+     que enseñar, asi que se ocultan esas dos pestañas en vez de dejarlas vacias. */
+  .app-shell.pauta-only .nav-btn[data-tab="dashboard"],
+  .app-shell.pauta-only .nav-btn[data-tab="recomendaciones"],
+  .app-shell.pauta-only #tab-dashboard,
+  .app-shell.pauta-only #tab-recomendaciones { display: none; }
   .range-note {
     color: var(--text-muted); font-size: 12px; line-height: 1.5;
     margin: -6px 0 18px; padding: 0 4px;
@@ -139,13 +145,13 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell ">
     <nav class="sidebar">
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
       <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
-      <p class="subtitle">Generado el 2026-07-14 19:35 UTC</p>
+      <p class="subtitle">Generado el 2026-07-14 20:16 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -188,7 +194,7 @@
       </thead>
       <tbody>
         <tr data-date="2026-07-03">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/738199176_122093864451393999_8988385559529617634_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=wrl9sLOIur4Q7kNvwHejv8e&_nc_oc=AdrKV0oSMub0qPxnrvrjVWHoZM72tbQbWa92y_Ur9E1MO1fJGmMRDPCPsVBwOxr5Prk&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4d3bwPsBsPiEk3JHcOrTvw&_nc_tpa=Q5bMBQF7hCJpyrmM0pWIdQrm8V4_2Sye11txZ7DNLNa0gbWvz7SpMvGX_s7QC2J13R--xCgkjkMucyY1Nw&oh=00_AQBaWYssAPiSLtCKvLhxCDBhvhYBLJziJI1vg-277G667A&oe=6A5C5922" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/738199176_122093864451393999_8988385559529617634_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=wrl9sLOIur4Q7kNvwHejv8e&_nc_oc=AdrKV0oSMub0qPxnrvrjVWHoZM72tbQbWa92y_Ur9E1MO1fJGmMRDPCPsVBwOxr5Prk&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=ZKA36LNhf5FbmUBwUybOvw&_nc_tpa=Q5bMBQGLjcuCORHHPIfd5IXGSDAvaYa7MPhaEsuocnXbnSDRYtv7yTPPSqb9J3QwH4KMtOykPWd1mB-Tyg&oh=00_AQA04gmbMNNhIrVu5PdhHPVZZWHF0nHWLDfNu1xX4Z5bLg&oe=6A5C5922" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="(sin texto)">(sin texto)</td>
           <td>2026-07-03</td>
@@ -197,7 +203,7 @@
           <td><a class="permalink" href="https://www.facebook.com/122101201677393999/posts/1197801519153533?substory_index=1197801519153533" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-03">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/733630072_122093864001393999_1003370611789752147_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=LFsMsvo4N_IQ7kNvwF7zxgs&_nc_oc=AdoigUb759rqouKFUC7EjkWvKKScB9gXtCyEDkTf-zQGdpFCawRXbsJq2MNdw7VHSlI&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4d3bwPsBsPiEk3JHcOrTvw&_nc_tpa=Q5bMBQHpAV9BH2gEPlu5ItEe7EjxCpA7swJz3MMJ6YzJLpcfiE9NG1uwjNVwaxhuoibc8jSYj0EjYtruEQ&oh=00_AQBQZwkEpE9FLQ0EzWJj0eH83EpxmcImL3Dwkv1GoQmyjw&oe=6A5C460B" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/733630072_122093864001393999_1003370611789752147_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=LFsMsvo4N_IQ7kNvwF7zxgs&_nc_oc=AdoigUb759rqouKFUC7EjkWvKKScB9gXtCyEDkTf-zQGdpFCawRXbsJq2MNdw7VHSlI&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=ZKA36LNhf5FbmUBwUybOvw&_nc_tpa=Q5bMBQFCwng8yxKpbb3xtIl__TttLW4sXqXAdVKQUEMuNLPenNUwKCYBXwTYxQnfAuyrULqvfM1xRUy77A&oh=00_AQCW6UKyak06n3kSkBfM6Z-nVm3435vaglEMSE1GA2MQRA&oe=6A5C7E4B" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="(sin texto)">(sin texto)</td>
           <td>2026-07-03</td>
@@ -873,6 +879,12 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
   });
 });
+
+// Marcas solo-pauta: Insights y Recomendaciones estan ocultas por CSS, asi que
+// se abre directamente en Pauta (si no, el dashboard arrancaria en blanco).
+if (document.querySelector('.app-shell').classList.contains('pauta-only')) {
+  document.querySelector('.nav-btn[data-tab="pautas"]').click();
+}
 </script>
 </body>
 </html>

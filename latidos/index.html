@@ -84,6 +84,12 @@
     white-space: nowrap; transition: opacity 0.1s;
   }
   .empty { color: var(--text-muted); font-size: 13px; }
+  /* Marcas solo-pauta (el token no administra su Pagina): no hay nada organico
+     que enseñar, asi que se ocultan esas dos pestañas en vez de dejarlas vacias. */
+  .app-shell.pauta-only .nav-btn[data-tab="dashboard"],
+  .app-shell.pauta-only .nav-btn[data-tab="recomendaciones"],
+  .app-shell.pauta-only #tab-dashboard,
+  .app-shell.pauta-only #tab-recomendaciones { display: none; }
   .range-note {
     color: var(--text-muted); font-size: 12px; line-height: 1.5;
     margin: -6px 0 18px; padding: 0 4px;
@@ -139,13 +145,13 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell ">
     <nav class="sidebar">
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
       <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
-      <p class="subtitle">Generado el 2026-07-14 19:34 UTC</p>
+      <p class="subtitle">Generado el 2026-07-14 20:15 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -192,7 +198,7 @@
       </thead>
       <tbody>
         <tr data-date="2026-06-23">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/728951292_18056291150749572_5042626959844942216_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=iWbpdAKTjEgQ7kNvwHC__wv&_nc_oc=AdqqhJxMzarKmBI-5ixO6HNYTRkwoem8wyFILlENaDEKZNgc_0GzGt8wYysCL9K8enY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQAIs7SyptTjqUNopHkcv2EjlxJqKxQkpFsXSgkNoyeVEg&oe=6A5C4BAA" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/728951292_18056291150749572_5042626959844942216_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=iWbpdAKTjEgQ7kNvwHC__wv&_nc_oc=AdqqhJxMzarKmBI-5ixO6HNYTRkwoem8wyFILlENaDEKZNgc_0GzGt8wYysCL9K8enY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&oh=00_AQBawkviAyFz9fb7RL3ufnHYm-QfV1C0R_7tg4P0jVTBsg&oe=6A5C83EA" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="10 años impulsando la innovación. 10 años honrando la humanidad👏👏
 
@@ -205,7 +211,7 @@ En un mundo d</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DZ8laZhkePV/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-23">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.71878-15/730153136_3524792207697486_2579125949836432797_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=bslvecObVgUQ7kNvwG96vtM&_nc_oc=AdqyyN7XDuXs8csxwTQLhPUfxD9TdKcb9APhwDRx4_EejY3ssdBb9FlDALizFu7s3G0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQHc7eXeMARFwL2WT1Yr8AQVqE_sbEod66ooMkLVKbjnAvRicahPpK3TdBsZcqXPdEZ9GEgWFg3hvA&oh=00_AQDKQqozv1aovYPohbeeWiEEgpplcl4l-ABWpo66Tee_Sg&oe=6A5C5932" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.71878-15/730153136_3524792207697486_2579125949836432797_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=bslvecObVgUQ7kNvwG96vtM&_nc_oc=AdqyyN7XDuXs8csxwTQLhPUfxD9TdKcb9APhwDRx4_EejY3ssdBb9FlDALizFu7s3G0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&_nc_tpa=Q5bMBQFTXNd1PuXno9zhU3uyLeC9M-oGsCdQHmqtIXJ-ZiBPmUUMynyiK9gP5So_59CBC4TpRLWAOBS2Ww&oh=00_AQAno67K43oS1QhlTW207cau2XIVR8es8AZdfBs7AkgGFg&oe=6A5C5932" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a">Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a</td>
           <td>2026-06-23</td>
@@ -214,7 +220,7 @@ En un mundo d</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DZ6FcO1R2Ou/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-30">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/733194969_18057356702749572_2645280011018294915_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=GP39xGSB3mIQ7kNvwFeqKRb&_nc_oc=AdoKRFyzxB21d6AeTsAw4ys145soBa-mgSBML6L3sg_IFDGaiy21gyMkNYzoYdeqtTs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQHmFHvyZcX1T4H0OdLTJzQUjnymfjjG9xnbuFcPjemzEdMPW0VRplyuVbBdHAdOubzgdvIWFABsUw&oh=00_AQB1gohgUR7--1L6UAiS-4JxORJKzCUZcDN9GE3DHy2QHg&oe=6A5C7630" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/733194969_18057356702749572_2645280011018294915_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=GP39xGSB3mIQ7kNvwFeqKRb&_nc_oc=AdoKRFyzxB21d6AeTsAw4ys145soBa-mgSBML6L3sg_IFDGaiy21gyMkNYzoYdeqtTs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&_nc_tpa=Q5bMBQFwhT4nTkaWuCjoYmxEcQGr5bNMVDYmbJw0pRJCVyb0AZHWFVmE94uvfrxGdUgqwC4WwpnMnqjM5Q&oh=00_AQDEIwth4HT0j6bsvHsApAwPtK_8OoKj19dy87ZmbgBM6Q&oe=6A5C7630" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca">🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca</td>
           <td>2026-06-30</td>
@@ -222,8 +228,17 @@ En un mundo d</td>
           <td class="num">36</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DaOLUckvYus/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
+        <tr data-date="2026-07-14">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/746565489_18059455037749572_4171709730828667856_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=0KxfMNGhBuEQ7kNvwGxMIZH&_nc_oc=AdoStg_VsQLhQ8qumgXXlhTDXj398iuRNymAvdfAF3Ay_YTR2zIdVUSLJDM_zxmzT-c&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&oh=00_AQBhsouDc-FmBj4iqZdS6LWVRMiJ6gPHlby6V-w0GzVDiw&oe=6A5C6364" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera ">🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera </td>
+          <td>2026-07-14</td>
+          <td class="num">341</td>
+          <td class="num">13</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DayDjPQkcRz/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
         <tr data-date="2026-06-11">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/721209272_1050809964272493_1722476417358267909_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=QJuOjrCYhLQQ7kNvwHSaIgU&_nc_oc=AdpFTn69TyVPT-5ZwFQgWzwZFLxZSN5noN8vxUU3XCD_k1NQCyZMinmFPAmF0nDhWI0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQByZ4VvnTV-LhfabqNmpXAGz6XZiXfzv5ZoZW-6pn0iog&oe=6A5C560F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/721209272_1050809964272493_1722476417358267909_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=QJuOjrCYhLQQ7kNvwHSaIgU&_nc_oc=AdpFTn69TyVPT-5ZwFQgWzwZFLxZSN5noN8vxUU3XCD_k1NQCyZMinmFPAmF0nDhWI0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&oh=00_AQAfhHU6tGltZ30ptwVAECpD8lICL3WKIrvphuVflJV0PA&oe=6A5C560F" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="⚽ Hay goles que se celebran… y otros que se sienten en el corazón.
 
@@ -235,17 +250,8 @@ Hoy latimos </td>
           <td class="num">13</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DZdOEy0kqW5/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
-        <tr data-date="2026-07-14">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/746565489_18059455037749572_4171709730828667856_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=0KxfMNGhBuEQ7kNvwGxMIZH&_nc_oc=AdoStg_VsQLhQ8qumgXXlhTDXj398iuRNymAvdfAF3Ay_YTR2zIdVUSLJDM_zxmzT-c&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQDUwvvcPIlW-elZsPaHWgK7LtuZQ_tSGiL5C3hVCcsssg&oe=6A5C6364" loading="lazy" /></td>
-          <td><span class="dot ig"></span> Instagram</td>
-          <td class="post-caption" title="🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera ">🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera </td>
-          <td>2026-07-14</td>
-          <td class="num">255</td>
-          <td class="num">12</td>
-          <td><a class="permalink" href="https://www.instagram.com/p/DayDjPQkcRz/" target="_blank" rel="noopener">Ver</a></td>
-        </tr>
         <tr data-date="2026-07-08">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/740827873_1074802188539937_1873778641690845914_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=6Zwx1DHVzpUQ7kNvwF57igh&_nc_oc=Adq_g1bOiMTn6YjmP5BNOCCtu66JF1ZRDHCVZqhlDVV0I2ktcGfsaM_RZQb7BNassQM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQDyYzkZMiHdNZ2RmBu0mWGx-zep_eFzu1lLi6j10bUWuA&oe=6A5C4A04" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/740827873_1074802188539937_1873778641690845914_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=6Zwx1DHVzpUQ7kNvwF57igh&_nc_oc=Adq_g1bOiMTn6YjmP5BNOCCtu66JF1ZRDHCVZqhlDVV0I2ktcGfsaM_RZQb7BNassQM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&oh=00_AQCfkysBEHU55JE9aCIFCKYcyuN9xVzu8mRNV9icajBNOg&oe=6A5C8244" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="❤️ Presentamos la merch oficial de Latidos por México🧢
 
@@ -253,12 +259,12 @@ Hoy latimos </td>
 
 🤝Hay productos que hacen</td>
           <td>2026-07-08</td>
-          <td class="num">235</td>
+          <td class="num">236</td>
           <td class="num">24</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DaipBnIkhrN/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-03">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/715177952_18053518673749572_490308339349410136_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=uW9UUWEKGpcQ7kNvwGfOF19&_nc_oc=AdqhcuWx6YTpKt3GfXkS73hAUDyYF0ddhMvxNdLXggKfJTUdoAnlypAwxTqxE1sK7JE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQGMU-vXnitawiyPP5-Vk2Afht3Eew3BzyDbzwD24HCYBtOzh5Kpdbn1cehA7XtVy-NBSQPl03pK5g&oh=00_AQCZj9zigeJZqvHPyce5oZSbunM3MA7csG7SfSCLZFAqSw&oe=6A5C4E96" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/715177952_18053518673749572_490308339349410136_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=uW9UUWEKGpcQ7kNvwGfOF19&_nc_oc=AdqhcuWx6YTpKt3GfXkS73hAUDyYF0ddhMvxNdLXggKfJTUdoAnlypAwxTqxE1sK7JE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&_nc_tpa=Q5bMBQHowx2hFpTLvoYZhw_OW0bu4kCyDCCPDQUHJPlHPiraK9hDYLCflAJJ5iMJjKRUv63nT3KL3HlvlQ&oh=00_AQC8bgZpknM71Ra6MKgq4cmweHUYv2ytJAda06-2Ye3_WQ&oe=6A5C86D6" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Cada corazón pintado se convirtió en esperanza. ❤️
 
@@ -271,7 +277,7 @@ Gracias a las alumnas de 5º </td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DZJIBVsiG8U/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-10">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742295107_1076708701682619_6811970717562487601_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=unpfgzrUGkcQ7kNvwEzTW3s&_nc_oc=AdqCmb2Pj5LELv5bUn7ZsrjOmQn010vfkW-GYA-EkK2jBIiqYWwnZZggwiYFGcZVxDs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQAX5W5XqIpb1yMrSTWq5X8YxYv55octLXmqG1mXFmF0vA&oe=6A5C6EB9" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742295107_1076708701682619_6811970717562487601_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=unpfgzrUGkcQ7kNvwEzTW3s&_nc_oc=AdqCmb2Pj5LELv5bUn7ZsrjOmQn010vfkW-GYA-EkK2jBIiqYWwnZZggwiYFGcZVxDs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&oh=00_AQAW7jVajSowI3tF_XzhSwKtWvsljflu4WRLYvG6uliwdQ&oe=6A5C6EB9" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="❤️ Cada meta representa una oportunidad para cambiar una vida.
 
@@ -284,7 +290,7 @@ En Latidos por M</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DaoaNCYkpyo/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-15">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/723144609_18055016309749572_4446868280691339442_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=g6UovqGXyKIQ7kNvwHf5asp&_nc_oc=Adpgt-j-5gSsItvv32F_IUPZ0xl7bl-4c5di1DXUt43RjMGeXcFy73_jv7lvHfHicaU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQGSaeL_K_I0REImNCyl9Aqfya-PgKIqT7VOKGzgPOGgesa664T3IxGzlhDQ0E3c5v6MurhDCj2Zeg&oh=00_AQDTb4g0CCdjHyQwKW5W8IFTBBIDXjzHmiEejsM69cKpGg&oe=6A5C563B" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/723144609_18055016309749572_4446868280691339442_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=g6UovqGXyKIQ7kNvwHf5asp&_nc_oc=Adpgt-j-5gSsItvv32F_IUPZ0xl7bl-4c5di1DXUt43RjMGeXcFy73_jv7lvHfHicaU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&_nc_tpa=Q5bMBQF5iI2va2KYmOPFYzGGeJI1aSa_mAKgVK_GRycO3kwzzEDlEpoT131iDSHEtZmYmON5BoRfpaUnFA&oh=00_AQCX2lH4PRhT7FGTDlKBkxbSSx4mgfvGRv_qFndZ2k52hA&oe=6A5C563B" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="🩸❤️ Hoy celebramos a quienes laten por los demás.
 
@@ -297,7 +303,7 @@ En el Día Mundial del Donante</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DZllFdTjnBo/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-30">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/708228398_18052904417749572_4770089137648866135_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=fpjCpN4w2_UQ7kNvwGeapvV&_nc_oc=AdoOskYeQwZaUdWc7XfZlYYvL16D4uEjdJBhxDeoEsxvuaDG-mqSMyGpCdKyweyKkkw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQH7jjdJKHi_Y1jPBnBanZU6pKcm6T0Xsgi43oEb8xkxBrqHFGqpc5J1Bid0GqdeMaeMD0_R2ejTnQ&oh=00_AQDFgYDqfyuZGLdo8ZaXjwz1-6JRcdBI7BwbIhonnRzTpg&oe=6A5C62CD" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/708228398_18052904417749572_4770089137648866135_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=fpjCpN4w2_UQ7kNvwGeapvV&_nc_oc=AdoOskYeQwZaUdWc7XfZlYYvL16D4uEjdJBhxDeoEsxvuaDG-mqSMyGpCdKyweyKkkw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oAWis2RuN3pyj6jvDiYxOw&_nc_tpa=Q5bMBQEzAnHReNZGwAgteu_A44MtwbvEesXObi3OYL0PONrYO6pF12roQkG46f_6C_QeqGgHPxiz9vLk1Q&oh=00_AQBMIFjckiJikgqjk1WTPVsE2ziZ1V2Os2c45Pgje5AEVQ&oe=6A5C62CD" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Una silueta vacía se llena de vida cuando nos unimos por una causa. En Latidos p">Una silueta vacía se llena de vida cuando nos unimos por una causa. En Latidos p</td>
           <td>2026-05-30</td>
@@ -306,16 +312,16 @@ En el Día Mundial del Donante</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DY95LCLgcBu/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-14">
-          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/747613242_18059454932749572_2555697070521889971_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Kt0qjQUab0MQ7kNvwFCnwN4&_nc_oc=Adol1zEkg7YtL3s8A29yikY-R6YwlfVo4wsD6oZjQb1HS8GAmu04jG_P5YaU6UEcm_o&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQHEBUnKdi1muuAt98De-UcW_94meFUpOBfckGDlGk-Cgc41PCa56inPtFmmZSIwG4klTOvyhKhlIA&oh=00_AQAG4iOIo-rOT9CHfTtf8aRU028xY883pm2uxNJtir7fHg&oe=6A5C59B5" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/747613242_18059454932749572_2555697070521889971_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Kt0qjQUab0MQ7kNvwFCnwN4&_nc_oc=Adol1zEkg7YtL3s8A29yikY-R6YwlfVo4wsD6oZjQb1HS8GAmu04jG_P5YaU6UEcm_o&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQFEird_Ug7ZrNxRSrwCWwnMLI_HRESibGRJIq40fATga3c9FhM-FR8GpYQvXw9LZnZZvrb7FPuooQ&oh=00_AQDLYb17FUvk7jE-Aw_2JQjrAJB3w4l-hRw9755o_Pdtgw&oe=6A5C59B5" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera ">🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera </td>
           <td>2026-07-14</td>
           <td class="num">-</td>
-          <td class="num">35</td>
+          <td class="num">39</td>
           <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1079832714703551" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-10">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/742295107_1076708701682619_6811970717562487601_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=unpfgzrUGkcQ7kNvwEzTW3s&_nc_oc=AdqCmb2Pj5LELv5bUn7ZsrjOmQn010vfkW-GYA-EkK2jBIiqYWwnZZggwiYFGcZVxDs&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFfIgDy2k4rewNmFqnPXbS3YZaPObFy-9lstsdWpkW27Od6lMwf01D9UfPHjUWUHnU0eq446s3UQw&oh=00_AQCjEtawPXyZUes836zZMiOxT8wUJvlR4VwEbKG9hD9aIw&oe=6A5C6EB9" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/742295107_1076708701682619_6811970717562487601_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=unpfgzrUGkcQ7kNvwEzTW3s&_nc_oc=AdqCmb2Pj5LELv5bUn7ZsrjOmQn010vfkW-GYA-EkK2jBIiqYWwnZZggwiYFGcZVxDs&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQFj-uiZQo9J9nvMzowhLYhMkpILwjqZfsfR_ugEjqjbjVBx2nnawZj7elndMxrlGv-MJ3a425LZew&oh=00_AQChpSjQZULa06PRx0xmiMZENWCUNAZ7c8LHzJgixHX1uw&oe=6A5C6EB9" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="❤️ Cada meta representa una oportunidad para cambiar una vida.
 
@@ -328,7 +334,7 @@ En Latidos por M</td>
           <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1076709051682584" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-08">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/740827873_1074802188539937_1873778641690845914_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=6Zwx1DHVzpUQ7kNvwF57igh&_nc_oc=Adq_g1bOiMTn6YjmP5BNOCCtu66JF1ZRDHCVZqhlDVV0I2ktcGfsaM_RZQb7BNassQM&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQGclu6Jwg1_M9bW-7vWInBtour1tBw8Fki4juviPUnZXtaRb2WSJUodErsgYL-0Up41lDB07fMCmg&oh=00_AQBdNhWwj8_doFXFbgxyt11Y555QE1u-45_A3IKZjInEBA&oe=6A5C4A04" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/740827873_1074802188539937_1873778641690845914_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=6Zwx1DHVzpUQ7kNvwF57igh&_nc_oc=Adq_g1bOiMTn6YjmP5BNOCCtu66JF1ZRDHCVZqhlDVV0I2ktcGfsaM_RZQb7BNassQM&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQGOaQYIgp9hx0M5260CdD1Xh5IEfGig_D-aB2ehHmLDrJr6lmgc_9m9PIKRBNucaWPG83UQbdq9TA&oh=00_AQDomsL6eiXOKcs5jINSeYn9KFNmWLOWOfo9oxyKZLC05w&oe=6A5C8244" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="❤️ Presentamos la merch oficial de Latidos por México🧢
 
@@ -341,7 +347,7 @@ En Latidos por M</td>
           <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1074803611873128" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-30">
-          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/733194969_18057356702749572_2645280011018294915_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=GP39xGSB3mIQ7kNvwFeqKRb&_nc_oc=AdoKRFyzxB21d6AeTsAw4ys145soBa-mgSBML6L3sg_IFDGaiy21gyMkNYzoYdeqtTs&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFhyu8dAyrjGO1TNjDgs80oSU9hdr-QSBSPpFDwErfki2LK38UsUHaA4JoCHjnDSigOr3rDi6xE7A&oh=00_AQBtQ5UHFPERDgPpfWt6P86Eb-cVt_sMNsaj78x7Micz_A&oe=6A5C72C0" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/733194969_18057356702749572_2645280011018294915_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=GP39xGSB3mIQ7kNvwFeqKRb&_nc_oc=AdoKRFyzxB21d6AeTsAw4ys145soBa-mgSBML6L3sg_IFDGaiy21gyMkNYzoYdeqtTs&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQFlHbFuy5A29CAaC9ocI0Pu7z-g-i_-RfMwrccYFqiBCbwyBMkPCWn4sU9BCtFvI4_IAgU1s5LpRw&oh=00_AQBD-PwZ9FHw-zWQL6Ag68bvDHgi8YZQySz9-opgE7DZ4g&oe=6A5C72C0" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca">🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca</td>
           <td>2026-06-30</td>
@@ -350,7 +356,7 @@ En Latidos por M</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1740240037158859/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-23">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/728951292_18056291150749572_5042626959844942216_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=iWbpdAKTjEgQ7kNvwHC__wv&_nc_oc=AdqqhJxMzarKmBI-5ixO6HNYTRkwoem8wyFILlENaDEKZNgc_0GzGt8wYysCL9K8enY&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQHhTLA5zxrsKQMSizLlGLUs8AMhoG7FER4kPeLOvXc92vhWjFDUMHhX0h40I8aU5Ub98drvfVp7rA&oh=00_AQAzZBQ1OGflAYdthiwLYt9f28k0Zf1dPO0j9TVqRX4LuA&oe=6A5C4BAA" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/728951292_18056291150749572_5042626959844942216_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=iWbpdAKTjEgQ7kNvwHC__wv&_nc_oc=AdqqhJxMzarKmBI-5ixO6HNYTRkwoem8wyFILlENaDEKZNgc_0GzGt8wYysCL9K8enY&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQFr-0jjaVtaHo29F2gd6Gwq4n8JvifQiDS5MlSUrQybDwsh2R6Vmnt_V-XJ3XabspzKY3hYu0_R0g&oh=00_AQCY74oB2QbdklhRbaFW7EL0jVeSqH0qGWeCS00om8lnqA&oe=6A5C83EA" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="10 años impulsando la innovación. 10 años honrando la humanidad👏👏
 
@@ -363,7 +369,7 @@ En un mundo d</td>
           <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1061358179884338" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-23">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.71878-10/728144918_2079029639346434_298073320608008587_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=ztf9QUf2UQ0Q7kNvwHI__Lc&_nc_oc=AdqDz2xXJEWaUsrJyhA67CTDBncp4BH21PAaUQJLFfBhJzKaW4ajWv_DUre6bYi8bJk&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQGL55xX8BjAQR3QL66OQ8eYVSKn3f4wMlliN6IF_R5bJ-AhQl_T0UBDcxoYsnj415qCpO8sA22p8w&oh=00_AQBbLx4YdCfeGP6R_jt2973AhadwgOQ6hsrqE3tmVxiJZQ&oe=6A5C6964" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.71878-10/728144918_2079029639346434_298073320608008587_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=ztf9QUf2UQ0Q7kNvwHI__Lc&_nc_oc=AdqDz2xXJEWaUsrJyhA67CTDBncp4BH21PAaUQJLFfBhJzKaW4ajWv_DUre6bYi8bJk&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQHoB_bjJOTGT44a5pjiJOwMK9nzmsfwyH7lIiTSIyO-eWjuxfrPr6sitQ7iQVRnCr6LX7v2Q1FzDA&oh=00_AQBgNJrwEw7VUP_9vrBM4R1qaMozUwY3xV4Tjr1vQoyUeQ&oe=6A5C6964" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a">Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a</td>
           <td>2026-06-23</td>
@@ -372,7 +378,7 @@ En un mundo d</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1325045993135410/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-15">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/719797925_4260403700892073_4834660897703205638_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=dE0AXoinciYQ7kNvwFYu7d1&_nc_oc=AdqrOFovJEe-N01CRetEVM0xl1oIYz0A6XrGA6XurfK2div0C2SbM7WumHDiZGKkY5g&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFrMoapKXlhOg8dxziTnLw4D-Q8lmT6oJSQ9SDbD2cFtU52ZoT0UxATtueZrP5oRZRsEuxhwGp0fw&oh=00_AQAyTpWEFi6ZyprnRgePLRtNxSjETM4JjmzUDwtalMGalA&oe=6A5C6D62" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/719797925_4260403700892073_4834660897703205638_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=dE0AXoinciYQ7kNvwFYu7d1&_nc_oc=AdqrOFovJEe-N01CRetEVM0xl1oIYz0A6XrGA6XurfK2div0C2SbM7WumHDiZGKkY5g&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQGD2nUB0qDzwt5BsKUQZ0U_HWH-V1lj3lbaBpCzNBQQbc1RxH28EzjM_vsYkam6e7i80Ry_MYclgw&oh=00_AQA-LhbZQldhGw_nLHdkPYjwKaEydxMMQEGZVBtKFM8LRQ&oe=6A5C6D62" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="🩸❤️ Hoy celebramos a quienes laten por los demás.
 
@@ -385,7 +391,7 @@ En el Día Mundial del Donante</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1212382594260495/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-15">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/724540423_1053619190658237_4704632493644227879_n.png?stp=dst-png_p720x720&_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=AOJ30djiRFAQ7kNvwFand-E&_nc_oc=Adpl6AXTzNeQELToFkGEouCaep70sECEJlDA6ECX_vQKRTAI_6gYqkD9Hfs7JkJ7rRE&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQHvCMovoSMYGbQgyORpO0qG3QbdAlSZomp4V6qK2z0OP0R8nEoHsmPCGuqtTlfnTFWc6sSLIZdKzw&oh=00_AQCp8ja3YohKLVtt-cDefRzetkosWp55jy22cMiqZxfujQ&oe=6A5C69C0" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/724540423_1053619190658237_4704632493644227879_n.png?stp=dst-png_p720x720&_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=AOJ30djiRFAQ7kNvwFand-E&_nc_oc=Adpl6AXTzNeQELToFkGEouCaep70sECEJlDA6ECX_vQKRTAI_6gYqkD9Hfs7JkJ7rRE&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQG_sCVnPo-_lKvUp6O0hqjpNtQJM263XMAVc9vsaoR2oRPTOL_PP7DG-m05_sGKmbOcgGFXU_YYfQ&oh=00_AQBsPOeKCAVOPmSw0_xnp8lFgdzzVT7BhrDFcc42-Fkc5g&oe=6A5C69C0" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="(sin texto)">(sin texto)</td>
           <td>2026-06-15</td>
@@ -394,7 +400,7 @@ En el Día Mundial del Donante</td>
           <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/2460633304360073?substory_index=2460633304360073" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-11">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/721209272_1050809964272493_1722476417358267909_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=QJuOjrCYhLQQ7kNvwHSaIgU&_nc_oc=AdpFTn69TyVPT-5ZwFQgWzwZFLxZSN5noN8vxUU3XCD_k1NQCyZMinmFPAmF0nDhWI0&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFkvU44VqYi0q9bnyoOoHY5hFMfxPOHCo4XJvz9yownK0wa4Q3t0NphjiBZw15EMuqHf5J74XLK-w&oh=00_AQBeWFXVWkX-3mEEqqWuZOTWUBzleTA4wKGFOJt_GjFTOw&oe=6A5C560F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/721209272_1050809964272493_1722476417358267909_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=QJuOjrCYhLQQ7kNvwHSaIgU&_nc_oc=AdpFTn69TyVPT-5ZwFQgWzwZFLxZSN5noN8vxUU3XCD_k1NQCyZMinmFPAmF0nDhWI0&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQHR-v_jpupSOtnb2TRx2XZkCvER8G_mnmruiTxp3kqo5ARWiPK_Q3QhJueYlKdqWYfaqZ0ezVso9A&oh=00_AQCxHrWBNo3m9Bkd-OesFq-oaYp2b0aJml8YEB3flZpF5g&oe=6A5C560F" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="⚽ Hay goles que se celebran… y otros que se sienten en el corazón.
 
@@ -407,7 +413,7 @@ Hoy latimos </td>
           <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1050810634272426" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-03">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/710709091_986921774313510_912962503246054680_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=GSNXqvK2e2YQ7kNvwEc-Pxd&_nc_oc=AdqoelJmEbdgeaxD4ptSyBY3i2u9jrdptBUP3J-06oB3gtA7v9dWq-tcTFjqBajYbh0&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQG2uChp1M2OcgJ5mL7Sg6czbWwWVvzy3lUPOze_4lux1-el70DsKYtrYcl0xqVQ9v_hKcNiyPer5Q&oh=00_AQA1yXyQ0pXroQixilHIRPjGrcqCKCNY14K7T9a5tH3fsA&oe=6A5C49F8" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/710709091_986921774313510_912962503246054680_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=GSNXqvK2e2YQ7kNvwEc-Pxd&_nc_oc=AdqoelJmEbdgeaxD4ptSyBY3i2u9jrdptBUP3J-06oB3gtA7v9dWq-tcTFjqBajYbh0&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=oMxS7bUa1TgZOUzWHAOZZg&_nc_tpa=Q5bMBQF8fb9WCwWnVErL-MyB3CRF8pmvvoQ58Wl4yzQhIxSeSYgZXWkpjV1iWOPbjU-kks0CXVdXM_bIHQ&oh=00_AQB7-WUxZq6thKnRVeGxUOm93gIXHuC1v8fID7a8JsxCFQ&oe=6A5C8238" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Cada corazón pintado se convirtió en esperanza. ❤️
 
@@ -449,7 +455,7 @@ Gracias a las alumnas de 5º </td>
         <div class="card"><h2>Campañas</h2><p class="empty">No hay campañas con datos en el rango.</p></div>
       </section>
       <section id="tab-recomendaciones" class="tab-panel">
-        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">20</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">4.461</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">546</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Mayo 2026</div><div class="label">Mes mas flojo</div></div></div>
+        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">20</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">4.548</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">551</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Mayo 2026</div><div class="label">Mes mas flojo</div></div></div>
         <p class="range-note">Los totales de arriba siguen el rango de fechas elegido en Insights o en Pauta.
         El desglose mensual y las recomendaciones analizan siempre el periodo completo.</p>
 
@@ -523,8 +529,8 @@ Gracias a las alumnas de 5º </td>
           <td>Julio 2026</td>
           <td class="num">3</td>
           <td class="num">3</td>
-          <td class="num">22</td>
-          <td class="num">208</td>
+          <td class="num">24</td>
+          <td class="num">237</td>
           <td class="num">1.5</td>
           <td>mes en curso</td>
         </tr></tbody>
@@ -544,8 +550,8 @@ Gracias a las alumnas de 5º </td>
   </div>
   <div class="card rec-card">
     <h3><span class="dot info"></span>Feed alcanza mas que Reels en Instagram</h3>
-    <p class="rec-stat">alcance promedio 558 (n=5) vs 335 (Reels)</p>
-    <p class="rec-detail">Feed supera a Reels por 67% en alcance promedio. Vale la pena priorizar ese formato para publicaciones nuevas.</p>
+    <p class="rec-stat">alcance promedio 575 (n=5) vs 335 (Reels)</p>
+    <p class="rec-detail">Feed supera a Reels por 72% en alcance promedio. Vale la pena priorizar ese formato para publicaciones nuevas.</p>
   </div>
   <div class="card rec-card">
     <h3><span class="dot positivo"></span>Engagement en alza para Latidos por México (Facebook)</h3>
@@ -568,7 +574,7 @@ const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026
 // (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
 const ADS = {"hasData": false};
 // Posts (organico) con su fecha, para recalcular el resumen por rango.
-const POSTS = [{"date": "2026-07-14", "platform": "Facebook", "engagement": 35, "reach": 0}, {"date": "2026-07-10", "platform": "Facebook", "engagement": 18, "reach": 0}, {"date": "2026-07-08", "platform": "Facebook", "engagement": 14, "reach": 0}, {"date": "2026-06-30", "platform": "Facebook", "engagement": 16, "reach": 0}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 88, "reach": 0}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 19, "reach": 0}, {"date": "2026-06-15", "platform": "Facebook", "engagement": 3, "reach": 0}, {"date": "2026-06-15", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-06-11", "platform": "Facebook", "engagement": 7, "reach": 0}, {"date": "2026-06-03", "platform": "Facebook", "engagement": 8, "reach": 0}, {"date": "2026-07-14", "platform": "Instagram", "engagement": 12, "reach": 255}, {"date": "2026-07-10", "platform": "Instagram", "engagement": 5, "reach": 133}, {"date": "2026-07-08", "platform": "Instagram", "engagement": 24, "reach": 235}, {"date": "2026-06-30", "platform": "Instagram", "engagement": 36, "reach": 422}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 191, "reach": 1907}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 32, "reach": 855}, {"date": "2026-06-15", "platform": "Instagram", "engagement": 6, "reach": 118}, {"date": "2026-06-11", "platform": "Instagram", "engagement": 13, "reach": 258}, {"date": "2026-06-03", "platform": "Instagram", "engagement": 14, "reach": 207}, {"date": "2026-05-30", "platform": "Instagram", "engagement": 5, "reach": 71}];
+const POSTS = [{"date": "2026-07-14", "platform": "Facebook", "engagement": 39, "reach": 0}, {"date": "2026-07-10", "platform": "Facebook", "engagement": 18, "reach": 0}, {"date": "2026-07-08", "platform": "Facebook", "engagement": 14, "reach": 0}, {"date": "2026-06-30", "platform": "Facebook", "engagement": 16, "reach": 0}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 88, "reach": 0}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 19, "reach": 0}, {"date": "2026-06-15", "platform": "Facebook", "engagement": 3, "reach": 0}, {"date": "2026-06-15", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-06-11", "platform": "Facebook", "engagement": 7, "reach": 0}, {"date": "2026-06-03", "platform": "Facebook", "engagement": 8, "reach": 0}, {"date": "2026-07-14", "platform": "Instagram", "engagement": 13, "reach": 341}, {"date": "2026-07-10", "platform": "Instagram", "engagement": 5, "reach": 133}, {"date": "2026-07-08", "platform": "Instagram", "engagement": 24, "reach": 236}, {"date": "2026-06-30", "platform": "Instagram", "engagement": 36, "reach": 422}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 191, "reach": 1907}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 32, "reach": 855}, {"date": "2026-06-15", "platform": "Instagram", "engagement": 6, "reach": 118}, {"date": "2026-06-11", "platform": "Instagram", "engagement": 13, "reach": 258}, {"date": "2026-06-03", "platform": "Instagram", "engagement": 14, "reach": 207}, {"date": "2026-05-30", "platform": "Instagram", "engagement": 5, "reach": 71}];
 
 function renderLineChart(containerId, points, color) {
   const container = document.getElementById(containerId);
@@ -969,6 +975,12 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
   });
 });
+
+// Marcas solo-pauta: Insights y Recomendaciones estan ocultas por CSS, asi que
+// se abre directamente en Pauta (si no, el dashboard arrancaria en blanco).
+if (document.querySelector('.app-shell').classList.contains('pauta-only')) {
+  document.querySelector('.nav-btn[data-tab="pautas"]').click();
+}
 </script>
 </body>
 </html>

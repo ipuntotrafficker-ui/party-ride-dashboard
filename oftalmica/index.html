@@ -84,6 +84,12 @@
     white-space: nowrap; transition: opacity 0.1s;
   }
   .empty { color: var(--text-muted); font-size: 13px; }
+  /* Marcas solo-pauta (el token no administra su Pagina): no hay nada organico
+     que enseñar, asi que se ocultan esas dos pestañas en vez de dejarlas vacias. */
+  .app-shell.pauta-only .nav-btn[data-tab="dashboard"],
+  .app-shell.pauta-only .nav-btn[data-tab="recomendaciones"],
+  .app-shell.pauta-only #tab-dashboard,
+  .app-shell.pauta-only #tab-recomendaciones { display: none; }
   .range-note {
     color: var(--text-muted); font-size: 12px; line-height: 1.5;
     margin: -6px 0 18px; padding: 0 4px;
@@ -139,13 +145,13 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell ">
     <nav class="sidebar">
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
       <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
-      <p class="subtitle">Generado el 2026-07-14 19:33 UTC</p>
+      <p class="subtitle">Generado el 2026-07-14 20:14 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -192,7 +198,7 @@
       </thead>
       <tbody>
         <tr data-date="2026-05-28">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/709035753_18097013585175185_3191988892784006202_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=GaTIr4YnwuYQ7kNvwGYLpQ1&_nc_oc=AdqVuDg1PR7Yqn7J_o8MRmF6PlhZc6iFIHgZHBBE9q6YOxVmaCoUKxG7Jstqo2TcIgU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&_nc_tpa=Q5bMBQEOLQ7vjEQTx0lzpTQK6S2eGgAmUVOlp1HXngJXVtugewh2XAH8RN9CsgGJitKRarSkk7o4CnZmhg&oh=00_AQAwC9OmvjfKCXbFhTKG_nYcA8y_jqprHitfxspxejH2tQ&oe=6A5C750A" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/709035753_18097013585175185_3191988892784006202_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=GaTIr4YnwuYQ7kNvwGYLpQ1&_nc_oc=AdqVuDg1PR7Yqn7J_o8MRmF6PlhZc6iFIHgZHBBE9q6YOxVmaCoUKxG7Jstqo2TcIgU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&_nc_tpa=Q5bMBQE0oUdZh143uoCgrENfrwrSRYaP1FVznl1wEA9oRhx2xF_xWiti3nEH2IqFIGcQNgPnP0OMqZw_OQ&oh=00_AQCRKxrCHA9yr-UZ0MdWV8F_k7vtiKYB4Pcxl8h-As221g&oe=6A5C750A" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="¿Buscabas una señal? Aquí la tienes. ☁️👁️👇
 
@@ -205,7 +211,7 @@ Tu cuerpo te habla, y hoy hasta las </td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DY5boOvjK_w/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-15">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/722217311_1681084157354414_485337946785241575_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=afd80Fw8V9cQ7kNvwGNuW4p&_nc_oc=AdoAEicazjYpBImHI5mtbSlr19_z3QbbS6amXo4plQy6VczC_BlBGm8IWS7fyqQ_fkw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQB9D0GYd9zxZlnOBPuhcMF3IMWW8FZyI5AAyzA0sDWYog&oe=6A5C5E35" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/722217311_1681084157354414_485337946785241575_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=afd80Fw8V9cQ7kNvwGNuW4p&_nc_oc=AdoAEicazjYpBImHI5mtbSlr19_z3QbbS6amXo4plQy6VczC_BlBGm8IWS7fyqQ_fkw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQCaeWA-jbW8BPatdtT0NBl2k1zZ88-JNQwxKZMjZc-D2A&oe=6A5C5E35" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="👁️ A veces creemos que vemos bien… hasta que llega una revisión y nos damos cuen">👁️ A veces creemos que vemos bien… hasta que llega una revisión y nos damos cuen</td>
           <td>2026-06-15</td>
@@ -214,7 +220,7 @@ Tu cuerpo te habla, y hoy hasta las </td>
           <td><a class="permalink" href="https://www.instagram.com/p/DZnfxq5EoOq/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-05">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/735908999_1698459418950221_153980214425432368_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=Mcctg7zoesUQ7kNvwHenj_l&_nc_oc=AdosHLJE3AhbmqskqjkJxP5Hla7yDd3Ul3Yblc41kG3ncMlWJoTnt-5d0Sk9VUzPctA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQAKKmTrs3ezmYPIqRtox_qoo1iNXwMGgb5tZGdUEFxcXw&oe=6A5C7384" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/735908999_1698459418950221_153980214425432368_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=Mcctg7zoesUQ7kNvwHenj_l&_nc_oc=AdosHLJE3AhbmqskqjkJxP5Hla7yDd3Ul3Yblc41kG3ncMlWJoTnt-5d0Sk9VUzPctA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQC1ZjVR7ftKq0VwF2mjcWJI4JCUVGCxUGRVemrQoVw0ZQ&oe=6A5C7384" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="¿Has decidido esperar para operarte de cataratas? Podría costarte mucho más de l">¿Has decidido esperar para operarte de cataratas? Podría costarte mucho más de l</td>
           <td>2026-07-05</td>
@@ -223,7 +229,7 @@ Tu cuerpo te habla, y hoy hasta las </td>
           <td><a class="permalink" href="https://www.instagram.com/p/DaazZIgDwwl/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-25">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/706504471_18096674414175185_1026331251090850357_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=hp01EhyGJ9EQ7kNvwGKBv8G&_nc_oc=Adpt98vFYReOsMRUrgnzz65Kw4hEdTUB6c6_mQvFGhXImQ3dgL5ttW__N7MmNeFIyk8&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&_nc_tpa=Q5bMBQGijlJybS0DR6C7uKLIYBOYyVkde_xjk7TB1SC1GW5bfke66XWza303mMCSNqYJooHAS_aC1mCn5Q&oh=00_AQB6x8C-VBigqBwRxVb7vrtSOMkbkeIK3WCfR9a5ltgGrg&oe=6A5C7C31" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/706504471_18096674414175185_1026331251090850357_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=hp01EhyGJ9EQ7kNvwGKBv8G&_nc_oc=Adpt98vFYReOsMRUrgnzz65Kw4hEdTUB6c6_mQvFGhXImQ3dgL5ttW__N7MmNeFIyk8&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&_nc_tpa=Q5bMBQHB4I1_Davf3Wb68-zHmYe1OiXePTSqJaz_JXRkxI9oDlUzc43R-YRuv8VPozhFevdlVaJiLALKlQ&oh=00_AQDDKH97RNSnyvequQJjo37bdir_J1qgdnc_SZdttsrsVA&oe=6A5C7C31" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="En Oftálmica Cuernavaca, realizamos una evaluación integral para determinar el i">En Oftálmica Cuernavaca, realizamos una evaluación integral para determinar el i</td>
           <td>2026-05-25</td>
@@ -232,7 +238,7 @@ Tu cuerpo te habla, y hoy hasta las </td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DYxGy2BDP8t/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-04">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/715614164_1670471398415690_8929501015330368499_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=E_IYi7G0wxgQ7kNvwGgVRSB&_nc_oc=AdrpB8tGZi9Ndg_CiKoymedfklsfm3PXL3ea1BQ7ZAuSbtp7v3rYIh3JdaM6PnKMdbc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQDTqixGlhJhw8FG7NZBHyifIKUFRDjRM4Zgc1XP_aYyvQ&oe=6A5C694F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/715614164_1670471398415690_8929501015330368499_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=E_IYi7G0wxgQ7kNvwGgVRSB&_nc_oc=AdrpB8tGZi9Ndg_CiKoymedfklsfm3PXL3ea1BQ7ZAuSbtp7v3rYIh3JdaM6PnKMdbc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQDVilvxuJfnwxqJr2KWRoKCWVQGOkVXHKORrMjIQRb7bA&oe=6A5C694F" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Dicen que una cirugía cambia tu vista…
  pero lo que realmente cambia es tu vida.">Dicen que una cirugía cambia tu vista…
@@ -243,7 +249,7 @@ Tu cuerpo te habla, y hoy hasta las </td>
           <td><a class="permalink" href="https://www.instagram.com/p/DZLtuVUEsQt/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-03">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/736045320_1698437682285728_193278456055326367_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=_bMBqRR4VD0Q7kNvwHzwGBF&_nc_oc=AdqD54KBcaPL9uQqhQceWaA7jG_a0bekfIu5zImFi1iP9WKlRqrl4EAxwbeCCEHA5tY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQAWmOFh9XQa-U3uoLTbhWCerBv-WBv9afJLK5pvO86XEA&oe=6A5C7189" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/736045320_1698437682285728_193278456055326367_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=_bMBqRR4VD0Q7kNvwHzwGBF&_nc_oc=AdqD54KBcaPL9uQqhQceWaA7jG_a0bekfIu5zImFi1iP9WKlRqrl4EAxwbeCCEHA5tY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQCj3HZdkZlLTN22veBLSzYbeou9LVpYra8d_IPJAkNVOA&oe=6A5C7189" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="¿Cada vez ves más borroso, aunque cambies de lentes? 👁️
 
@@ -256,7 +262,7 @@ Tu cuerpo te habla, y hoy hasta las </td>
           <td><a class="permalink" href="https://www.instagram.com/p/DaV0BIPEvVs/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-21">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/727737414_1686810923448404_1196412631654553149_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=lXq9luGafeMQ7kNvwHnBn_C&_nc_oc=Adp-2QEcl9IiAoEuk08l4cS98EMPiYiJKjVHBLBQ8QRAjv4jhvG3_79sO4O3Slu87Ck&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQAtN-_FfOWMaqR4XKEFmv4QMYHbWjj27wWWtRch8LEs2A&oe=6A5C564F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/727737414_1686810923448404_1196412631654553149_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=lXq9luGafeMQ7kNvwHnBn_C&_nc_oc=Adp-2QEcl9IiAoEuk08l4cS98EMPiYiJKjVHBLBQ8QRAjv4jhvG3_79sO4O3Slu87Ck&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQDg8-9CTqydIBkLetDH51nY6D-xSLcW0fAX9buHuQI9XA&oe=6A5C564F" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Hay enseñanzas que nunca se olvidan. 👁️💙
 
@@ -269,7 +275,7 @@ Muchos de los primeros recuerdos que g</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DZ3D5LzEoVZ/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-08">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742951691_1703429515119878_8615998166124908679_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=LnUblgfUgbgQ7kNvwGeaMmx&_nc_oc=AdoBX56aLxENbXPSxQHf5IxF-6cfr-WHw9XG2rWoGppLdYYd8hrpoYrxRhamwGvYUK0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQDkdKFsFQB9_OtQQTOfEiYjpqGy6_cen8d_0y8pU5Oicg&oe=6A5C654F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742951691_1703429515119878_8615998166124908679_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=LnUblgfUgbgQ7kNvwGeaMmx&_nc_oc=AdoBX56aLxENbXPSxQHf5IxF-6cfr-WHw9XG2rWoGppLdYYd8hrpoYrxRhamwGvYUK0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQCUAEmSW98DmApwjVb9e6rsHNSr03CEEfRngB8DUfqadg&oe=6A5C654F" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="👓 Ver borroso no tiene por qué ser permanente.
 
@@ -282,7 +288,7 @@ La cirugía de catarata es uno de</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DaiuuPeki3A/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-24">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/727465356_1689604633169033_1736519723668593412_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=iyRpCsvfmNAQ7kNvwFO7R5a&_nc_oc=AdpFSl6rARiqjokBicpTj66ZPpdhhGPELpx1eZE0PkUk0ZnRRkk8ej3agh32fkRyzso&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQBkCFqJzThJJeIH5UKJx54G75liwPswp2SDp1wLAXCVLw&oe=6A5C7B1F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/727465356_1689604633169033_1736519723668593412_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=iyRpCsvfmNAQ7kNvwFO7R5a&_nc_oc=AdpFSl6rARiqjokBicpTj66ZPpdhhGPELpx1eZE0PkUk0ZnRRkk8ej3agh32fkRyzso&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQDld6-z7dc7dKqkL2p3Y0TcY7wucZAWO2w8-32OnzUXSg&oe=6A5C7B1F" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Hay momentos que no solo se viven… se quedan grabados en la mirada.
 
@@ -295,7 +301,7 @@ Un gol al ú</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DZ-joI9kgsp/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-02">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/735786527_1697298969066266_2675780132199672300_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=NNW3qWrfyy0Q7kNvwFpdQ5-&_nc_oc=AdqvT1Jx2WiYk4hD4SaIWADgqh5YGuL5zMQdrNazz_d9YxgoM-pjFYHWacrqG3ibreE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=03m-6YBj5P-lnPlOwbIr2A&oh=00_AQCiwTonfdldJFj03J3ZTv0uMEqjNPkgCfy7DYwxYQmEYQ&oe=6A5C583A" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/735786527_1697298969066266_2675780132199672300_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=NNW3qWrfyy0Q7kNvwFpdQ5-&_nc_oc=AdqvT1Jx2WiYk4hD4SaIWADgqh5YGuL5zMQdrNazz_d9YxgoM-pjFYHWacrqG3ibreE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=g9uOEbh-HDjr5rl-3CSnZQ&oh=00_AQCjePhykruXqaIoh3aJQFARVhtGmWFEOHXz46dQu3rbsw&oe=6A5C583A" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="👁️ No normalices ver borroso.
 
@@ -308,7 +314,7 @@ Las cataratas pueden afectar tu calidad de vida, </td>
           <td><a class="permalink" href="https://www.instagram.com/p/DaS7EAhEg49/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-08">
-          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/742951691_1703429515119878_8615998166124908679_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=LnUblgfUgbgQ7kNvwGeaMmx&_nc_oc=AdoBX56aLxENbXPSxQHf5IxF-6cfr-WHw9XG2rWoGppLdYYd8hrpoYrxRhamwGvYUK0&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQF6Ez0osq_UsyJdz6Wd6cSlvkcv9OK2W3ybzcMtiRMOunF5qSmAZPFbWd8X1kN3BEokHA2ULR1Asg&oh=00_AQDI3a-Cs780jLR4KwwIOiHZWaH0R24HlGvgP5Gp1ALf_A&oe=6A5C654F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/742951691_1703429515119878_8615998166124908679_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=LnUblgfUgbgQ7kNvwGeaMmx&_nc_oc=AdoBX56aLxENbXPSxQHf5IxF-6cfr-WHw9XG2rWoGppLdYYd8hrpoYrxRhamwGvYUK0&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQGULfhwzADkn174pjgDPJdfMkMawtghrChmVoiaTXbQYRpTOuAychyESq96MuE6G50pwnayFvohWA&oh=00_AQDQrqxZAyKUaHA_P-Kj3AUvpbjS-JvwhmnDAwTFYhGWrA&oe=6A5C654F" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="👓 Ver borroso no tiene por qué ser permanente.
 
@@ -321,7 +327,7 @@ La cirugía de catarata es uno de</td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1703430095119820" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-05">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/735908999_1698459418950221_153980214425432368_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Mcctg7zoesUQ7kNvwHenj_l&_nc_oc=AdosHLJE3AhbmqskqjkJxP5Hla7yDd3Ul3Yblc41kG3ncMlWJoTnt-5d0Sk9VUzPctA&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQGqwx1pHh3CdMsl6Nj4oLVCSHm1ZZ7AuN2lFYba4u5kQ41-L-0i-kug4-KsnHvPNHO7CIHaU_hwmg&oh=00_AQBLHYdXKkEmhh0FfvrGbNsoLtcBW5MagnchUjAcslH6ZQ&oe=6A5C7384" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/735908999_1698459418950221_153980214425432368_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Mcctg7zoesUQ7kNvwHenj_l&_nc_oc=AdosHLJE3AhbmqskqjkJxP5Hla7yDd3Ul3Yblc41kG3ncMlWJoTnt-5d0Sk9VUzPctA&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQGv4VUIPTjZLujQxmWrmHESTsZ6uxxmzdwpkyKZEylz7jqEc5NNRNj1LGdvVPgaEU4lGp5QY9m3vg&oh=00_AQDiMYgbQKrIyumHnfbqHh4JBlyWNaKodISmXQya47iqDw&oe=6A5C7384" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="¿Has decidido esperar para operarte de cataratas? Podría costarte mucho más de l">¿Has decidido esperar para operarte de cataratas? Podría costarte mucho más de l</td>
           <td>2026-07-05</td>
@@ -330,7 +336,7 @@ La cirugía de catarata es uno de</td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1700341155428714" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-03">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/736045320_1698437682285728_193278456055326367_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=_bMBqRR4VD0Q7kNvwHzwGBF&_nc_oc=AdqD54KBcaPL9uQqhQceWaA7jG_a0bekfIu5zImFi1iP9WKlRqrl4EAxwbeCCEHA5tY&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQGXmNYAM4-EcbplNvabqf7VApIYeIt9wht-Nr6EMq7xBFC2ytGbyKo9uzjO2mGnuNlvmo5fknF3Iw&oh=00_AQAugV6aD5JzL_6dIYq5Q1xECdVwNRWBk9pvB5uwQnjS2A&oe=6A5C7189" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/736045320_1698437682285728_193278456055326367_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=_bMBqRR4VD0Q7kNvwHzwGBF&_nc_oc=AdqD54KBcaPL9uQqhQceWaA7jG_a0bekfIu5zImFi1iP9WKlRqrl4EAxwbeCCEHA5tY&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQGHAeJQUcpDoTE7Fgu_vkcCFF5K898N0ypqbjEd-zyl0qlZzWNeLr6b7QX--m02Q3UBdO8BtiedcQ&oh=00_AQBOnB9Wjy5MoeF_BEKGf3mf5NLRKATEYjOKJcOBD4h-cQ&oe=6A5C7189" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="¿Cada vez ves más borroso, aunque cambies de lentes? 👁️
 
@@ -343,7 +349,7 @@ La cirugía de catarata es uno de</td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1698439252285571" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-02">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/735786527_1697298969066266_2675780132199672300_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=NNW3qWrfyy0Q7kNvwFpdQ5-&_nc_oc=AdqvT1Jx2WiYk4hD4SaIWADgqh5YGuL5zMQdrNazz_d9YxgoM-pjFYHWacrqG3ibreE&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQHvOo8Cp20JQZx4BRfGzSNdAXZiA_QMbUFcC88SI0_xaEdiCDT9nZrjMlPvyFU-_deu0YraARpmlQ&oh=00_AQAlDpvGYD6BdAGBlwUa1rJFYOQrOCkiVWaZyz1u_1yigg&oe=6A5C583A" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/735786527_1697298969066266_2675780132199672300_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=NNW3qWrfyy0Q7kNvwFpdQ5-&_nc_oc=AdqvT1Jx2WiYk4hD4SaIWADgqh5YGuL5zMQdrNazz_d9YxgoM-pjFYHWacrqG3ibreE&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQFYLkHgeQ0mQ0S4vYaaz6DS0bsDBwo1oblfkOTJ1vLCqDZ9oK0FHczAHDXv3pZtrymvmePE6R8LHA&oh=00_AQB3icueQ8kC5B00qnZ-ik1JtzFsB-QYcYwpWL8h0wxviw&oe=6A5C583A" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="👁️ No normalices ver borroso.
 
@@ -356,7 +362,7 @@ Las cataratas pueden afectar tu calidad de vida, </td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1697299455732884" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-24">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/727465356_1689604633169033_1736519723668593412_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=104&ccb=1-7&_nc_sid=127cfc&_nc_ohc=iyRpCsvfmNAQ7kNvwFO7R5a&_nc_oc=AdpFSl6rARiqjokBicpTj66ZPpdhhGPELpx1eZE0PkUk0ZnRRkk8ej3agh32fkRyzso&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQEj8WYE0x17pAteyfp_kC40J2o7JyavlTMFXqpVsceFKpwoAo2BAEGeowMRHOUhTFUk6DNQeXTxjA&oh=00_AQC-zXM3N0PcE0HuR3dkWAH0TY4M3anq4y52aK01NxsbEA&oe=6A5C7B1F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/727465356_1689604633169033_1736519723668593412_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=104&ccb=1-7&_nc_sid=127cfc&_nc_ohc=iyRpCsvfmNAQ7kNvwFO7R5a&_nc_oc=AdpFSl6rARiqjokBicpTj66ZPpdhhGPELpx1eZE0PkUk0ZnRRkk8ej3agh32fkRyzso&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQEVOFJesdeFoqX4T1xy7LmB-TcRBU__YLBKtllUsACmp7N97GOPs6MqSeZEiX4Z5PGW7BeMtMdmPg&oh=00_AQB31maBzvkvlx9PNwQ7B-7mFbOwCVnJ0hUz5nKcPuMw2g&oe=6A5C7B1F" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Hay momentos que no solo se viven… se quedan grabados en la mirada.
 
@@ -369,7 +375,7 @@ Un gol al ú</td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1689604783169018" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-21">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/727737414_1686810923448404_1196412631654553149_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=lXq9luGafeMQ7kNvwHnBn_C&_nc_oc=Adp-2QEcl9IiAoEuk08l4cS98EMPiYiJKjVHBLBQ8QRAjv4jhvG3_79sO4O3Slu87Ck&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQGhcU6O6HgQ4jvKOsVXip3X9oT9vFVvefwQuHPSQLA960R5mO2FgKtestGwTpxgus0bNwOs411XYQ&oh=00_AQAltBQ4zQM06dAo-OdNuI--S-byieabiDaBVl2uD77D7w&oe=6A5C564F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/727737414_1686810923448404_1196412631654553149_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=lXq9luGafeMQ7kNvwHnBn_C&_nc_oc=Adp-2QEcl9IiAoEuk08l4cS98EMPiYiJKjVHBLBQ8QRAjv4jhvG3_79sO4O3Slu87Ck&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQGqbi7Tbj05W1hNEhdUmxTyPCkCXPgQDDjuTsK_v99ZUL50PqsUN__M1FhWzxDz7qVQ5Kq7udk83g&oh=00_AQAvx5nP7MXuF2rL5MAAxKL6CcAYWyVmKpT1ifTNLcUxEA&oe=6A5C564F" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Hay enseñanzas que nunca se olvidan. 👁️💙
 
@@ -382,7 +388,7 @@ Muchos de los primeros recuerdos que g</td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1686811646781665" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-15">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/722217311_1681084157354414_485337946785241575_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=afd80Fw8V9cQ7kNvwGNuW4p&_nc_oc=AdoAEicazjYpBImHI5mtbSlr19_z3QbbS6amXo4plQy6VczC_BlBGm8IWS7fyqQ_fkw&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQGsTp19twFzXPI8TwV36Ch7x1IszYgNplfwsWIslpZQ4LNkYRAW84OhG30sMzKnpyMLUXRyBhYC5w&oh=00_AQC8tgllWZgwaDD16QDektSAKCQg0lfSg394MHHBxFvFDA&oe=6A5C5E35" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/722217311_1681084157354414_485337946785241575_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=afd80Fw8V9cQ7kNvwGNuW4p&_nc_oc=AdoAEicazjYpBImHI5mtbSlr19_z3QbbS6amXo4plQy6VczC_BlBGm8IWS7fyqQ_fkw&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQF8GXsQj4oOS4RwTl5koi1oFOc6R7jW2hA8RcdmguehUT6W8l_JWobBnWLPuo7t9ivFwB2sqo_Mlg&oh=00_AQCm4M3Chn78LqFnuyhC22Y4OP10UrcjUSNt1Q6UoWwXaA&oe=6A5C5E35" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="👁️ A veces creemos que vemos bien… hasta que llega una revisión y nos damos cuen">👁️ A veces creemos que vemos bien… hasta que llega una revisión y nos damos cuen</td>
           <td>2026-06-15</td>
@@ -391,7 +397,7 @@ Muchos de los primeros recuerdos que g</td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1681088200687343" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-04">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/715614164_1670471398415690_8929501015330368499_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=E_IYi7G0wxgQ7kNvwGgVRSB&_nc_oc=AdrpB8tGZi9Ndg_CiKoymedfklsfm3PXL3ea1BQ7ZAuSbtp7v3rYIh3JdaM6PnKMdbc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQFIvTob8bGdqJOzqTrpHLEl7K7Z__zqnpKUdKyLxSvUiF1CtKlAqY8GaoSUxTGCRkkK4uGZCpZtzQ&oh=00_AQAPXI5mBqqoGuYf9irMSLpXlRohZkOI6PigJpJzAajD6A&oe=6A5C694F" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/715614164_1670471398415690_8929501015330368499_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=E_IYi7G0wxgQ7kNvwGgVRSB&_nc_oc=AdrpB8tGZi9Ndg_CiKoymedfklsfm3PXL3ea1BQ7ZAuSbtp7v3rYIh3JdaM6PnKMdbc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQFSxbfiL3MlyGof5L-vS-8P0CcT-Yt0xkQVFfLcCHh8iyv0soa6pb8NMqVbj8xZtKp_iQtHjEIU7Q&oh=00_AQCFaMAQ3WuFt12CcLnrlKsmwCHDwzzjor3MMMHj5w9_Qw&oe=6A5C694F" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Dicen que una cirugía cambia tu vista…
  pero lo que realmente cambia es tu vida.">Dicen que una cirugía cambia tu vista…
@@ -402,7 +408,7 @@ Muchos de los primeros recuerdos que g</td>
           <td><a class="permalink" href="https://www.facebook.com/1697593559036807/posts/1670471538415676" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-28">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t15.5256-10/707288343_1451712406973406_6911077982647861248_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=kBIHCn16kbcQ7kNvwFDYK5O&_nc_oc=AdoaiUF-qHglcZmjTp3HLnxLpsZf9OhpvZtpXolPvCF_ped6_lMZGm5sxziCrIPY6-k&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQGR2iuY5U7k7EUq3lY8XKrbaAOnGxbiC5NH8DS1qUx-A028uI5XC0KXidtReDVLjeT2i63loXViWg&oh=00_AQCg5H4H94rcOgGKDTOnB90GvGXOS0MBUdxyxXl_hs52AA&oe=6A5C6474" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t15.5256-10/707288343_1451712406973406_6911077982647861248_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=kBIHCn16kbcQ7kNvwFDYK5O&_nc_oc=AdoaiUF-qHglcZmjTp3HLnxLpsZf9OhpvZtpXolPvCF_ped6_lMZGm5sxziCrIPY6-k&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQFW4y8ScRuAa66Pp4RIQribNxSQuHwtwL0p0btfaDs9mtsgUrO9o8DOxIIHY8QOOOqB5zJyrXNuPw&oh=00_AQC7f8O5Iy46Og-7NUE7qLxC3NnL4op5e33l8Mlrwv4xGg&oe=6A5C6474" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="¿Buscabas una señal? Aquí la tienes. ☁️👁️👇
 
@@ -415,7 +421,7 @@ Tu cuerpo te habla, y hoy hasta las </td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1776824223751563/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-25">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t15.5256-10/705681719_975668251763306_3019410026751878618_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=dEnOIaRu4PYQ7kNvwHVsUOt&_nc_oc=Adq6NYOuFIy8iLqZzLlEtOKVpBtR_KS_t0b8iwWNyHHxcuFgB2dGn056uxOPL9BYPWM&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=eJToGduHMFGxl9yyecg9ag&_nc_tpa=Q5bMBQFvR_S3fgQ_R6XWe8Edt4qwEFNgP7ZyiTrILHnBLalQfxnsQDBOBKh5EmyntQbVqOzJoUJGW5vsuQ&oh=00_AQCotWSmbbZveA5XQQSnFlWndz1LDoRAoxefU3cC8cHq6g&oe=6A5C6E6E" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t15.5256-10/705681719_975668251763306_3019410026751878618_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=dEnOIaRu4PYQ7kNvwHVsUOt&_nc_oc=Adq6NYOuFIy8iLqZzLlEtOKVpBtR_KS_t0b8iwWNyHHxcuFgB2dGn056uxOPL9BYPWM&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=Iz3BaEIYIrgPBBY5o5KehA&_nc_tpa=Q5bMBQHCbKk_tnfipJGx8kQy-o5_7V3KgTlwlL1picfKXcr2g-BdtbuBwOVkTxqqa7ZIntLukP4YXI-t9w&oh=00_AQAXOf_CH_43snA0po3HZjPoq1Ba8YljXbZBAkBrHk3MsA&oe=6A5C6E6E" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="En Oftálmica Cuernavaca, realizamos una evaluación integral para determinar el i">En Oftálmica Cuernavaca, realizamos una evaluación integral para determinar el i</td>
           <td>2026-05-25</td>
@@ -1023,6 +1029,12 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
   });
 });
+
+// Marcas solo-pauta: Insights y Recomendaciones estan ocultas por CSS, asi que
+// se abre directamente en Pauta (si no, el dashboard arrancaria en blanco).
+if (document.querySelector('.app-shell').classList.contains('pauta-only')) {
+  document.querySelector('.nav-btn[data-tab="pautas"]').click();
+}
 </script>
 </body>
 </html>

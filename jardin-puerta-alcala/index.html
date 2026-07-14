@@ -84,6 +84,12 @@
     white-space: nowrap; transition: opacity 0.1s;
   }
   .empty { color: var(--text-muted); font-size: 13px; }
+  /* Marcas solo-pauta (el token no administra su Pagina): no hay nada organico
+     que enseñar, asi que se ocultan esas dos pestañas en vez de dejarlas vacias. */
+  .app-shell.pauta-only .nav-btn[data-tab="dashboard"],
+  .app-shell.pauta-only .nav-btn[data-tab="recomendaciones"],
+  .app-shell.pauta-only #tab-dashboard,
+  .app-shell.pauta-only #tab-recomendaciones { display: none; }
   .range-note {
     color: var(--text-muted); font-size: 12px; line-height: 1.5;
     margin: -6px 0 18px; padding: 0 4px;
@@ -139,13 +145,13 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell ">
     <nav class="sidebar">
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
       <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
-      <p class="subtitle">Generado el 2026-07-14 19:33 UTC</p>
+      <p class="subtitle">Generado el 2026-07-14 20:14 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -192,7 +198,7 @@
       </thead>
       <tbody>
         <tr data-date="2026-02-10">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/632744728_1843824576564887_1732596212282096540_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=2S2MzMRoQWcQ7kNvwFQAJWN&_nc_oc=AdqlL93yV9t50f1nTNUeEL1OqDANgUNRNUR29eV8vPq5BHocrryBSys5vnz1sGBbCsU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=8ULjccYi66B4bsC_qLqb6w&oh=00_AQCwaFM2rc7LF8EtWXwHwCJadB2PzUB9V87nvCwiYVZj3g&oe=6A5C63FB" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/632744728_1843824576564887_1732596212282096540_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=2S2MzMRoQWcQ7kNvwFQAJWN&_nc_oc=AdqlL93yV9t50f1nTNUeEL1OqDANgUNRNUR29eV8vPq5BHocrryBSys5vnz1sGBbCsU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=HHpLJkRJXRwF4FY_3qy10A&oh=00_AQCj-7aa9_JNFyKgchFsO_pFimh_0BPWz4FJierCzsVxzQ&oe=6A5C63FB" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="🎉 La fiesta perfecta empieza aquí 🎉
 
@@ -205,7 +211,7 @@ Celebra en un espacio amplio, verde y total</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DUlvkapEp1S/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-15">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/696721968_18144719482504365_8414305972035344714_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=oQ0Kc8fZCTgQ7kNvwEqf38B&_nc_oc=Adpwz8M2IEcRWDlGFg6iBof3Ae9qmhnEaIMM2BlgOyvacbLQxk1CpJ-L3omn1dAVUiE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=8ULjccYi66B4bsC_qLqb6w&_nc_tpa=Q5bMBQF-7ZhintL2GkFbeD1zBJLVGsc3XAf21aN3uWK48BQhp4Zd-drol9yXDrjXAi-NVKfeCgQl6Pr2rQ&oh=00_AQCo5WZUUx1pzI9KJ5SOJSwHEigDQgDgfgXRZzxjMUHqVw&oe=6A5C4BF0" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/696721968_18144719482504365_8414305972035344714_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=oQ0Kc8fZCTgQ7kNvwEqf38B&_nc_oc=Adpwz8M2IEcRWDlGFg6iBof3Ae9qmhnEaIMM2BlgOyvacbLQxk1CpJ-L3omn1dAVUiE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=HHpLJkRJXRwF4FY_3qy10A&_nc_tpa=Q5bMBQH-pwWpTfV_YVR3oDtqIc7N_E7YuzJZ3QkCNQTfK17phbEsw9OETppDV0zfCVomLPHj0iT3CY_jsA&oh=00_AQDaXXtolH7PvGy5S_i3LE4dLlaHYEmvjP7AynT9RSsRhg&oe=6A5C8430" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="El jardín donde TODO cabe. 🌳🙌
 
@@ -218,7 +224,7 @@ Celebra en un espacio amplio, verde y total</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DYXRQGWjPAx/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-13">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/694749557_18144533455504365_6876757527460046087_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=dViJPbmDs3UQ7kNvwEXLkJz&_nc_oc=AdrIDl3QWqt3EScMCyoSewXNVVB5vone5qbEbd8g4tZ7jlnVGX6MAWVLPIUNcFdzBXY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=8ULjccYi66B4bsC_qLqb6w&_nc_tpa=Q5bMBQF8uTmGzFbZmI8USg7TEF68OI_UsZM7-J-WdFVKaOZ-32yybmJ1hY1AQrTQeByzD2woSspduo-iXQ&oh=00_AQBHuUlZSlnAnTMhBI1uTqrsT65Y1CFxXx-_PCEKTQc2pg&oe=6A5C71D4" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/694749557_18144533455504365_6876757527460046087_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=dViJPbmDs3UQ7kNvwEXLkJz&_nc_oc=AdrIDl3QWqt3EScMCyoSewXNVVB5vone5qbEbd8g4tZ7jlnVGX6MAWVLPIUNcFdzBXY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=HHpLJkRJXRwF4FY_3qy10A&_nc_tpa=Q5bMBQFxxRMMhBnhVyTGHHkWNwQDZhsay4Vdts69uJ0-BpwWkQMyqb8kDDZayYCmpRIGhdULyWic9yUNFA&oh=00_AQD-G8gM7MoS26xT2J5C4-OV0I4K-iee9Gu6rGzXJuWn7Q&oe=6A5C71D4" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="La mejor fiesta, al mejor precio. 💸 🌳
 
@@ -231,7 +237,7 @@ Celebra en un espacio amplio, verde y total</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DYSQ166AWc0/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-15">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/698248752_1702761860857787_8913211141754184870_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=3K6-dUc8A7IQ7kNvwHBs0f2&_nc_oc=AdoXrK_oh4n6K5fShuQSht-5w-WLZ4bqxrUv-BD1caJ4wcjrr_TPG3qwKFQy8MZBam8&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=bn2S52IcbEjfaSnbJozpkw&_nc_tpa=Q5bMBQFWJCNzEOdt0126qdQbjrMXCn-9lYMys6DWrLyXE3zJq_tKWkX4SzDdhu1uM3ykKEpIrxzSPV_X4A&oh=00_AQAVvOhTwS5fXVO-NoIWVRFQlXecxm5bQBh8dDyVYgKNFA&oe=6A5C7C72" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/698248752_1702761860857787_8913211141754184870_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=3K6-dUc8A7IQ7kNvwHBs0f2&_nc_oc=AdoXrK_oh4n6K5fShuQSht-5w-WLZ4bqxrUv-BD1caJ4wcjrr_TPG3qwKFQy8MZBam8&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=CjB5oZFmr4Wo9QLZjW7Dlw&_nc_tpa=Q5bMBQFITVmYNoaNUeKPm_90K4538hoUiInkYSeaUlvTKjet_i8-S8noZNciFm6VqfQ767N2WS2Smc0UPg&oh=00_AQB89bcHMPsdy4HuEPPJMWGYwusg6O8ufEzuFT7kop6Ijg&oe=6A5C7C72" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="El jardín donde TODO cabe. 🌳🙌
 
@@ -244,7 +250,7 @@ Celebra en un espacio amplio, verde y total</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1301355344710063/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-13">
-          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t15.5256-10/699946536_1322982193054360_7635025617755228026_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=SZsvZndOeLYQ7kNvwHD9M7i&_nc_oc=AdqAWJswgq-04MT6rH1nJPpKqTTJ2WJr-qH5RKbN4RCqCnPPOFM3iI1b0SAbBsl-S8k&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=bn2S52IcbEjfaSnbJozpkw&_nc_tpa=Q5bMBQH_4bE9KAXXbjh5MgdddcDHVWuyWAKk88zlZ3b5NgXiIUIjciltrI15_ifcm-hh2QXaPn0hHeNDDQ&oh=00_AQDdK6MfJWO2UHsqn9WIZ3-uHYNvebWTfDahwKyfdnfNnQ&oe=6A5C7004" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t15.5256-10/699946536_1322982193054360_7635025617755228026_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=SZsvZndOeLYQ7kNvwHD9M7i&_nc_oc=AdqAWJswgq-04MT6rH1nJPpKqTTJ2WJr-qH5RKbN4RCqCnPPOFM3iI1b0SAbBsl-S8k&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=CjB5oZFmr4Wo9QLZjW7Dlw&_nc_tpa=Q5bMBQH2BOVXYxofoXKyWbWOHqhyn6vf1KXleR7v7nsV6OfSQkECmGqGbmuwwlX9UoXZVdvtNcJU6Ent8w&oh=00_AQCE4VsCwh_f9Ut67xBzGF1jHYxQ7yEsKxt9O4CJlFFk0Q&oe=6A5C7004" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="La mejor fiesta, al mejor precio. 💸 🌳
 
@@ -257,7 +263,7 @@ Celebra en un espacio amplio, verde y total</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1766158181015189/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-02-10">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/632744728_1843824576564887_1732596212282096540_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=104&ccb=1-7&_nc_sid=127cfc&_nc_ohc=2S2MzMRoQWcQ7kNvwFQAJWN&_nc_oc=AdqlL93yV9t50f1nTNUeEL1OqDANgUNRNUR29eV8vPq5BHocrryBSys5vnz1sGBbCsU&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=bn2S52IcbEjfaSnbJozpkw&_nc_tpa=Q5bMBQGWX1bAGIgLBLrBHHb_mW_E5b5bn5q9Aed5mosHOGU_lte4wnIaR8mO7wwooSz0174zU9XvCSzRVA&oh=00_AQDSZN6TGERUV9x2qrNzQ_3H7Z3YR7MdNyl9onFMd2wWOw&oe=6A5C63FB" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/632744728_1843824576564887_1732596212282096540_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=104&ccb=1-7&_nc_sid=127cfc&_nc_ohc=2S2MzMRoQWcQ7kNvwFQAJWN&_nc_oc=AdqlL93yV9t50f1nTNUeEL1OqDANgUNRNUR29eV8vPq5BHocrryBSys5vnz1sGBbCsU&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=CjB5oZFmr4Wo9QLZjW7Dlw&_nc_tpa=Q5bMBQFnwflK0t3GW8vpp1FUjDRm-qg1gxnJ5fwdmyRp3wHc2HaVPCAQ47CSwWlPX9ZLvUXnqZYJqCJisw&oh=00_AQBcW8rU0Z3RaDh96lFGEBr4yxkgdx9Kos6qJVI6dInolQ&oe=6A5C63FB" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="🎉 La fiesta perfecta empieza aquí 🎉
 
@@ -869,6 +875,12 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
   });
 });
+
+// Marcas solo-pauta: Insights y Recomendaciones estan ocultas por CSS, asi que
+// se abre directamente en Pauta (si no, el dashboard arrancaria en blanco).
+if (document.querySelector('.app-shell').classList.contains('pauta-only')) {
+  document.querySelector('.nav-btn[data-tab="pautas"]').click();
+}
 </script>
 </body>
 </html>

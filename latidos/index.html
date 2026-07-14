@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Insights organicos - Meta</title>
+<style>
+  :root {
+    /* Paleta de marca i.punto Marketing Digital: negro + amarillo del logo. */
+    --surface-1:      #161616;
+    --page-plane:     #0a0a0a;
+    --text-primary:   #ffffff;
+    --text-secondary: #b9b8b2;
+    --text-muted:     #8a8a83;
+    --gridline:       #2a2a2a;
+    --baseline:       #3a3a3a;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #f4dc00;
+    --accent-contrast:#0a0a0a;
+    --fb:             #3987e5;
+    --ig:             #199e70;
+    --positive:       #199e70;
+    --warning:        #e0a349;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .app-shell { display: flex; align-items: flex-start; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .content { flex: 1; min-width: 0; padding: 24px; }
+  .brand { font-size: 15px; font-weight: 600; margin: 0 0 16px; padding: 0 12px; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left; background: transparent; border: none;
+    color: var(--text-secondary); padding: 10px 12px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; margin-bottom: 4px; font-family: inherit;
+  }
+  .nav-btn:hover { background: var(--page-plane); }
+  .nav-btn.active { background: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+  .nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin: 20px 0 0; padding: 0 12px; }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 14px; display:flex; align-items:center; gap:8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+  .dot.fb { background: var(--fb); }
+  .dot.ig { background: var(--ig); }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .kpi .value { font-size: 26px; font-weight: 600; color: var(--accent); }
+  .kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--gridline); }
+  .post-caption { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  a.permalink { color: var(--accent); text-decoration: none; }
+  .chart-wrap { position: relative; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
+    font-size: 11px; padding: 4px 8px; border-radius: 6px; opacity: 0; transform: translate(-50%, -120%);
+    white-space: nowrap; transition: opacity 0.1s;
+  }
+  .empty { color: var(--text-muted); font-size: 13px; }
+  .range-note {
+    color: var(--text-muted); font-size: 12px; line-height: 1.5;
+    margin: -6px 0 18px; padding: 0 4px;
+  }
+  .kpi .value.na { color: var(--text-muted); }
+  .date-filter { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px; }
+  .date-range-picker { position: relative; }
+  .date-pill {
+    background: var(--page-plane); color: var(--text-primary); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 14px; font-size: 13px; font-family: inherit; cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-pill:hover { border-color: var(--accent); }
+  #filter-reset {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  #filter-reset:hover { background: var(--accent); color: var(--accent-contrast); }
+  .calendar-popup {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .calendar-header button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 6px; line-height: 1;
+  }
+  .calendar-header button:hover { background: var(--page-plane); }
+  .calendar-header span { font-size: 13px; font-weight: 600; }
+  .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .calendar-weekdays span { font-size: 10px; color: var(--text-muted); padding: 4px 0; }
+  .calendar-grid button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 12px;
+    padding: 6px 0; border-radius: 6px; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .calendar-grid button:hover:not(:disabled) { background: var(--page-plane); }
+  .calendar-grid button:disabled { color: var(--text-muted); opacity: 0.35; cursor: default; }
+  /* !important: estas dos marcan el estado de seleccion vigente y no deben
+     desaparecer si el mouse queda posicionado encima (:hover tiene mas
+     especificidad que una sola clase de estado). */
+  .calendar-grid button.in-range { background: rgba(244,220,0,0.15) !important; }
+  .calendar-grid button.range-endpoint {
+    background: var(--accent) !important; color: var(--accent-contrast) !important; font-weight: 700;
+  }
+  .calendar-hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; text-align: center; min-height: 14px; }
+  .rec-card h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .rec-card .dot.alerta { background: var(--warning); }
+  .rec-card .dot.positivo { background: var(--positive); }
+  .rec-card .dot.info { background: var(--fb); }
+  .rec-stat { font-size: 13px; font-weight: 600; margin: 0 0 6px; font-variant-numeric: tabular-nums; }
+  .rec-detail { font-size: 13px; color: var(--text-secondary); margin: 0; }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <nav class="sidebar">
+      <div class="brand">Insights organicos</div>
+      <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
+      <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
+      <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
+      <p class="subtitle">Generado el 2026-07-14 19:34 UTC</p>
+    </nav>
+    <main class="content">
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="filter-trigger" class="date-pill"></button>
+            <div id="calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="cal-month-label"></span>
+                <button type="button" id="cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="cal-grid" class="calendar-grid"></div>
+              <p id="cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="filter-reset" type="button">Ver todo</button>
+        </div>
+
+        <div class="kpi-row"><div class="kpi"><div class="value">1.194</div><div class="label">Fans - Latidos por México (hoy)</div></div><div class="kpi"><div class="value">1.330</div><div class="label">Seguidores - @latidospormexico (hoy)</div></div></div>
+
+        
+  <div class="card">
+    <h2><span class="dot fb"></span>Latidos por México (Facebook) - engagement diario</h2>
+    <div class="chart-wrap"><div id="fb_chart_0"></div></div>
+  </div>
+  <div class="card">
+    <h2><span class="dot ig"></span>@latidospormexico (Instagram) - alcance diario</h2>
+    <div class="chart-wrap"><div id="ig_chart_0"></div></div>
+  </div>
+
+        
+  <div class="card">
+    <h2>Posts (ordenados por alcance)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th></th><th>Plataforma</th><th>Contenido</th><th>Fecha</th>
+          <th class="num">Alcance</th><th class="num">Interacciones</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/728951292_18056291150749572_5042626959844942216_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=iWbpdAKTjEgQ7kNvwHC__wv&_nc_oc=AdqqhJxMzarKmBI-5ixO6HNYTRkwoem8wyFILlENaDEKZNgc_0GzGt8wYysCL9K8enY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQAIs7SyptTjqUNopHkcv2EjlxJqKxQkpFsXSgkNoyeVEg&oe=6A5C4BAA" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="10 años impulsando la innovación. 10 años honrando la humanidad👏👏
+
+En un mundo d">10 años impulsando la innovación. 10 años honrando la humanidad👏👏
+
+En un mundo d</td>
+          <td>2026-06-23</td>
+          <td class="num">1.907</td>
+          <td class="num">191</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DZ8laZhkePV/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.71878-15/730153136_3524792207697486_2579125949836432797_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=bslvecObVgUQ7kNvwG96vtM&_nc_oc=AdqyyN7XDuXs8csxwTQLhPUfxD9TdKcb9APhwDRx4_EejY3ssdBb9FlDALizFu7s3G0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQHc7eXeMARFwL2WT1Yr8AQVqE_sbEod66ooMkLVKbjnAvRicahPpK3TdBsZcqXPdEZ9GEgWFg3hvA&oh=00_AQDKQqozv1aovYPohbeeWiEEgpplcl4l-ABWpo66Tee_Sg&oe=6A5C5932" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a">Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a</td>
+          <td>2026-06-23</td>
+          <td class="num">855</td>
+          <td class="num">32</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DZ6FcO1R2Ou/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-30">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/733194969_18057356702749572_2645280011018294915_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=GP39xGSB3mIQ7kNvwFeqKRb&_nc_oc=AdoKRFyzxB21d6AeTsAw4ys145soBa-mgSBML6L3sg_IFDGaiy21gyMkNYzoYdeqtTs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQHmFHvyZcX1T4H0OdLTJzQUjnymfjjG9xnbuFcPjemzEdMPW0VRplyuVbBdHAdOubzgdvIWFABsUw&oh=00_AQB1gohgUR7--1L6UAiS-4JxORJKzCUZcDN9GE3DHy2QHg&oe=6A5C7630" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca">🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca</td>
+          <td>2026-06-30</td>
+          <td class="num">422</td>
+          <td class="num">36</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DaOLUckvYus/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-11">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/721209272_1050809964272493_1722476417358267909_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=QJuOjrCYhLQQ7kNvwHSaIgU&_nc_oc=AdpFTn69TyVPT-5ZwFQgWzwZFLxZSN5noN8vxUU3XCD_k1NQCyZMinmFPAmF0nDhWI0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQByZ4VvnTV-LhfabqNmpXAGz6XZiXfzv5ZoZW-6pn0iog&oe=6A5C560F" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="⚽ Hay goles que se celebran… y otros que se sienten en el corazón.
+
+Hoy latimos ">⚽ Hay goles que se celebran… y otros que se sienten en el corazón.
+
+Hoy latimos </td>
+          <td>2026-06-11</td>
+          <td class="num">258</td>
+          <td class="num">13</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DZdOEy0kqW5/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-14">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/746565489_18059455037749572_4171709730828667856_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=0KxfMNGhBuEQ7kNvwGxMIZH&_nc_oc=AdoStg_VsQLhQ8qumgXXlhTDXj398iuRNymAvdfAF3Ay_YTR2zIdVUSLJDM_zxmzT-c&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQDUwvvcPIlW-elZsPaHWgK7LtuZQ_tSGiL5C3hVCcsssg&oe=6A5C6364" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera ">🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera </td>
+          <td>2026-07-14</td>
+          <td class="num">255</td>
+          <td class="num">12</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DayDjPQkcRz/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-08">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/740827873_1074802188539937_1873778641690845914_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=6Zwx1DHVzpUQ7kNvwF57igh&_nc_oc=Adq_g1bOiMTn6YjmP5BNOCCtu66JF1ZRDHCVZqhlDVV0I2ktcGfsaM_RZQb7BNassQM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQDyYzkZMiHdNZ2RmBu0mWGx-zep_eFzu1lLi6j10bUWuA&oe=6A5C4A04" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="❤️ Presentamos la merch oficial de Latidos por México🧢
+
+🤝Hay productos que hacen">❤️ Presentamos la merch oficial de Latidos por México🧢
+
+🤝Hay productos que hacen</td>
+          <td>2026-07-08</td>
+          <td class="num">235</td>
+          <td class="num">24</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DaipBnIkhrN/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-03">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/715177952_18053518673749572_490308339349410136_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=uW9UUWEKGpcQ7kNvwGfOF19&_nc_oc=AdqhcuWx6YTpKt3GfXkS73hAUDyYF0ddhMvxNdLXggKfJTUdoAnlypAwxTqxE1sK7JE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQGMU-vXnitawiyPP5-Vk2Afht3Eew3BzyDbzwD24HCYBtOzh5Kpdbn1cehA7XtVy-NBSQPl03pK5g&oh=00_AQCZj9zigeJZqvHPyce5oZSbunM3MA7csG7SfSCLZFAqSw&oe=6A5C4E96" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Cada corazón pintado se convirtió en esperanza. ❤️
+
+Gracias a las alumnas de 5º ">Cada corazón pintado se convirtió en esperanza. ❤️
+
+Gracias a las alumnas de 5º </td>
+          <td>2026-06-03</td>
+          <td class="num">207</td>
+          <td class="num">14</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DZJIBVsiG8U/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-10">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742295107_1076708701682619_6811970717562487601_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=unpfgzrUGkcQ7kNvwEzTW3s&_nc_oc=AdqCmb2Pj5LELv5bUn7ZsrjOmQn010vfkW-GYA-EkK2jBIiqYWwnZZggwiYFGcZVxDs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&oh=00_AQAX5W5XqIpb1yMrSTWq5X8YxYv55octLXmqG1mXFmF0vA&oe=6A5C6EB9" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="❤️ Cada meta representa una oportunidad para cambiar una vida.
+
+En Latidos por M">❤️ Cada meta representa una oportunidad para cambiar una vida.
+
+En Latidos por M</td>
+          <td>2026-07-10</td>
+          <td class="num">133</td>
+          <td class="num">5</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DaoaNCYkpyo/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-15">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/723144609_18055016309749572_4446868280691339442_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=g6UovqGXyKIQ7kNvwHf5asp&_nc_oc=Adpgt-j-5gSsItvv32F_IUPZ0xl7bl-4c5di1DXUt43RjMGeXcFy73_jv7lvHfHicaU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQGSaeL_K_I0REImNCyl9Aqfya-PgKIqT7VOKGzgPOGgesa664T3IxGzlhDQ0E3c5v6MurhDCj2Zeg&oh=00_AQDTb4g0CCdjHyQwKW5W8IFTBBIDXjzHmiEejsM69cKpGg&oe=6A5C563B" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🩸❤️ Hoy celebramos a quienes laten por los demás.
+
+En el Día Mundial del Donante">🩸❤️ Hoy celebramos a quienes laten por los demás.
+
+En el Día Mundial del Donante</td>
+          <td>2026-06-15</td>
+          <td class="num">118</td>
+          <td class="num">6</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DZllFdTjnBo/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-30">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/708228398_18052904417749572_4770089137648866135_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=fpjCpN4w2_UQ7kNvwGeapvV&_nc_oc=AdoOskYeQwZaUdWc7XfZlYYvL16D4uEjdJBhxDeoEsxvuaDG-mqSMyGpCdKyweyKkkw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=oTsDLMQSm12iDxpuAJh0Ng&_nc_tpa=Q5bMBQH7jjdJKHi_Y1jPBnBanZU6pKcm6T0Xsgi43oEb8xkxBrqHFGqpc5J1Bid0GqdeMaeMD0_R2ejTnQ&oh=00_AQDFgYDqfyuZGLdo8ZaXjwz1-6JRcdBI7BwbIhonnRzTpg&oe=6A5C62CD" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Una silueta vacía se llena de vida cuando nos unimos por una causa. En Latidos p">Una silueta vacía se llena de vida cuando nos unimos por una causa. En Latidos p</td>
+          <td>2026-05-30</td>
+          <td class="num">71</td>
+          <td class="num">5</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DY95LCLgcBu/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-14">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/747613242_18059454932749572_2555697070521889971_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Kt0qjQUab0MQ7kNvwFCnwN4&_nc_oc=Adol1zEkg7YtL3s8A29yikY-R6YwlfVo4wsD6oZjQb1HS8GAmu04jG_P5YaU6UEcm_o&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQHEBUnKdi1muuAt98De-UcW_94meFUpOBfckGDlGk-Cgc41PCa56inPtFmmZSIwG4klTOvyhKhlIA&oh=00_AQAG4iOIo-rOT9CHfTtf8aRU028xY883pm2uxNJtir7fHg&oe=6A5C59B5" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera ">🫀Hoy vivimos una jornada muy especial al presentar los resultados de la Primera </td>
+          <td>2026-07-14</td>
+          <td class="num">-</td>
+          <td class="num">35</td>
+          <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1079832714703551" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-10">
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/742295107_1076708701682619_6811970717562487601_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=unpfgzrUGkcQ7kNvwEzTW3s&_nc_oc=AdqCmb2Pj5LELv5bUn7ZsrjOmQn010vfkW-GYA-EkK2jBIiqYWwnZZggwiYFGcZVxDs&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFfIgDy2k4rewNmFqnPXbS3YZaPObFy-9lstsdWpkW27Od6lMwf01D9UfPHjUWUHnU0eq446s3UQw&oh=00_AQCjEtawPXyZUes836zZMiOxT8wUJvlR4VwEbKG9hD9aIw&oe=6A5C6EB9" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="❤️ Cada meta representa una oportunidad para cambiar una vida.
+
+En Latidos por M">❤️ Cada meta representa una oportunidad para cambiar una vida.
+
+En Latidos por M</td>
+          <td>2026-07-10</td>
+          <td class="num">-</td>
+          <td class="num">18</td>
+          <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1076709051682584" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-08">
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/740827873_1074802188539937_1873778641690845914_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=6Zwx1DHVzpUQ7kNvwF57igh&_nc_oc=Adq_g1bOiMTn6YjmP5BNOCCtu66JF1ZRDHCVZqhlDVV0I2ktcGfsaM_RZQb7BNassQM&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQGclu6Jwg1_M9bW-7vWInBtour1tBw8Fki4juviPUnZXtaRb2WSJUodErsgYL-0Up41lDB07fMCmg&oh=00_AQBdNhWwj8_doFXFbgxyt11Y555QE1u-45_A3IKZjInEBA&oe=6A5C4A04" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="❤️ Presentamos la merch oficial de Latidos por México🧢
+
+🤝Hay productos que hacen">❤️ Presentamos la merch oficial de Latidos por México🧢
+
+🤝Hay productos que hacen</td>
+          <td>2026-07-08</td>
+          <td class="num">-</td>
+          <td class="num">14</td>
+          <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1074803611873128" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-30">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/733194969_18057356702749572_2645280011018294915_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=GP39xGSB3mIQ7kNvwFeqKRb&_nc_oc=AdoKRFyzxB21d6AeTsAw4ys145soBa-mgSBML6L3sg_IFDGaiy21gyMkNYzoYdeqtTs&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFhyu8dAyrjGO1TNjDgs80oSU9hdr-QSBSPpFDwErfki2LK38UsUHaA4JoCHjnDSigOr3rDi6xE7A&oh=00_AQBtQ5UHFPERDgPpfWt6P86Eb-cVt_sMNsaj78x7Micz_A&oe=6A5C72C0" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca">🥳👏En el marco del aniversario de CITIC, nuestra merch con causa demuestra que ca</td>
+          <td>2026-06-30</td>
+          <td class="num">-</td>
+          <td class="num">16</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1740240037158859/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/728951292_18056291150749572_5042626959844942216_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=iWbpdAKTjEgQ7kNvwHC__wv&_nc_oc=AdqqhJxMzarKmBI-5ixO6HNYTRkwoem8wyFILlENaDEKZNgc_0GzGt8wYysCL9K8enY&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQHhTLA5zxrsKQMSizLlGLUs8AMhoG7FER4kPeLOvXc92vhWjFDUMHhX0h40I8aU5Ub98drvfVp7rA&oh=00_AQAzZBQ1OGflAYdthiwLYt9f28k0Zf1dPO0j9TVqRX4LuA&oe=6A5C4BAA" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="10 años impulsando la innovación. 10 años honrando la humanidad👏👏
+
+En un mundo d">10 años impulsando la innovación. 10 años honrando la humanidad👏👏
+
+En un mundo d</td>
+          <td>2026-06-23</td>
+          <td class="num">-</td>
+          <td class="num">88</td>
+          <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1061358179884338" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.71878-10/728144918_2079029639346434_298073320608008587_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=ztf9QUf2UQ0Q7kNvwHI__Lc&_nc_oc=AdqDz2xXJEWaUsrJyhA67CTDBncp4BH21PAaUQJLFfBhJzKaW4ajWv_DUre6bYi8bJk&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQGL55xX8BjAQR3QL66OQ8eYVSKn3f4wMlliN6IF_R5bJ-AhQl_T0UBDcxoYsnj415qCpO8sA22p8w&oh=00_AQBbLx4YdCfeGP6R_jt2973AhadwgOQ6hsrqE3tmVxiJZQ&oe=6A5C6964" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a">Celebramos con orgullo los primeros 10 años de CITIC, una década de excelencia a</td>
+          <td>2026-06-23</td>
+          <td class="num">-</td>
+          <td class="num">19</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1325045993135410/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-15">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/719797925_4260403700892073_4834660897703205638_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=dE0AXoinciYQ7kNvwFYu7d1&_nc_oc=AdqrOFovJEe-N01CRetEVM0xl1oIYz0A6XrGA6XurfK2div0C2SbM7WumHDiZGKkY5g&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFrMoapKXlhOg8dxziTnLw4D-Q8lmT6oJSQ9SDbD2cFtU52ZoT0UxATtueZrP5oRZRsEuxhwGp0fw&oh=00_AQAyTpWEFi6ZyprnRgePLRtNxSjETM4JjmzUDwtalMGalA&oe=6A5C6D62" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🩸❤️ Hoy celebramos a quienes laten por los demás.
+
+En el Día Mundial del Donante">🩸❤️ Hoy celebramos a quienes laten por los demás.
+
+En el Día Mundial del Donante</td>
+          <td>2026-06-15</td>
+          <td class="num">-</td>
+          <td class="num">3</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1212382594260495/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-15">
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/724540423_1053619190658237_4704632493644227879_n.png?stp=dst-png_p720x720&_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=AOJ30djiRFAQ7kNvwFand-E&_nc_oc=Adpl6AXTzNeQELToFkGEouCaep70sECEJlDA6ECX_vQKRTAI_6gYqkD9Hfs7JkJ7rRE&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQHvCMovoSMYGbQgyORpO0qG3QbdAlSZomp4V6qK2z0OP0R8nEoHsmPCGuqtTlfnTFWc6sSLIZdKzw&oh=00_AQCp8ja3YohKLVtt-cDefRzetkosWp55jy22cMiqZxfujQ&oe=6A5C69C0" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="(sin texto)">(sin texto)</td>
+          <td>2026-06-15</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/2460633304360073?substory_index=2460633304360073" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-11">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/721209272_1050809964272493_1722476417358267909_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=QJuOjrCYhLQQ7kNvwHSaIgU&_nc_oc=AdpFTn69TyVPT-5ZwFQgWzwZFLxZSN5noN8vxUU3XCD_k1NQCyZMinmFPAmF0nDhWI0&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQFkvU44VqYi0q9bnyoOoHY5hFMfxPOHCo4XJvz9yownK0wa4Q3t0NphjiBZw15EMuqHf5J74XLK-w&oh=00_AQBeWFXVWkX-3mEEqqWuZOTWUBzleTA4wKGFOJt_GjFTOw&oe=6A5C560F" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="⚽ Hay goles que se celebran… y otros que se sienten en el corazón.
+
+Hoy latimos ">⚽ Hay goles que se celebran… y otros que se sienten en el corazón.
+
+Hoy latimos </td>
+          <td>2026-06-11</td>
+          <td class="num">-</td>
+          <td class="num">7</td>
+          <td><a class="permalink" href="https://www.facebook.com/1069428619077294/posts/1050810634272426" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-03">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/710709091_986921774313510_912962503246054680_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=GSNXqvK2e2YQ7kNvwEc-Pxd&_nc_oc=AdqoelJmEbdgeaxD4ptSyBY3i2u9jrdptBUP3J-06oB3gtA7v9dWq-tcTFjqBajYbh0&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=jzRu7JFcJvchcRw20rVryA&_nc_tpa=Q5bMBQG2uChp1M2OcgJ5mL7Sg6czbWwWVvzy3lUPOze_4lux1-el70DsKYtrYcl0xqVQ9v_hKcNiyPer5Q&oh=00_AQA1yXyQ0pXroQixilHIRPjGrcqCKCNY14K7T9a5tH3fsA&oe=6A5C49F8" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Cada corazón pintado se convirtió en esperanza. ❤️
+
+Gracias a las alumnas de 5º ">Cada corazón pintado se convirtió en esperanza. ❤️
+
+Gracias a las alumnas de 5º </td>
+          <td>2026-06-03</td>
+          <td class="num">-</td>
+          <td class="num">8</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1474771281356065/" target="_blank" rel="noopener">Ver</a></td>
+        </tr></tbody>
+    </table>
+  </div>
+      </section>
+      <section id="tab-pautas" class="tab-panel">
+        <h1>Pauta (anuncios pagados)</h1>
+        <p class="subtitle" style="padding:0;margin:2px 0 18px;">Cuenta: latidospormexico · Moneda: MXN · Campañas: LT2 · Sin campañas con actividad en el periodo (la cuenta se leyo correctamente; no hubo entrega en estas fechas).</p>
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="p-filter-trigger" class="date-pill"></button>
+            <div id="p-calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="p-cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="p-cal-month-label"></span>
+                <button type="button" id="p-cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="p-cal-grid" class="calendar-grid"></div>
+              <p id="p-cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="p-filter-reset" type="button">Ver todo</button>
+        </div>
+        <div class="kpi-row" id="ads-kpi-row"><p class="empty">Sin datos de pautas todavia.</p></div>
+        <p id="ads-range-note" class="range-note" hidden></p>
+        
+        <div class="card"><h2>Campañas</h2><p class="empty">No hay campañas con datos en el rango.</p></div>
+      </section>
+      <section id="tab-recomendaciones" class="tab-panel">
+        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">20</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">4.461</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">546</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Mayo 2026</div><div class="label">Mes mas flojo</div></div></div>
+        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido en Insights o en Pauta.
+        El desglose mensual y las recomendaciones analizan siempre el periodo completo.</p>
+
+        
+  <div class="card">
+    <h2>Analisis mensual</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th><th class="num">Posts FB</th><th class="num">Posts IG</th>
+          <th class="num">Engagement prom. FB</th><th class="num">Alcance prom. IG</th>
+          <th class="num">Cadencia (post/sem)</th><th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Enero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Febrero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Marzo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Abril 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Mayo 2026</td>
+          <td class="num">0</td>
+          <td class="num">1</td>
+          <td class="num">-</td>
+          <td class="num">71</td>
+          <td class="num">0.2</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Junio 2026</td>
+          <td class="num">7</td>
+          <td class="num">6</td>
+          <td class="num">20</td>
+          <td class="num">628</td>
+          <td class="num">1.2</td>
+          <td>+784% vs mes anterior</td>
+        </tr>
+        <tr>
+          <td>Julio 2026</td>
+          <td class="num">3</td>
+          <td class="num">3</td>
+          <td class="num">22</td>
+          <td class="num">208</td>
+          <td class="num">1.5</td>
+          <td>mes en curso</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+        
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Facebook</h3>
+    <p class="rec-stat">0.3 dias con post/semana (minimo recomendado: 3)</p>
+    <p class="rec-detail">En los ultimos 195 dias hubo posts en solo 8 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Instagram</h3>
+    <p class="rec-stat">0.3 dias con post/semana (minimo recomendado: 3)</p>
+    <p class="rec-detail">En los ultimos 195 dias hubo posts en solo 9 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot info"></span>Feed alcanza mas que Reels en Instagram</h3>
+    <p class="rec-stat">alcance promedio 558 (n=5) vs 335 (Reels)</p>
+    <p class="rec-detail">Feed supera a Reels por 67% en alcance promedio. Vale la pena priorizar ese formato para publicaciones nuevas.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot positivo"></span>Engagement en alza para Latidos por México (Facebook)</h3>
+    <p class="rec-stat">ultimos 30 dias: 6.9 vs 2.2 de los 30 dias previos (+214%)</p>
+    <p class="rec-detail">La tendencia reciente supera al periodo anterior. Vale la pena identificar que esta funcionando para mantenerlo.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot positivo"></span>Alcance en alza para @latidospormexico (Instagram)</h3>
+    <p class="rec-stat">ultimos 30 dias: 148.7 vs 83.5 de los 30 dias previos (+78%)</p>
+    <p class="rec-detail">La tendencia reciente supera al periodo anterior. Vale la pena identificar que esta funcionando para mantenerlo.</p>
+  </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 0}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 0}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 25}, {"label": "2026-01-08", "value": 56}, {"label": "2026-01-09", "value": 9}, {"label": "2026-01-10", "value": 2}, {"label": "2026-01-11", "value": 3}, {"label": "2026-01-12", "value": 1}, {"label": "2026-01-13", "value": 0}, {"label": "2026-01-14", "value": 2}, {"label": "2026-01-15", "value": 2}, {"label": "2026-01-16", "value": 2}, {"label": "2026-01-17", "value": 0}, {"label": "2026-01-18", "value": 0}, {"label": "2026-01-19", "value": 2}, {"label": "2026-01-20", "value": 0}, {"label": "2026-01-21", "value": 3}, {"label": "2026-01-22", "value": 3}, {"label": "2026-01-23", "value": 3}, {"label": "2026-01-24", "value": 4}, {"label": "2026-01-25", "value": 9}, {"label": "2026-01-26", "value": 0}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 19}, {"label": "2026-01-29", "value": 3}, {"label": "2026-01-30", "value": 27}, {"label": "2026-01-31", "value": 7}, {"label": "2026-02-01", "value": 3}, {"label": "2026-02-02", "value": 2}, {"label": "2026-02-03", "value": 12}, {"label": "2026-02-04", "value": 0}, {"label": "2026-02-05", "value": 346}, {"label": "2026-02-06", "value": 81}, {"label": "2026-02-07", "value": 205}, {"label": "2026-02-08", "value": 60}, {"label": "2026-02-09", "value": 7}, {"label": "2026-02-10", "value": 9}, {"label": "2026-02-11", "value": 16}, {"label": "2026-02-12", "value": 5}, {"label": "2026-02-13", "value": 3}, {"label": "2026-02-14", "value": 2}, {"label": "2026-02-15", "value": 19}, {"label": "2026-02-16", "value": 8}, {"label": "2026-02-17", "value": 0}, {"label": "2026-02-18", "value": 0}, {"label": "2026-02-19", "value": 9}, {"label": "2026-02-20", "value": 2}, {"label": "2026-02-21", "value": 5}, {"label": "2026-02-22", "value": 0}, {"label": "2026-02-23", "value": 0}, {"label": "2026-02-24", "value": 2}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 4}, {"label": "2026-02-28", "value": 8}, {"label": "2026-03-01", "value": 0}, {"label": "2026-03-02", "value": 2}, {"label": "2026-03-03", "value": 3}, {"label": "2026-03-04", "value": 0}, {"label": "2026-03-05", "value": 3}, {"label": "2026-03-06", "value": 5}, {"label": "2026-03-07", "value": 1}, {"label": "2026-03-08", "value": 0}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 0}, {"label": "2026-03-11", "value": 0}, {"label": "2026-03-12", "value": 10}, {"label": "2026-03-13", "value": 2}, {"label": "2026-03-14", "value": 6}, {"label": "2026-03-15", "value": 0}, {"label": "2026-03-16", "value": 9}, {"label": "2026-03-17", "value": 2}, {"label": "2026-03-18", "value": 1}, {"label": "2026-03-19", "value": 16}, {"label": "2026-03-20", "value": 12}, {"label": "2026-03-21", "value": 7}, {"label": "2026-03-22", "value": 5}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 2}, {"label": "2026-03-25", "value": 85}, {"label": "2026-03-26", "value": 15}, {"label": "2026-03-27", "value": 14}, {"label": "2026-03-28", "value": 14}, {"label": "2026-03-29", "value": 17}, {"label": "2026-03-30", "value": 5}, {"label": "2026-04-01", "value": 11}, {"label": "2026-04-02", "value": 115}, {"label": "2026-04-03", "value": 59}, {"label": "2026-04-04", "value": 79}, {"label": "2026-04-05", "value": 26}, {"label": "2026-04-06", "value": 14}, {"label": "2026-04-07", "value": 5}, {"label": "2026-04-08", "value": 10}, {"label": "2026-04-09", "value": 1}, {"label": "2026-04-10", "value": 9}, {"label": "2026-04-11", "value": 2}, {"label": "2026-04-12", "value": 1}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 1}, {"label": "2026-04-16", "value": 7}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 1}, {"label": "2026-04-19", "value": 6}, {"label": "2026-04-20", "value": 1}, {"label": "2026-04-21", "value": 1}, {"label": "2026-04-22", "value": 2}, {"label": "2026-04-23", "value": 0}, {"label": "2026-04-24", "value": 14}, {"label": "2026-04-25", "value": 3}, {"label": "2026-04-26", "value": 1}, {"label": "2026-04-27", "value": 1}, {"label": "2026-04-28", "value": 0}, {"label": "2026-04-29", "value": 2}, {"label": "2026-04-30", "value": 1}, {"label": "2026-05-01", "value": 7}, {"label": "2026-05-02", "value": 0}, {"label": "2026-05-03", "value": 3}, {"label": "2026-05-04", "value": 3}, {"label": "2026-05-05", "value": 0}, {"label": "2026-05-06", "value": 4}, {"label": "2026-05-07", "value": 0}, {"label": "2026-05-08", "value": 0}, {"label": "2026-05-09", "value": 125}, {"label": "2026-05-10", "value": 5}, {"label": "2026-05-11", "value": 5}, {"label": "2026-05-12", "value": 2}, {"label": "2026-05-13", "value": 9}, {"label": "2026-05-14", "value": 2}, {"label": "2026-05-15", "value": 0}, {"label": "2026-05-16", "value": 9}, {"label": "2026-05-17", "value": 0}, {"label": "2026-05-18", "value": 4}, {"label": "2026-05-19", "value": 0}, {"label": "2026-05-20", "value": 3}, {"label": "2026-05-21", "value": 0}, {"label": "2026-05-22", "value": 1}, {"label": "2026-05-23", "value": 3}, {"label": "2026-05-24", "value": 0}, {"label": "2026-05-25", "value": 3}, {"label": "2026-05-26", "value": 5}, {"label": "2026-05-27", "value": 5}, {"label": "2026-05-28", "value": 1}, {"label": "2026-05-29", "value": 4}, {"label": "2026-05-30", "value": 1}, {"label": "2026-05-31", "value": 11}, {"label": "2026-06-01", "value": 3}, {"label": "2026-06-02", "value": 0}, {"label": "2026-06-03", "value": 0}, {"label": "2026-06-04", "value": 5}, {"label": "2026-06-05", "value": 1}, {"label": "2026-06-06", "value": 0}, {"label": "2026-06-07", "value": 0}, {"label": "2026-06-08", "value": 0}, {"label": "2026-06-09", "value": 0}, {"label": "2026-06-10", "value": 0}, {"label": "2026-06-11", "value": 0}, {"label": "2026-06-12", "value": 7}, {"label": "2026-06-13", "value": 0}, {"label": "2026-06-14", "value": 0}, {"label": "2026-06-15", "value": 0}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 1}, {"label": "2026-06-18", "value": 0}, {"label": "2026-06-19", "value": 1}, {"label": "2026-06-20", "value": 0}, {"label": "2026-06-21", "value": 1}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 16}, {"label": "2026-06-24", "value": 71}, {"label": "2026-06-25", "value": 29}, {"label": "2026-06-26", "value": 3}, {"label": "2026-06-27", "value": 2}, {"label": "2026-06-29", "value": 0}, {"label": "2026-06-30", "value": 0}, {"label": "2026-07-01", "value": 10}, {"label": "2026-07-02", "value": 6}, {"label": "2026-07-03", "value": 1}, {"label": "2026-07-04", "value": 0}, {"label": "2026-07-05", "value": 0}, {"label": "2026-07-06", "value": 2}, {"label": "2026-07-07", "value": 1}, {"label": "2026-07-08", "value": 0}, {"label": "2026-07-09", "value": 16}, {"label": "2026-07-10", "value": 2}, {"label": "2026-07-11", "value": 10}, {"label": "2026-07-12", "value": 7}, {"label": "2026-07-13", "value": 15}, {"label": "2026-07-14", "value": 13}]}, "ig_chart_0": {"color": "#1baf7a", "points": [{"label": "2026-01-01", "value": 80}, {"label": "2026-01-02", "value": 18}, {"label": "2026-01-03", "value": 22}, {"label": "2026-01-04", "value": 23}, {"label": "2026-01-05", "value": 78}, {"label": "2026-01-06", "value": 256}, {"label": "2026-01-07", "value": 354}, {"label": "2026-01-08", "value": 115}, {"label": "2026-01-09", "value": 45}, {"label": "2026-01-10", "value": 51}, {"label": "2026-01-11", "value": 36}, {"label": "2026-01-12", "value": 72}, {"label": "2026-01-13", "value": 170}, {"label": "2026-01-14", "value": 104}, {"label": "2026-01-15", "value": 43}, {"label": "2026-01-16", "value": 62}, {"label": "2026-01-17", "value": 30}, {"label": "2026-01-18", "value": 20}, {"label": "2026-01-19", "value": 23}, {"label": "2026-01-20", "value": 57}, {"label": "2026-01-21", "value": 91}, {"label": "2026-01-22", "value": 53}, {"label": "2026-01-23", "value": 64}, {"label": "2026-01-24", "value": 34}, {"label": "2026-01-25", "value": 17}, {"label": "2026-01-26", "value": 54}, {"label": "2026-01-27", "value": 83}, {"label": "2026-01-28", "value": 50}, {"label": "2026-01-29", "value": 99}, {"label": "2026-01-31", "value": 34}, {"label": "2026-02-01", "value": 33}, {"label": "2026-02-02", "value": 61}, {"label": "2026-02-03", "value": 78}, {"label": "2026-02-04", "value": 417}, {"label": "2026-02-05", "value": 146}, {"label": "2026-02-06", "value": 130}, {"label": "2026-02-07", "value": 44}, {"label": "2026-02-08", "value": 18}, {"label": "2026-02-09", "value": 917}, {"label": "2026-02-10", "value": 303}, {"label": "2026-02-11", "value": 71}, {"label": "2026-02-12", "value": 13}, {"label": "2026-02-13", "value": 27}, {"label": "2026-02-14", "value": 183}, {"label": "2026-02-15", "value": 41}, {"label": "2026-02-16", "value": 209}, {"label": "2026-02-17", "value": 30}, {"label": "2026-02-18", "value": 200}, {"label": "2026-02-19", "value": 39}, {"label": "2026-02-20", "value": 120}, {"label": "2026-02-21", "value": 50}, {"label": "2026-02-22", "value": 19}, {"label": "2026-02-23", "value": 31}, {"label": "2026-02-24", "value": 74}, {"label": "2026-02-25", "value": 90}, {"label": "2026-02-26", "value": 52}, {"label": "2026-02-27", "value": 100}, {"label": "2026-02-28", "value": 130}, {"label": "2026-03-02", "value": 37}, {"label": "2026-03-03", "value": 37}, {"label": "2026-03-04", "value": 116}, {"label": "2026-03-05", "value": 406}, {"label": "2026-03-06", "value": 116}, {"label": "2026-03-07", "value": 41}, {"label": "2026-03-08", "value": 19}, {"label": "2026-03-09", "value": 19}, {"label": "2026-03-10", "value": 18}, {"label": "2026-03-11", "value": 49}, {"label": "2026-03-12", "value": 33}, {"label": "2026-03-13", "value": 129}, {"label": "2026-03-14", "value": 213}, {"label": "2026-03-15", "value": 178}, {"label": "2026-03-16", "value": 72}, {"label": "2026-03-17", "value": 211}, {"label": "2026-03-18", "value": 74}, {"label": "2026-03-19", "value": 191}, {"label": "2026-03-20", "value": 422}, {"label": "2026-03-21", "value": 218}, {"label": "2026-03-22", "value": 29}, {"label": "2026-03-23", "value": 414}, {"label": "2026-03-24", "value": 1134}, {"label": "2026-03-25", "value": 142}, {"label": "2026-03-26", "value": 244}, {"label": "2026-03-27", "value": 408}, {"label": "2026-03-28", "value": 198}, {"label": "2026-03-29", "value": 66}, {"label": "2026-03-30", "value": 31}, {"label": "2026-04-01", "value": 561}, {"label": "2026-04-02", "value": 251}, {"label": "2026-04-03", "value": 1466}, {"label": "2026-04-04", "value": 1114}, {"label": "2026-04-05", "value": 338}, {"label": "2026-04-06", "value": 322}, {"label": "2026-04-07", "value": 133}, {"label": "2026-04-08", "value": 164}, {"label": "2026-04-09", "value": 244}, {"label": "2026-04-10", "value": 162}, {"label": "2026-04-11", "value": 300}, {"label": "2026-04-12", "value": 57}, {"label": "2026-04-13", "value": 464}, {"label": "2026-04-14", "value": 632}, {"label": "2026-04-15", "value": 476}, {"label": "2026-04-16", "value": 406}, {"label": "2026-04-17", "value": 264}, {"label": "2026-04-18", "value": 83}, {"label": "2026-04-19", "value": 46}, {"label": "2026-04-20", "value": 26}, {"label": "2026-04-21", "value": 94}, {"label": "2026-04-22", "value": 65}, {"label": "2026-04-23", "value": 99}, {"label": "2026-04-24", "value": 103}, {"label": "2026-04-25", "value": 78}, {"label": "2026-04-26", "value": 57}, {"label": "2026-04-27", "value": 58}, {"label": "2026-04-28", "value": 29}, {"label": "2026-04-29", "value": 26}, {"label": "2026-05-01", "value": 52}, {"label": "2026-05-02", "value": 56}, {"label": "2026-05-03", "value": 24}, {"label": "2026-05-04", "value": 12}, {"label": "2026-05-05", "value": 174}, {"label": "2026-05-06", "value": 73}, {"label": "2026-05-07", "value": 31}, {"label": "2026-05-08", "value": 258}, {"label": "2026-05-09", "value": 73}, {"label": "2026-05-10", "value": 154}, {"label": "2026-05-11", "value": 65}, {"label": "2026-05-12", "value": 61}, {"label": "2026-05-13", "value": 131}, {"label": "2026-05-14", "value": 34}, {"label": "2026-05-15", "value": 113}, {"label": "2026-05-16", "value": 45}, {"label": "2026-05-17", "value": 127}, {"label": "2026-05-18", "value": 48}, {"label": "2026-05-19", "value": 54}, {"label": "2026-05-20", "value": 41}, {"label": "2026-05-21", "value": 59}, {"label": "2026-05-22", "value": 50}, {"label": "2026-05-23", "value": 37}, {"label": "2026-05-24", "value": 160}, {"label": "2026-05-25", "value": 420}, {"label": "2026-05-26", "value": 143}, {"label": "2026-05-27", "value": 41}, {"label": "2026-05-28", "value": 162}, {"label": "2026-05-29", "value": 38}, {"label": "2026-05-31", "value": 38}, {"label": "2026-06-01", "value": 18}, {"label": "2026-06-02", "value": 22}, {"label": "2026-06-03", "value": 158}, {"label": "2026-06-04", "value": 174}, {"label": "2026-06-05", "value": 49}, {"label": "2026-06-06", "value": 19}, {"label": "2026-06-07", "value": 14}, {"label": "2026-06-08", "value": 19}, {"label": "2026-06-09", "value": 16}, {"label": "2026-06-10", "value": 20}, {"label": "2026-06-11", "value": 206}, {"label": "2026-06-12", "value": 49}, {"label": "2026-06-13", "value": 9}, {"label": "2026-06-14", "value": 97}, {"label": "2026-06-15", "value": 20}, {"label": "2026-06-16", "value": 27}, {"label": "2026-06-17", "value": 19}, {"label": "2026-06-18", "value": 10}, {"label": "2026-06-19", "value": 17}, {"label": "2026-06-20", "value": 11}, {"label": "2026-06-21", "value": 15}, {"label": "2026-06-22", "value": 553}, {"label": "2026-06-23", "value": 515}, {"label": "2026-06-24", "value": 234}, {"label": "2026-06-25", "value": 863}, {"label": "2026-06-26", "value": 392}, {"label": "2026-06-27", "value": 209}, {"label": "2026-06-28", "value": 94}, {"label": "2026-06-30", "value": 354}, {"label": "2026-07-01", "value": 89}, {"label": "2026-07-02", "value": 106}, {"label": "2026-07-03", "value": 69}, {"label": "2026-07-04", "value": 54}, {"label": "2026-07-05", "value": 31}, {"label": "2026-07-06", "value": 25}, {"label": "2026-07-07", "value": 20}, {"label": "2026-07-08", "value": 161}, {"label": "2026-07-09", "value": 72}, {"label": "2026-07-10", "value": 59}, {"label": "2026-07-11", "value": 100}, {"label": "2026-07-12", "value": 117}, {"label": "2026-07-13", "value": 119}]}};
+// Datos de pauta con granularidad DIARIA: permiten recalcular los KPIs y la
+// tabla de campañas para cualquier rango sin volver a llamar a la Graph API
+// (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
+const ADS = {"hasData": false};
+// Posts (organico) con su fecha, para recalcular el resumen por rango.
+const POSTS = [{"date": "2026-07-14", "platform": "Facebook", "engagement": 35, "reach": 0}, {"date": "2026-07-10", "platform": "Facebook", "engagement": 18, "reach": 0}, {"date": "2026-07-08", "platform": "Facebook", "engagement": 14, "reach": 0}, {"date": "2026-06-30", "platform": "Facebook", "engagement": 16, "reach": 0}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 88, "reach": 0}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 19, "reach": 0}, {"date": "2026-06-15", "platform": "Facebook", "engagement": 3, "reach": 0}, {"date": "2026-06-15", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-06-11", "platform": "Facebook", "engagement": 7, "reach": 0}, {"date": "2026-06-03", "platform": "Facebook", "engagement": 8, "reach": 0}, {"date": "2026-07-14", "platform": "Instagram", "engagement": 12, "reach": 255}, {"date": "2026-07-10", "platform": "Instagram", "engagement": 5, "reach": 133}, {"date": "2026-07-08", "platform": "Instagram", "engagement": 24, "reach": 235}, {"date": "2026-06-30", "platform": "Instagram", "engagement": 36, "reach": 422}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 191, "reach": 1907}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 32, "reach": 855}, {"date": "2026-06-15", "platform": "Instagram", "engagement": 6, "reach": 118}, {"date": "2026-06-11", "platform": "Instagram", "engagement": 13, "reach": 258}, {"date": "2026-06-03", "platform": "Instagram", "engagement": 14, "reach": 207}, {"date": "2026-05-30", "platform": "Instagram", "engagement": 5, "reach": 71}];
+
+function renderLineChart(containerId, points, color) {
+  const container = document.getElementById(containerId);
+  if (!points || points.length < 2) {
+    container.innerHTML = '<p class="empty">No hay suficientes datos para graficar esta serie.</p>';
+    return;
+  }
+  const width = container.clientWidth || 600;
+  const height = 180;
+  const padL = 40, padR = 12, padT = 12, padB = 24;
+  const xs = points.map((_, i) => i);
+  const ys = points.map(p => p.value);
+  const minY = Math.min(0, ...ys);
+  const maxY = Math.max(...ys) * 1.1 || 1;
+
+  const xScale = i => padL + (i / (points.length - 1)) * (width - padL - padR);
+  const yScale = v => height - padB - ((v - minY) / (maxY - minY)) * (height - padT - padB);
+
+  const path = xs.map(i => `${i === 0 ? 'M' : 'L'} ${xScale(i)},${yScale(ys[i])}`).join(' ');
+
+  const gridlines = 4;
+  let gridSvg = '';
+  for (let g = 0; g <= gridlines; g++) {
+    const v = minY + (g / gridlines) * (maxY - minY);
+    const y = yScale(v);
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${width - padR}" y2="${y}" stroke="var(--gridline)" stroke-width="1"/>`;
+    gridSvg += `<text x="${padL - 6}" y="${y + 3}" font-size="10" fill="var(--text-muted)" text-anchor="end">${Math.round(v)}</text>`;
+  }
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
+      ${gridSvg}
+      <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="tooltip"></div>
+  `;
+
+  const svg = container.querySelector('svg');
+  const tooltip = container.querySelector('.tooltip');
+  const hitLayer = document.createElementNS(svgNS, 'rect');
+  hitLayer.setAttribute('x', padL); hitLayer.setAttribute('y', 0);
+  hitLayer.setAttribute('width', width - padL - padR); hitLayer.setAttribute('height', height);
+  hitLayer.setAttribute('fill', 'transparent');
+  svg.appendChild(hitLayer);
+
+  const crosshair = document.createElementNS(svgNS, 'line');
+  crosshair.setAttribute('y1', padT); crosshair.setAttribute('y2', height - padB);
+  crosshair.setAttribute('stroke', 'var(--baseline)'); crosshair.setAttribute('stroke-width', '1');
+  crosshair.style.display = 'none';
+  svg.appendChild(crosshair);
+
+  svg.addEventListener('mousemove', (e) => {
+    const rect = svg.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (width / rect.width);
+    let idx = Math.round(((px - padL) / (width - padL - padR)) * (points.length - 1));
+    idx = Math.max(0, Math.min(points.length - 1, idx));
+    const cx = xScale(idx);
+    crosshair.setAttribute('x1', cx); crosshair.setAttribute('x2', cx);
+    crosshair.style.display = 'block';
+    tooltip.style.opacity = 1;
+    tooltip.style.left = `${(cx / width) * 100}%`;
+    tooltip.style.top = `${(yScale(ys[idx]) / height) * 100}%`;
+    tooltip.textContent = `${points[idx].label}: ${points[idx].value.toLocaleString()}`;
+  });
+  svg.addEventListener('mouseleave', () => {
+    crosshair.style.display = 'none';
+    tooltip.style.opacity = 0;
+  });
+}
+
+const MONTH_ES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+const allLabels = Object.values(chartData).flatMap(({ points }) => points.map(p => p.label)).sort();
+const minDate = allLabels[0];
+const maxDate = allLabels[allLabels.length - 1];
+
+// Estado del rango COMPARTIDO entre pestañas: los calendarios de Insights y de
+// Pauta controlan y reflejan el mismo [selStart, selEnd].
+let selStart = minDate;
+let selEnd = maxDate;
+
+// --- Formateo, identico al de report.py (miles con punto, decimales con coma) ---
+// No se usa toLocaleString('es-ES') porque no agrupa los numeros de 4 cifras
+// (daria "7307" donde Python escribe "7.307") y quedarian estilos mezclados.
+function groupThousands(intStr) {
+  return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function fmtNum(n) {
+  if (n === null || n === undefined) return '-';
+  return groupThousands(String(Math.round(n)));
+}
+function fmtDec(n) {
+  const [int, dec] = Math.abs(n).toFixed(2).split('.');
+  return `${n < 0 ? '-' : ''}${groupThousands(int)},${dec}`;
+}
+function fmtMoney(n) {
+  if (n === null || n === undefined) return '-';
+  return `$${fmtDec(n)} ${ADS.currency}`.trim();
+}
+function fmtPct(n) {
+  if (n === null || n === undefined) return '-';
+  return fmtDec(n) + '%';
+}
+function kpiTile(valueHtml, label, muted) {
+  return `<div class="kpi"><div class="value${muted ? ' na' : ''}">${valueHtml}</div>` +
+         `<div class="label">${label}</div></div>`;
+}
+
+// Suma las metricas ADITIVAS de las filas diarias que caen en el rango y deriva
+// CTR/CPC/CPM/costo por resultado. Reproduce exactamente lo que reporta Meta
+// para ese rango (verificado contra sus totales del periodo completo).
+function aggregate(rows, since, until) {
+  const inRange = rows.filter(r => r.date >= since && r.date <= until);
+  const spend = inRange.reduce((a, r) => a + r.spend, 0);
+  const impressions = inRange.reduce((a, r) => a + r.impressions, 0);
+  const clicks = inRange.reduce((a, r) => a + r.clicks, 0);
+  const results = ADS.resultActionType
+    ? inRange.reduce((a, r) => a + (r.actions[ADS.resultActionType] || 0), 0)
+    : 0;
+  return {
+    spend, impressions, clicks, results,
+    ctr: impressions ? (clicks / impressions) * 100 : null,
+    cpc: clicks ? spend / clicks : null,
+    cpm: impressions ? (spend / impressions) * 1000 : null,
+    costPerResult: results ? spend / results : null,
+  };
+}
+
+// El alcance es una metrica DEDUPLICADA (personas unicas): sumar el alcance de
+// cada dia contaria varias veces a la misma persona. Solo Meta puede calcularlo,
+// y solo para el rango que se le pidio. Por eso el valor exacto existe unicamente
+// para el periodo completo; en un subrango se muestra "n/d" en vez de inventarlo.
+//
+// "Periodo completo" = los limites del calendario (lo que deja el boton "Ver
+// todo"), no las fechas con las que se llamo a la API: minDate/maxDate cubren
+// todos los dias con datos, asi que el agregado sobre ese span es identico a los
+// totales que devolvio Meta.
+function isFullRange(since, until) {
+  return since === minDate && until === maxDate;
+}
+
+function renderAdsKpis(since, until) {
+  const row = document.getElementById('ads-kpi-row');
+  if (!row || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // En el rango completo se usan los totales EXACTOS de Meta (mismo numero que
+  // ve en el Administrador de anuncios); en un subrango se recalcula del diario.
+  const a = full ? ADS.totals : aggregate(ADS.daily, since, until);
+
+  const tiles = [];
+  if (a.results) {
+    tiles.push(kpiTile(fmtNum(a.results), ADS.resultLabel || 'Resultados'));
+    tiles.push(kpiTile(fmtMoney(a.costPerResult), 'Costo por resultado'));
+  }
+  tiles.push(kpiTile(fmtMoney(a.spend), 'Importe gastado'));
+  tiles.push(full
+    ? kpiTile(fmtNum(ADS.totals.reach), 'Alcance')
+    : kpiTile('n/d', 'Alcance', true));
+  tiles.push(kpiTile(fmtNum(a.impressions), 'Impresiones'));
+  tiles.push(kpiTile(fmtNum(a.clicks), 'Clics'));
+  tiles.push(kpiTile(fmtPct(a.ctr), 'CTR'));
+  tiles.push(kpiTile(fmtMoney(a.cpc), 'CPC'));
+  tiles.push(kpiTile(fmtMoney(a.cpm), 'CPM'));
+  row.innerHTML = tiles.join('');
+
+  const note = document.getElementById('ads-range-note');
+  if (note) {
+    note.hidden = full;
+    note.textContent = full ? '' :
+      'El alcance no se puede calcular para un rango personalizado: es una metrica de personas ' +
+      'unicas y sumar el alcance de cada dia contaria varias veces a la misma persona. ' +
+      'Pulsa "Ver todo" para ver el alcance real del periodo completo. El resto de metricas ' +
+      'si corresponden al rango elegido.';
+  }
+}
+
+function renderAdsCampaigns(since, until) {
+  const body = document.getElementById('ads-campaigns-body');
+  if (!body || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // Agrupa las filas campaña/dia del rango y reconstruye una fila por campaña.
+  const byName = {};
+  ADS.campaignDaily
+    .filter(r => r.date >= since && r.date <= until)
+    .forEach(r => {
+      (byName[r.name] = byName[r.name] || []).push(r);
+    });
+
+  const rows = Object.keys(byName).map(name => {
+    const a = aggregate(byName[name], since, until);
+    // El alcance por campaña tiene el mismo problema de deduplicacion: solo se
+    // muestra el de Meta cuando esta seleccionado el periodo completo.
+    const reach = full ? (ADS.reachByCampaign[name] ?? null) : null;
+    return { name, ...a, reach };
+  }).filter(c => c.spend > 0 || c.impressions > 0)
+    .sort((a, b) => b.spend - a.spend);
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="9" class="empty">No hay campañas con datos en el rango.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(c => `
+        <tr>
+          <td class="post-caption" title="${c.name}">${c.name}</td>
+          <td class="num">${fmtMoney(c.spend)}</td>
+          <td class="num">${full ? fmtNum(c.reach) : 'n/d'}</td>
+          <td class="num">${fmtNum(c.impressions)}</td>
+          <td class="num">${fmtNum(c.clicks)}</td>
+          <td class="num">${fmtPct(c.ctr)}</td>
+          <td class="num">${fmtMoney(c.cpc)}</td>
+          <td class="num">${c.results ? fmtNum(c.results) : '-'}</td>
+          <td class="num">${c.costPerResult ? fmtMoney(c.costPerResult) : '-'}</td>
+        </tr>`).join('');
+}
+
+// Resumen organico: cuenta los posts del rango y suma su engagement/alcance.
+function renderOrganicSummary(since, until) {
+  const row = document.getElementById('organic-summary-row');
+  if (!row) return;
+
+  const inRange = POSTS.filter(p => p.date >= since && p.date <= until);
+  const hasIg = inRange.some(p => p.platform === 'Instagram');
+  const engagement = inRange.reduce((a, p) => a + (p.engagement || 0), 0);
+  const reach = inRange.reduce((a, p) => a + (p.reach || 0), 0);
+
+  const tiles = [kpiTile(fmtNum(inRange.length), 'Posts publicados en el periodo')];
+  if (hasIg) tiles.push(kpiTile(fmtNum(reach), 'Alcance total (Instagram)'));
+  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Engagement total (FB + IG)' : 'Engagement total (Facebook)'));
+  row.innerHTML = tiles.join('');
+}
+
+function applyDateFilter() {
+  const since = selStart;
+  const until = selEnd;
+  if (!since || !until || since > until) return;
+
+  Object.keys(chartData).forEach(id => {
+    const { points, color } = chartData[id];
+    const filtered = points.filter(p => p.label >= since && p.label <= until);
+    renderLineChart(id, filtered, color);
+  });
+
+  document.querySelectorAll('tr[data-date]').forEach(row => {
+    const rowDate = row.getAttribute('data-date');
+    row.style.display = (rowDate >= since && rowDate <= until) ? '' : 'none';
+  });
+
+  renderAdsKpis(since, until);
+  renderAdsCampaigns(since, until);
+  renderOrganicSummary(since, until);
+}
+
+function fmtShort(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d} ${MONTH_ES[parseInt(m, 10) - 1].slice(0, 3)} ${y}`;
+}
+
+// Fabrica de calendarios: cada pestaña instancia el suyo con sus propios IDs,
+// pero todos comparten selStart/selEnd y sincronizan sus etiquetas al cambiar.
+const datePickers = [];
+
+function syncLabels() {
+  datePickers.forEach(p => p && p.updateTriggerLabel());
+}
+
+function createDatePicker(ids) {
+  const trigger = document.getElementById(ids.trigger);
+  const popup = document.getElementById(ids.popup);
+  const calGrid = document.getElementById(ids.grid);
+  const calMonthLabel = document.getElementById(ids.monthLabel);
+  const calHint = document.getElementById(ids.hint);
+  const resetBtn = document.getElementById(ids.reset);
+  if (!trigger) return null;
+
+  let pendingStart = null;
+  let viewDate = maxDate ? new Date(maxDate + 'T00:00:00') : new Date();
+
+  function updateTriggerLabel() {
+    trigger.textContent = (selStart && selEnd) ? `${fmtShort(selStart)} - ${fmtShort(selEnd)}` : 'Elegir rango';
+  }
+
+  function renderCalendar() {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    calMonthLabel.textContent = `${MONTH_ES[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // semana arranca en lunes
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const rangeStart = pendingStart || selStart;
+    const rangeEnd = pendingStart ? null : selEnd;
+
+    calGrid.innerHTML = '';
+    for (let i = 0; i < startOffset; i++) {
+      calGrid.appendChild(document.createElement('span'));
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = day;
+      const disabled = (minDate && iso < minDate) || (maxDate && iso > maxDate);
+      btn.disabled = disabled;
+      if (!disabled) {
+        if (iso === rangeStart || iso === rangeEnd) btn.classList.add('range-endpoint');
+        else if (rangeEnd && iso > rangeStart && iso < rangeEnd) btn.classList.add('in-range');
+        // stopPropagation: onDayClick reconstruye la grilla (renderCalendar),
+        // lo que desprende este boton del DOM antes de que el listener de
+        // "clic afuera" (a nivel document) evalue popup.contains(e.target) --
+        // sin esto, el chequeo da falso y cierra el popup por error.
+        btn.addEventListener('click', (e) => { e.stopPropagation(); onDayClick(iso); });
+      }
+      calGrid.appendChild(btn);
+    }
+  }
+
+  function onDayClick(iso) {
+    if (!pendingStart) {
+      pendingStart = iso;
+      calHint.textContent = 'Elegi la fecha final';
+      renderCalendar();
+      return;
+    }
+    selStart = iso < pendingStart ? iso : pendingStart;
+    selEnd = iso < pendingStart ? pendingStart : iso;
+    pendingStart = null;
+    calHint.textContent = '';
+    syncLabels();
+    applyDateFilter();
+    popup.hidden = true;
+  }
+
+  document.getElementById(ids.prev).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  document.getElementById(ids.next).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+    renderCalendar();
+  });
+
+  trigger.addEventListener('click', () => {
+    popup.hidden = !popup.hidden;
+    if (!popup.hidden) {
+      pendingStart = null;
+      calHint.textContent = '';
+      viewDate = selEnd ? new Date(selEnd + 'T00:00:00') : new Date();
+      renderCalendar();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!popup.hidden && !popup.contains(e.target) && e.target !== trigger) {
+      popup.hidden = true;
+    }
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      selStart = minDate;
+      selEnd = maxDate;
+      syncLabels();
+      applyDateFilter();
+    });
+  }
+
+  return { updateTriggerLabel };
+}
+
+datePickers.push(createDatePicker({
+  trigger: 'filter-trigger', popup: 'calendar-popup', grid: 'cal-grid',
+  monthLabel: 'cal-month-label', hint: 'cal-hint',
+  prev: 'cal-prev', next: 'cal-next', reset: 'filter-reset',
+}));
+datePickers.push(createDatePicker({
+  trigger: 'p-filter-trigger', popup: 'p-calendar-popup', grid: 'p-cal-grid',
+  monthLabel: 'p-cal-month-label', hint: 'p-cal-hint',
+  prev: 'p-cal-prev', next: 'p-cal-next', reset: 'p-filter-reset',
+}));
+
+syncLabels();
+applyDateFilter();
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

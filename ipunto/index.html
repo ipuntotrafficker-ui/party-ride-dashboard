@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Insights organicos - Meta</title>
+<style>
+  :root {
+    /* Paleta de marca i.punto Marketing Digital: negro + amarillo del logo. */
+    --surface-1:      #161616;
+    --page-plane:     #0a0a0a;
+    --text-primary:   #ffffff;
+    --text-secondary: #b9b8b2;
+    --text-muted:     #8a8a83;
+    --gridline:       #2a2a2a;
+    --baseline:       #3a3a3a;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #f4dc00;
+    --accent-contrast:#0a0a0a;
+    --fb:             #3987e5;
+    --ig:             #199e70;
+    --positive:       #199e70;
+    --warning:        #e0a349;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .app-shell { display: flex; align-items: flex-start; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .content { flex: 1; min-width: 0; padding: 24px; }
+  .brand { font-size: 15px; font-weight: 600; margin: 0 0 16px; padding: 0 12px; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left; background: transparent; border: none;
+    color: var(--text-secondary); padding: 10px 12px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; margin-bottom: 4px; font-family: inherit;
+  }
+  .nav-btn:hover { background: var(--page-plane); }
+  .nav-btn.active { background: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+  .nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin: 20px 0 0; padding: 0 12px; }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 14px; display:flex; align-items:center; gap:8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+  .dot.fb { background: var(--fb); }
+  .dot.ig { background: var(--ig); }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .kpi .value { font-size: 26px; font-weight: 600; color: var(--accent); }
+  .kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--gridline); }
+  .post-caption { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  a.permalink { color: var(--accent); text-decoration: none; }
+  .chart-wrap { position: relative; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
+    font-size: 11px; padding: 4px 8px; border-radius: 6px; opacity: 0; transform: translate(-50%, -120%);
+    white-space: nowrap; transition: opacity 0.1s;
+  }
+  .empty { color: var(--text-muted); font-size: 13px; }
+  .range-note {
+    color: var(--text-muted); font-size: 12px; line-height: 1.5;
+    margin: -6px 0 18px; padding: 0 4px;
+  }
+  .kpi .value.na { color: var(--text-muted); }
+  .date-filter { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px; }
+  .date-range-picker { position: relative; }
+  .date-pill {
+    background: var(--page-plane); color: var(--text-primary); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 14px; font-size: 13px; font-family: inherit; cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-pill:hover { border-color: var(--accent); }
+  #filter-reset {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  #filter-reset:hover { background: var(--accent); color: var(--accent-contrast); }
+  .calendar-popup {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .calendar-header button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 6px; line-height: 1;
+  }
+  .calendar-header button:hover { background: var(--page-plane); }
+  .calendar-header span { font-size: 13px; font-weight: 600; }
+  .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .calendar-weekdays span { font-size: 10px; color: var(--text-muted); padding: 4px 0; }
+  .calendar-grid button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 12px;
+    padding: 6px 0; border-radius: 6px; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .calendar-grid button:hover:not(:disabled) { background: var(--page-plane); }
+  .calendar-grid button:disabled { color: var(--text-muted); opacity: 0.35; cursor: default; }
+  /* !important: estas dos marcan el estado de seleccion vigente y no deben
+     desaparecer si el mouse queda posicionado encima (:hover tiene mas
+     especificidad que una sola clase de estado). */
+  .calendar-grid button.in-range { background: rgba(244,220,0,0.15) !important; }
+  .calendar-grid button.range-endpoint {
+    background: var(--accent) !important; color: var(--accent-contrast) !important; font-weight: 700;
+  }
+  .calendar-hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; text-align: center; min-height: 14px; }
+  .rec-card h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .rec-card .dot.alerta { background: var(--warning); }
+  .rec-card .dot.positivo { background: var(--positive); }
+  .rec-card .dot.info { background: var(--fb); }
+  .rec-stat { font-size: 13px; font-weight: 600; margin: 0 0 6px; font-variant-numeric: tabular-nums; }
+  .rec-detail { font-size: 13px; color: var(--text-secondary); margin: 0; }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <nav class="sidebar">
+      <div class="brand">Insights organicos</div>
+      <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
+      <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
+      <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
+      <p class="subtitle">Generado el 2026-07-14 19:35 UTC</p>
+    </nav>
+    <main class="content">
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="filter-trigger" class="date-pill"></button>
+            <div id="calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="cal-month-label"></span>
+                <button type="button" id="cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="cal-grid" class="calendar-grid"></div>
+              <p id="cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="filter-reset" type="button">Ver todo</button>
+        </div>
+
+        <div class="kpi-row"><div class="kpi"><div class="value">3</div><div class="label">Fans - IPunto Marketing (hoy)</div></div><div class="kpi"><div class="value">111</div><div class="label">Seguidores - @ipuntomk (hoy)</div></div></div>
+
+        
+  <div class="card">
+    <h2><span class="dot fb"></span>IPunto Marketing (Facebook) - engagement diario</h2>
+    <div class="chart-wrap"><div id="fb_chart_0"></div></div>
+  </div>
+  <div class="card">
+    <h2><span class="dot ig"></span>@ipuntomk (Instagram) - alcance diario</h2>
+    <div class="chart-wrap"><div id="ig_chart_0"></div></div>
+  </div>
+
+        
+  <div class="card">
+    <h2>Posts (ordenados por alcance)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th></th><th>Plataforma</th><th>Contenido</th><th>Fecha</th>
+          <th class="num">Alcance</th><th class="num">Interacciones</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-date="2026-05-22">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/704681699_18078936524558624_2140434514584515808_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=ngItS9yplCgQ7kNvwF41G4R&_nc_oc=AdpSYcVHwxllDOPlUo8v1chP0RiqtHfcbVvS5F7RLp0xsd016hr3Xh7IFPHfg8SD2iM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&_nc_tpa=Q5bMBQEjgah6AOVyOxWRcUWt254Kq-dKC931agpoCq9fVpAa7hq0YGlbEC8cExcXJrju6ggZ99ouTXUUuA&oh=00_AQAyPsk9ggrfsHaX2wyJKJ0C2CXLeYj7__VVNQRmoKPXBw&oe=6A5C778A" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva">🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva</td>
+          <td>2026-05-22</td>
+          <td class="num">334</td>
+          <td class="num">14</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DYpf-SBib3A/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-09">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.71878-15/720633844_2829390364096449_2953237115921152301_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Ddxe-874-e8Q7kNvwHcTD6y&_nc_oc=AdrEQBMjar4e9htMft5SLH5sNfJnCz7WQ3nVMLQ0m6__Sm4Mzu9ofAb__Qz7qKQkjvY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&_nc_tpa=Q5bMBQET06FEEDDigQ3joNuaU4N-DZcP1UMSq64MJhrdwN3p82DgJ1okMbRsFod459w2PsGTT180ps6s6g&oh=00_AQCL4XnkrFr8yqp7arnNtPV7kZYJ6aLfTwiWROgmybI58w&oe=6A5C718B" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="El pre @aldeaglobal2026 🇲🇽💙💜">El pre @aldeaglobal2026 🇲🇽💙💜</td>
+          <td>2026-06-09</td>
+          <td class="num">264</td>
+          <td class="num">29</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DZWEHntOyan/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-28">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/708854084_18079701269558624_6768578794873911894_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=3OKI1k_EAG8Q7kNvwHmaaxr&_nc_oc=AdpMSHXRw9WGYULNkiEX-4OrIwN8S84vFsxNkmop30X2laaclJ8twLGbkoq_Jzha7N4&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&_nc_tpa=Q5bMBQG-2fNduSZPTia09J7vQtaedrh9GOUyHi3KzA4eJfQUXSQrF2E-bWCdZz8mahtstUiRY1UGcdS4Ug&oh=00_AQACSmLBTuFwh-152YrQSPvq3VMUAZYdfne7ghQdh9QLVw&oe=6A5C650F" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Las mejores historias también se viven en pantalla grande. 🍿❤️
+
+Cada función, ca">Las mejores historias también se viven en pantalla grande. 🍿❤️
+
+Cada función, ca</td>
+          <td>2026-05-28</td>
+          <td class="num">244</td>
+          <td class="num">18</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DY5oQggDYTM/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-25">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/706134610_122203270820565124_6165209244006425378_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=kfn6vdBYRH8Q7kNvwEL3dGX&_nc_oc=AdpdIzGpAesi2cIysqQnrMjs1b--dbtrt1rkXOO8WMJzFP6eSa2o63dGuMu21o-wA-0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&oh=00_AQAHJi-BQwa4UddpLkUOjtgsH4UOi9LQbDxM2NU1rgPRyA&oe=6A5C70FB" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="¡Que las ideas tengan estilo siempre! 🎥🪄📌
+
+Meet BOSS #2 💅 @maquis_coan">¡Que las ideas tengan estilo siempre! 🎥🪄📌
+
+Meet BOSS #2 💅 @maquis_coan</td>
+          <td>2026-05-25</td>
+          <td class="num">240</td>
+          <td class="num">39</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DYxN2mrEpkL/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-18">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/702545531_18078504782558624_5287464978746843731_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=111&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=0bxbb0BQdvoQ7kNvwFM7Cw9&_nc_oc=AdpxZY9iP01SK1JqenqdgHc1DR6refl-9NXQ2NUyzjclLq1QtocLvB1TOTX5L4nd-OA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&_nc_tpa=Q5bMBQFx4lhzOlEq2mjHdxRRX1lekebtO0dKToO4PxAnjZLw4hdTN_vC6C6xJGfUzQFqi_3jERcsg4WpSg&oh=00_AQDmEqdPNe8IC5XftO-EtuZN7oOiTQheTv4DdRWLg27XAA&oe=6A5C708B" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Los accidentes pasan hasta en el trabajo… @partyy.ride  lo sabe 🏎️⚠️😅">Los accidentes pasan hasta en el trabajo… @partyy.ride  lo sabe 🏎️⚠️😅</td>
+          <td>2026-05-18</td>
+          <td class="num">208</td>
+          <td class="num">24</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DYf60xnjFel/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-02">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/731221604_18083916926558624_1795140888549649448_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=F-LMeBI8W94Q7kNvwFAYXaC&_nc_oc=AdpjSn6z7W7_dCMvzbqRw0c2MHNxu9DDZBH5IfGwC8u2ELpIylKS-VWNh_QHXPy2-Js&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&_nc_tpa=Q5bMBQHPpMx9OGXinMUie6ogqG3Wzue1icnjihP3ig14LSxZkD4rBI8XBN0-db9X4a1mf9GeJqIOtGEZUg&oh=00_AQCzknNQnLNC-Eb1SJPCIZYnmjHRHraUNv3JDt3fWww9Qw&oe=6A5C5504" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏">@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏</td>
+          <td>2026-07-02</td>
+          <td class="num">176</td>
+          <td class="num">12</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DaTPaKwxnQf/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-16">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/699953477_18078149747558624_4147212263078417216_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=fZroOB0SviAQ7kNvwGXyVLS&_nc_oc=AdrG4PF_rajQr16rehrEewPnIpek4LMDA7p41gSQjJ2-Fx1L2P5og0sX94dv2Jiq6bI&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&_nc_tpa=Q5bMBQF_DhDyD2jOQmhFcqm0rxfww-SPfGFS7N6ut-0mGJqKA5zGHOQruxKLrPft-OY-pcTZuRAk3iYv9A&oh=00_AQA9mG_KXjsersmzRgvpjHGOpPhcWZbEaxK8d31s8gvTPA&oe=6A5C4C6B" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Hay proyectos que van más allá de una campaña; se convierten en historias que in">Hay proyectos que van más allá de una campaña; se convierten en historias que in</td>
+          <td>2026-05-16</td>
+          <td class="num">171</td>
+          <td class="num">14</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DYYPHK7AFBa/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-30">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/730125177_18083681381558624_6138289712167573265_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=2VoqZe7NnK8Q7kNvwEeetJq&_nc_oc=AdrYB6yI3Ex9G0gorZeKnefb1vB9CiI7WCf4f3XsZDfwUdEwCo7d_4QQUVLDj5QgjpE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&oh=00_AQDzLQUMAsyVtiu15ET5BSqknl1cFOdYDMos2s7QiaRwnA&oe=6A5C5E0E" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas ">Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas </td>
+          <td>2026-06-30</td>
+          <td class="num">158</td>
+          <td class="num">17</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DaOR0AZASGm/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-08">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742102396_122207477408565124_7149145849745167511_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=AoH9h_hSBQ4Q7kNvwEYHQhd&_nc_oc=AdqEKGnFsYRuZAl0Ix6Y6oY1YYukq_QbBlBj0pws2B6Svak5XISIck6M4pih9vq48tc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&oh=00_AQCBuHF9NQXy8KY4x2PHnzMG-tQouZeve2jpD6J0_b5rzg&oe=6A5C6060" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic">📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic</td>
+          <td>2026-07-08</td>
+          <td class="num">55</td>
+          <td class="num">11</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DaiZoIfkgnf/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-09">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/741408927_122207594330565124_2113598648798429589_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=q-fYUk8FT4kQ7kNvwEB0G1T&_nc_oc=AdrTGhpDPMeiGR72wmf46QYKdYXIvvnSUR-_Koi3rvnZPIxNog4IzVvKhESbHGDbpdQ&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=3637WhQa66DPAysImI35xw&oh=00_AQBvqZyauqlXY1-LTc9Esy9S-J3eD9q9lmUcaPUEAT9MJA&oe=6A5C64F3" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="No hay mejor sensación que ver una idea convertirse en algo real‼
+
+Diseñamos est">No hay mejor sensación que ver una idea convertirse en algo real‼
+
+Diseñamos est</td>
+          <td>2026-07-09</td>
+          <td class="num">39</td>
+          <td class="num">21</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DalkGr6kgrK/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-09">
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/741408927_122207594330565124_2113598648798429589_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=q-fYUk8FT4kQ7kNvwEB0G1T&_nc_oc=AdrTGhpDPMeiGR72wmf46QYKdYXIvvnSUR-_Koi3rvnZPIxNog4IzVvKhESbHGDbpdQ&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQEaOq_Q-Fr5i8hrmyTUAnR-HlgNG-MgTvvgd-xj3ojQz-96orlUNMvoDpxRqyRsxlh4Ms_S5_w4kw&oh=00_AQCkRo1DNkjTr5H1QCRGzlaCnb8i8tD5MlQxpRkYbjfxtg&oe=6A5C64F3" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="No hay mejor sensación que ver una idea convertirse en algo real‼
+
+Diseñamos est">No hay mejor sensación que ver una idea convertirse en algo real‼
+
+Diseñamos est</td>
+          <td>2026-07-09</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122207594642565124" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-08">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/742102396_122207477408565124_7149145849745167511_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=AoH9h_hSBQ4Q7kNvwEYHQhd&_nc_oc=AdqEKGnFsYRuZAl0Ix6Y6oY1YYukq_QbBlBj0pws2B6Svak5XISIck6M4pih9vq48tc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQH_OoDSDo-2Lz5iH_rNoP8ZsM-joOX2wBQJSHoJfh5v4BUgqYxj7TC_T0dKfXFL8SY2oIXnOlaypw&oh=00_AQDi3Aj9dqnp6Bvc-3wrP1QG8P3hyEpYvBSerVf8Yj09LA&oe=6A5C6060" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic">📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic</td>
+          <td>2026-07-08</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122207477456565124" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-02">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/731221604_18083916926558624_1795140888549649448_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=F-LMeBI8W94Q7kNvwFAYXaC&_nc_oc=AdpjSn6z7W7_dCMvzbqRw0c2MHNxu9DDZBH5IfGwC8u2ELpIylKS-VWNh_QHXPy2-Js&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQHAfoxREcbleNpG17wrsXznO5_iFdryz743i5XuqfrjruOeWTXk3CQFzFrmLKtpoOuD__oiWmcfXA&oh=00_AQBxv7vKEW9JpyLXqXTUx84EE8pLJBpqH6mCaiFXhj-Odg&oe=6A5C55D4" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏">@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏</td>
+          <td>2026-07-02</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/916383974806189/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-30">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/730125177_18083681381558624_6138289712167573265_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=2VoqZe7NnK8Q7kNvwEeetJq&_nc_oc=AdrYB6yI3Ex9G0gorZeKnefb1vB9CiI7WCf4f3XsZDfwUdEwCo7d_4QQUVLDj5QgjpE&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQGdwtppz2kk8tre2guNyMD725GV2_c1i6f6WiNwuaWPZAPp3eRvCheDT4tcDFXsvM0B9TppamXAFw&oh=00_AQBS-mZuvT6y6PpV8pHyk3FpnQfe44d7W1bKQee46H-AgA&oe=6A5C5E0E" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas ">Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas </td>
+          <td>2026-06-30</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122206722194565124" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-09">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.71878-10/720655403_959642560395421_6812763335375586454_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=Y7rXy3f3pHYQ7kNvwGyUiCG&_nc_oc=AdpwQYWScZG64QWR-G0K_L6DwcS2U9__vPdczb13bVUDnNdxsu6JeZLLifrQR8Y9Gso&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQEBXUdl3ztzK9sUUm3Ebh5rw-zqZFrLAN1Xy1tmnVONEor0aTtdbnltIfEiTSS0VCljahTu9gjNXQ&oh=00_AQCUxsd2p3UQWvFdL17JcF3LlfnkejwqUfC824WZOMs2DA&oe=6A5C5924" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="El pre @aldeaglobal2026 🇲🇽💙💜">El pre @aldeaglobal2026 🇲🇽💙💜</td>
+          <td>2026-06-09</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/3549174588591591/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-28">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t15.5256-10/707749925_854499034376154_3426992912904803109_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=Hq8-75m-FJ0Q7kNvwE41iNK&_nc_oc=AdoAub0ORHP4CZmidZKubpwy0XPpWBVqk7_0ozR5g3GToxYBed_7_V1GqpcQ8UIP2_k&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQEcQK368PUy8CRX42sL25hCj3iEe5lEjbjm4oeLi5WpRfRuacSOwm7PUUM1DVePj98xDDHdYiDFuw&oh=00_AQD8NUtOcAXNckeXm0vg1AsjHJOuyFWKfwtqK4PIbBDg4Q&oe=6A5C4F33" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Las mejores historias también se viven en pantalla grande. 🍿❤️
+
+Cada función, ca">Las mejores historias también se viven en pantalla grande. 🍿❤️
+
+Cada función, ca</td>
+          <td>2026-05-28</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1032481339349782/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-25">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/706134610_122203270820565124_6165209244006425378_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=kfn6vdBYRH8Q7kNvwEL3dGX&_nc_oc=AdpdIzGpAesi2cIysqQnrMjs1b--dbtrt1rkXOO8WMJzFP6eSa2o63dGuMu21o-wA-0&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQG3dogFowRqvrptwHpnIO9cwkZNHNQNSxoEHlGeTHRZouEIZIEcIWFmxJThWBtbBH0NoPHsxvwG6w&oh=00_AQA-BpJLZPDzYdqHMsnIel5LI3oHMtikvppOPPcXsX1Qgw&oe=6A5C70FB" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="¡Que las ideas tengan estilo siempre! 🎥🪄📌">¡Que las ideas tengan estilo siempre! 🎥🪄📌</td>
+          <td>2026-05-25</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122203270880565124" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-22">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/704558410_1313220907448745_358140987039526963_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=V5_TqadAOQYQ7kNvwFuK-GT&_nc_oc=AdoAZ42TvPyxqv4tEds7ub5jPa4zujV5NbhrWcrG4OBDCRcFtk9Dpv4oW-gHqlpnPq8&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQGqCkG5GDIhrJEAV6OIeEue6juhPp25fAN0Yxz1iZbwfxBCbQE9JRP1hq1KxsApur7tPO0RymRMAA&oh=00_AQD8qIVhCl9CcE0wgXo3_l_YtbYxpJdiugFkuBwgysylAw&oe=6A5C50B8" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva">🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva</td>
+          <td>2026-05-22</td>
+          <td class="num">-</td>
+          <td class="num">1</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/3180049895520181/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-20">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/702729478_18078697508558624_1873750022525624875_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=3870dLJ7Bf8Q7kNvwE0AoZT&_nc_oc=Adr2tz334FjBvcgaEFfl0YNBiBmBK7qk7YUlcOACWlAbNy5OAPF3r76LUq4qB6gQJEU&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQF1KJC5uOipfFCEujiiIB-hoOYMex5ffHRuFifH0tN9wbgJwcO6gRGiTYx6qTrzBnBe2GMhpZMQxQ&oh=00_AQDYmSMAN6DjWA57QU4EpVUat9_4Hxmv0Wkpu5vJ8JFjvw&oe=6A5C6F86" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="(sin texto)">(sin texto)</td>
+          <td>2026-05-20</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122202728792565124?substory_index=1651536349446478" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-05-20">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/702729478_18078697508558624_1873750022525624875_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=3870dLJ7Bf8Q7kNvwE0AoZT&_nc_oc=Adr2tz334FjBvcgaEFfl0YNBiBmBK7qk7YUlcOACWlAbNy5OAPF3r76LUq4qB6gQJEU&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=DTajlJKB4NjJIGMx93iz1A&_nc_tpa=Q5bMBQH8NCkSTg3njDELqMx-xsbX8iqSkoSpbx3n1cnxDqeAlw9Bah3qrka0asP819NdHtsA55hShzBbgg&oh=00_AQDh4OQRsPVAUUe61aoufRIqPSi8gebTyNKaFZTFlx4XPQ&oe=6A5C6F86" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="That 70’s GLOW ✨✨✨ lo tenemos!!😏😏">That 70’s GLOW ✨✨✨ lo tenemos!!😏😏</td>
+          <td>2026-05-20</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122202728642565124" target="_blank" rel="noopener">Ver</a></td>
+        </tr></tbody>
+    </table>
+  </div>
+      </section>
+      <section id="tab-pautas" class="tab-panel">
+        <h1>Pauta (anuncios pagados)</h1>
+        <p class="subtitle" style="padding:0;margin:2px 0 18px;">Cuenta: iPunto Pauta Digital · Moneda: MXN · Campañas: iPunto · Sin campañas con actividad en el periodo (la cuenta se leyo correctamente; no hubo entrega en estas fechas).</p>
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="p-filter-trigger" class="date-pill"></button>
+            <div id="p-calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="p-cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="p-cal-month-label"></span>
+                <button type="button" id="p-cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="p-cal-grid" class="calendar-grid"></div>
+              <p id="p-cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="p-filter-reset" type="button">Ver todo</button>
+        </div>
+        <div class="kpi-row" id="ads-kpi-row"><p class="empty">Sin datos de pautas todavia.</p></div>
+        <p id="ads-range-note" class="range-note" hidden></p>
+        
+        <div class="card"><h2>Campañas</h2><p class="empty">No hay campañas con datos en el rango.</p></div>
+      </section>
+      <section id="tab-recomendaciones" class="tab-panel">
+        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">20</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">1.889</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">200</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Mayo 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mes mas flojo</div></div></div>
+        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido en Insights o en Pauta.
+        El desglose mensual y las recomendaciones analizan siempre el periodo completo.</p>
+
+        
+  <div class="card">
+    <h2>Analisis mensual</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th><th class="num">Posts FB</th><th class="num">Posts IG</th>
+          <th class="num">Engagement prom. FB</th><th class="num">Alcance prom. IG</th>
+          <th class="num">Cadencia (post/sem)</th><th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Enero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Febrero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Marzo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Abril 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Mayo 2026</td>
+          <td class="num">5</td>
+          <td class="num">5</td>
+          <td class="num">0</td>
+          <td class="num">239</td>
+          <td class="num">1.4</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Junio 2026</td>
+          <td class="num">2</td>
+          <td class="num">2</td>
+          <td class="num">0</td>
+          <td class="num">211</td>
+          <td class="num">0.5</td>
+          <td>-12% vs mes anterior</td>
+        </tr>
+        <tr>
+          <td>Julio 2026</td>
+          <td class="num">3</td>
+          <td class="num">3</td>
+          <td class="num">0</td>
+          <td class="num">90</td>
+          <td class="num">1.5</td>
+          <td>mes en curso</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+        
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Facebook</h3>
+    <p class="rec-stat">0.3 dias con post/semana (minimo recomendado: 3)</p>
+    <p class="rec-detail">En los ultimos 195 dias hubo posts en solo 9 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Instagram</h3>
+    <p class="rec-stat">0.4 dias con post/semana (minimo recomendado: 3)</p>
+    <p class="rec-detail">En los ultimos 195 dias hubo posts en solo 10 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot info"></span>Reels alcanza mas que Feed en Instagram</h3>
+    <p class="rec-stat">alcance promedio 233 (n=6) vs 123 (Feed)</p>
+    <p class="rec-detail">Reels supera a Feed por 89% en alcance promedio. Vale la pena priorizar ese formato para publicaciones nuevas.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot positivo"></span>Buena conversacion en Instagram</h3>
+    <p class="rec-stat">25 comentarios / 166 likes (15.1%)</p>
+    <p class="rec-detail">El ratio de comentarios sobre likes es saludable: el contenido esta generando conversacion real, no solo consumo pasivo.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Engagement en baja para IPunto Marketing (Facebook)</h3>
+    <p class="rec-stat">ultimos 30 dias: 0.0 vs 0.2 de los 30 dias previos (-100%)</p>
+    <p class="rec-detail">La tendencia reciente esta por debajo del periodo anterior. Vale la pena revisar que cambio en el contenido o la cadencia de publicacion.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Alcance en baja para @ipuntomk (Instagram)</h3>
+    <p class="rec-stat">ultimos 30 dias: 26.1 vs 51.3 de los 30 dias previos (-49%)</p>
+    <p class="rec-detail">La tendencia reciente esta por debajo del periodo anterior. Vale la pena revisar que cambio en el contenido o la cadencia de publicacion.</p>
+  </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 0}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 0}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 0}, {"label": "2026-01-11", "value": 0}, {"label": "2026-01-12", "value": 0}, {"label": "2026-01-13", "value": 1}, {"label": "2026-01-14", "value": 0}, {"label": "2026-01-15", "value": 0}, {"label": "2026-01-16", "value": 0}, {"label": "2026-01-17", "value": 0}, {"label": "2026-01-18", "value": 0}, {"label": "2026-01-19", "value": 0}, {"label": "2026-01-20", "value": 0}, {"label": "2026-01-21", "value": 0}, {"label": "2026-01-22", "value": 0}, {"label": "2026-01-23", "value": 0}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 0}, {"label": "2026-01-26", "value": 0}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 0}, {"label": "2026-01-30", "value": 0}, {"label": "2026-01-31", "value": 0}, {"label": "2026-02-01", "value": 0}, {"label": "2026-02-02", "value": 0}, {"label": "2026-02-03", "value": 0}, {"label": "2026-02-04", "value": 0}, {"label": "2026-02-05", "value": 0}, {"label": "2026-02-06", "value": 0}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 0}, {"label": "2026-02-10", "value": 1}, {"label": "2026-02-11", "value": 0}, {"label": "2026-02-12", "value": 0}, {"label": "2026-02-13", "value": 0}, {"label": "2026-02-14", "value": 0}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 0}, {"label": "2026-02-18", "value": 0}, {"label": "2026-02-19", "value": 0}, {"label": "2026-02-20", "value": 0}, {"label": "2026-02-21", "value": 0}, {"label": "2026-02-22", "value": 0}, {"label": "2026-02-23", "value": 0}, {"label": "2026-02-24", "value": 0}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 0}, {"label": "2026-02-28", "value": 0}, {"label": "2026-03-01", "value": 0}, {"label": "2026-03-02", "value": 0}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 0}, {"label": "2026-03-05", "value": 0}, {"label": "2026-03-06", "value": 0}, {"label": "2026-03-07", "value": 0}, {"label": "2026-03-08", "value": 0}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 0}, {"label": "2026-03-11", "value": 0}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 0}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 0}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 0}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 0}, {"label": "2026-03-26", "value": 0}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 0}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 0}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 2}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 0}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 0}, {"label": "2026-04-16", "value": 0}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 0}, {"label": "2026-04-19", "value": 0}, {"label": "2026-04-20", "value": 0}, {"label": "2026-04-21", "value": 0}, {"label": "2026-04-22", "value": 0}, {"label": "2026-04-23", "value": 0}, {"label": "2026-04-24", "value": 0}, {"label": "2026-04-25", "value": 0}, {"label": "2026-04-26", "value": 0}, {"label": "2026-04-27", "value": 0}, {"label": "2026-04-28", "value": 1}, {"label": "2026-04-29", "value": 0}, {"label": "2026-04-30", "value": 1}, {"label": "2026-05-01", "value": 0}, {"label": "2026-05-02", "value": 0}, {"label": "2026-05-03", "value": 0}, {"label": "2026-05-04", "value": 0}, {"label": "2026-05-05", "value": 0}, {"label": "2026-05-06", "value": 0}, {"label": "2026-05-07", "value": 0}, {"label": "2026-05-08", "value": 0}, {"label": "2026-05-09", "value": 0}, {"label": "2026-05-10", "value": 0}, {"label": "2026-05-11", "value": 0}, {"label": "2026-05-12", "value": 0}, {"label": "2026-05-13", "value": 0}, {"label": "2026-05-14", "value": 0}, {"label": "2026-05-15", "value": 0}, {"label": "2026-05-16", "value": 0}, {"label": "2026-05-17", "value": 0}, {"label": "2026-05-18", "value": 0}, {"label": "2026-05-19", "value": 3}, {"label": "2026-05-20", "value": 0}, {"label": "2026-05-21", "value": 1}, {"label": "2026-05-22", "value": 0}, {"label": "2026-05-23", "value": 1}, {"label": "2026-05-24", "value": 0}, {"label": "2026-05-25", "value": 0}, {"label": "2026-05-26", "value": 0}, {"label": "2026-05-27", "value": 0}, {"label": "2026-05-28", "value": 0}, {"label": "2026-05-29", "value": 0}, {"label": "2026-05-30", "value": 0}, {"label": "2026-05-31", "value": 0}, {"label": "2026-06-01", "value": 0}, {"label": "2026-06-02", "value": 0}, {"label": "2026-06-03", "value": 0}, {"label": "2026-06-04", "value": 0}, {"label": "2026-06-05", "value": 0}, {"label": "2026-06-06", "value": 0}, {"label": "2026-06-07", "value": 0}, {"label": "2026-06-08", "value": 0}, {"label": "2026-06-09", "value": 0}, {"label": "2026-06-10", "value": 0}, {"label": "2026-06-11", "value": 0}, {"label": "2026-06-12", "value": 0}, {"label": "2026-06-13", "value": 0}, {"label": "2026-06-14", "value": 0}, {"label": "2026-06-15", "value": 0}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 0}, {"label": "2026-06-18", "value": 0}, {"label": "2026-06-19", "value": 0}, {"label": "2026-06-20", "value": 0}, {"label": "2026-06-21", "value": 0}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 0}, {"label": "2026-06-24", "value": 0}, {"label": "2026-06-25", "value": 0}, {"label": "2026-06-26", "value": 0}, {"label": "2026-06-27", "value": 0}, {"label": "2026-06-29", "value": 0}, {"label": "2026-06-30", "value": 0}, {"label": "2026-07-01", "value": 0}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-03", "value": 0}, {"label": "2026-07-04", "value": 0}, {"label": "2026-07-05", "value": 0}, {"label": "2026-07-06", "value": 0}, {"label": "2026-07-07", "value": 0}, {"label": "2026-07-08", "value": 0}, {"label": "2026-07-09", "value": 0}, {"label": "2026-07-10", "value": 0}, {"label": "2026-07-11", "value": 0}, {"label": "2026-07-12", "value": 0}, {"label": "2026-07-13", "value": 0}, {"label": "2026-07-14", "value": 0}]}, "ig_chart_0": {"color": "#1baf7a", "points": [{"label": "2026-01-01", "value": 0}, {"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 1}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 1}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 0}, {"label": "2026-01-11", "value": 1}, {"label": "2026-01-12", "value": 1}, {"label": "2026-01-13", "value": 0}, {"label": "2026-01-14", "value": 1}, {"label": "2026-01-15", "value": 0}, {"label": "2026-01-16", "value": 0}, {"label": "2026-01-17", "value": 1}, {"label": "2026-01-18", "value": 0}, {"label": "2026-01-19", "value": 0}, {"label": "2026-01-20", "value": 1}, {"label": "2026-01-21", "value": 0}, {"label": "2026-01-22", "value": 0}, {"label": "2026-01-23", "value": 1}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 0}, {"label": "2026-01-26", "value": 1}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 0}, {"label": "2026-01-31", "value": 0}, {"label": "2026-02-01", "value": 0}, {"label": "2026-02-02", "value": 1}, {"label": "2026-02-03", "value": 1}, {"label": "2026-02-04", "value": 1}, {"label": "2026-02-05", "value": 1}, {"label": "2026-02-06", "value": 2}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 1}, {"label": "2026-02-10", "value": 3}, {"label": "2026-02-11", "value": 1}, {"label": "2026-02-12", "value": 1}, {"label": "2026-02-13", "value": 0}, {"label": "2026-02-14", "value": 0}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 0}, {"label": "2026-02-18", "value": 0}, {"label": "2026-02-19", "value": 0}, {"label": "2026-02-20", "value": 1}, {"label": "2026-02-21", "value": 0}, {"label": "2026-02-22", "value": 0}, {"label": "2026-02-23", "value": 0}, {"label": "2026-02-24", "value": 1}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 93}, {"label": "2026-02-28", "value": 182}, {"label": "2026-03-02", "value": 4}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 3}, {"label": "2026-03-05", "value": 3}, {"label": "2026-03-06", "value": 3}, {"label": "2026-03-07", "value": 1}, {"label": "2026-03-08", "value": 1}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 1}, {"label": "2026-03-11", "value": 2}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 1}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 4}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 1}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 49}, {"label": "2026-03-26", "value": 16}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 1}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 2}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 1}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 1}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 0}, {"label": "2026-04-16", "value": 1}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 0}, {"label": "2026-04-19", "value": 0}, {"label": "2026-04-20", "value": 0}, {"label": "2026-04-21", "value": 2}, {"label": "2026-04-22", "value": 0}, {"label": "2026-04-23", "value": 52}, {"label": "2026-04-24", "value": 13}, {"label": "2026-04-25", "value": 7}, {"label": "2026-04-26", "value": 6}, {"label": "2026-04-27", "value": 69}, {"label": "2026-04-28", "value": 177}, {"label": "2026-04-29", "value": 230}, {"label": "2026-05-01", "value": 28}, {"label": "2026-05-02", "value": 6}, {"label": "2026-05-03", "value": 7}, {"label": "2026-05-04", "value": 153}, {"label": "2026-05-05", "value": 77}, {"label": "2026-05-06", "value": 176}, {"label": "2026-05-07", "value": 24}, {"label": "2026-05-08", "value": 211}, {"label": "2026-05-09", "value": 31}, {"label": "2026-05-10", "value": 3}, {"label": "2026-05-11", "value": 2}, {"label": "2026-05-12", "value": 4}, {"label": "2026-05-13", "value": 4}, {"label": "2026-05-14", "value": 18}, {"label": "2026-05-15", "value": 47}, {"label": "2026-05-16", "value": 53}, {"label": "2026-05-17", "value": 9}, {"label": "2026-05-18", "value": 154}, {"label": "2026-05-19", "value": 47}, {"label": "2026-05-20", "value": 128}, {"label": "2026-05-21", "value": 19}, {"label": "2026-05-22", "value": 243}, {"label": "2026-05-23", "value": 64}, {"label": "2026-05-24", "value": 5}, {"label": "2026-05-25", "value": 140}, {"label": "2026-05-26", "value": 91}, {"label": "2026-05-27", "value": 4}, {"label": "2026-05-28", "value": 182}, {"label": "2026-05-29", "value": 32}, {"label": "2026-05-31", "value": 1}, {"label": "2026-06-01", "value": 1}, {"label": "2026-06-02", "value": 1}, {"label": "2026-06-03", "value": 1}, {"label": "2026-06-04", "value": 3}, {"label": "2026-06-05", "value": 2}, {"label": "2026-06-06", "value": 3}, {"label": "2026-06-07", "value": 1}, {"label": "2026-06-08", "value": 174}, {"label": "2026-06-09", "value": 49}, {"label": "2026-06-10", "value": 16}, {"label": "2026-06-11", "value": 21}, {"label": "2026-06-12", "value": 26}, {"label": "2026-06-13", "value": 7}, {"label": "2026-06-14", "value": 4}, {"label": "2026-06-15", "value": 1}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 0}, {"label": "2026-06-18", "value": 2}, {"label": "2026-06-19", "value": 26}, {"label": "2026-06-20", "value": 9}, {"label": "2026-06-21", "value": 1}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 1}, {"label": "2026-06-24", "value": 1}, {"label": "2026-06-25", "value": 0}, {"label": "2026-06-26", "value": 0}, {"label": "2026-06-27", "value": 1}, {"label": "2026-06-28", "value": 2}, {"label": "2026-06-30", "value": 202}, {"label": "2026-07-01", "value": 46}, {"label": "2026-07-02", "value": 156}, {"label": "2026-07-03", "value": 32}, {"label": "2026-07-04", "value": 23}, {"label": "2026-07-05", "value": 4}, {"label": "2026-07-06", "value": 3}, {"label": "2026-07-07", "value": 70}, {"label": "2026-07-08", "value": 136}, {"label": "2026-07-09", "value": 34}, {"label": "2026-07-10", "value": 9}, {"label": "2026-07-11", "value": 6}, {"label": "2026-07-12", "value": 3}, {"label": "2026-07-13", "value": 5}]}};
+// Datos de pauta con granularidad DIARIA: permiten recalcular los KPIs y la
+// tabla de campañas para cualquier rango sin volver a llamar a la Graph API
+// (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
+const ADS = {"hasData": false};
+// Posts (organico) con su fecha, para recalcular el resumen por rango.
+const POSTS = [{"date": "2026-07-09", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-07-08", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-07-02", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-06-30", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-06-09", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-05-28", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-05-25", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-05-22", "platform": "Facebook", "engagement": 1, "reach": 0}, {"date": "2026-05-20", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-05-20", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-07-09", "platform": "Instagram", "engagement": 21, "reach": 39}, {"date": "2026-07-08", "platform": "Instagram", "engagement": 11, "reach": 55}, {"date": "2026-07-02", "platform": "Instagram", "engagement": 12, "reach": 176}, {"date": "2026-06-30", "platform": "Instagram", "engagement": 17, "reach": 158}, {"date": "2026-06-09", "platform": "Instagram", "engagement": 29, "reach": 264}, {"date": "2026-05-28", "platform": "Instagram", "engagement": 18, "reach": 244}, {"date": "2026-05-25", "platform": "Instagram", "engagement": 39, "reach": 240}, {"date": "2026-05-22", "platform": "Instagram", "engagement": 14, "reach": 334}, {"date": "2026-05-18", "platform": "Instagram", "engagement": 24, "reach": 208}, {"date": "2026-05-16", "platform": "Instagram", "engagement": 14, "reach": 171}];
+
+function renderLineChart(containerId, points, color) {
+  const container = document.getElementById(containerId);
+  if (!points || points.length < 2) {
+    container.innerHTML = '<p class="empty">No hay suficientes datos para graficar esta serie.</p>';
+    return;
+  }
+  const width = container.clientWidth || 600;
+  const height = 180;
+  const padL = 40, padR = 12, padT = 12, padB = 24;
+  const xs = points.map((_, i) => i);
+  const ys = points.map(p => p.value);
+  const minY = Math.min(0, ...ys);
+  const maxY = Math.max(...ys) * 1.1 || 1;
+
+  const xScale = i => padL + (i / (points.length - 1)) * (width - padL - padR);
+  const yScale = v => height - padB - ((v - minY) / (maxY - minY)) * (height - padT - padB);
+
+  const path = xs.map(i => `${i === 0 ? 'M' : 'L'} ${xScale(i)},${yScale(ys[i])}`).join(' ');
+
+  const gridlines = 4;
+  let gridSvg = '';
+  for (let g = 0; g <= gridlines; g++) {
+    const v = minY + (g / gridlines) * (maxY - minY);
+    const y = yScale(v);
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${width - padR}" y2="${y}" stroke="var(--gridline)" stroke-width="1"/>`;
+    gridSvg += `<text x="${padL - 6}" y="${y + 3}" font-size="10" fill="var(--text-muted)" text-anchor="end">${Math.round(v)}</text>`;
+  }
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
+      ${gridSvg}
+      <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="tooltip"></div>
+  `;
+
+  const svg = container.querySelector('svg');
+  const tooltip = container.querySelector('.tooltip');
+  const hitLayer = document.createElementNS(svgNS, 'rect');
+  hitLayer.setAttribute('x', padL); hitLayer.setAttribute('y', 0);
+  hitLayer.setAttribute('width', width - padL - padR); hitLayer.setAttribute('height', height);
+  hitLayer.setAttribute('fill', 'transparent');
+  svg.appendChild(hitLayer);
+
+  const crosshair = document.createElementNS(svgNS, 'line');
+  crosshair.setAttribute('y1', padT); crosshair.setAttribute('y2', height - padB);
+  crosshair.setAttribute('stroke', 'var(--baseline)'); crosshair.setAttribute('stroke-width', '1');
+  crosshair.style.display = 'none';
+  svg.appendChild(crosshair);
+
+  svg.addEventListener('mousemove', (e) => {
+    const rect = svg.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (width / rect.width);
+    let idx = Math.round(((px - padL) / (width - padL - padR)) * (points.length - 1));
+    idx = Math.max(0, Math.min(points.length - 1, idx));
+    const cx = xScale(idx);
+    crosshair.setAttribute('x1', cx); crosshair.setAttribute('x2', cx);
+    crosshair.style.display = 'block';
+    tooltip.style.opacity = 1;
+    tooltip.style.left = `${(cx / width) * 100}%`;
+    tooltip.style.top = `${(yScale(ys[idx]) / height) * 100}%`;
+    tooltip.textContent = `${points[idx].label}: ${points[idx].value.toLocaleString()}`;
+  });
+  svg.addEventListener('mouseleave', () => {
+    crosshair.style.display = 'none';
+    tooltip.style.opacity = 0;
+  });
+}
+
+const MONTH_ES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+const allLabels = Object.values(chartData).flatMap(({ points }) => points.map(p => p.label)).sort();
+const minDate = allLabels[0];
+const maxDate = allLabels[allLabels.length - 1];
+
+// Estado del rango COMPARTIDO entre pestañas: los calendarios de Insights y de
+// Pauta controlan y reflejan el mismo [selStart, selEnd].
+let selStart = minDate;
+let selEnd = maxDate;
+
+// --- Formateo, identico al de report.py (miles con punto, decimales con coma) ---
+// No se usa toLocaleString('es-ES') porque no agrupa los numeros de 4 cifras
+// (daria "7307" donde Python escribe "7.307") y quedarian estilos mezclados.
+function groupThousands(intStr) {
+  return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function fmtNum(n) {
+  if (n === null || n === undefined) return '-';
+  return groupThousands(String(Math.round(n)));
+}
+function fmtDec(n) {
+  const [int, dec] = Math.abs(n).toFixed(2).split('.');
+  return `${n < 0 ? '-' : ''}${groupThousands(int)},${dec}`;
+}
+function fmtMoney(n) {
+  if (n === null || n === undefined) return '-';
+  return `$${fmtDec(n)} ${ADS.currency}`.trim();
+}
+function fmtPct(n) {
+  if (n === null || n === undefined) return '-';
+  return fmtDec(n) + '%';
+}
+function kpiTile(valueHtml, label, muted) {
+  return `<div class="kpi"><div class="value${muted ? ' na' : ''}">${valueHtml}</div>` +
+         `<div class="label">${label}</div></div>`;
+}
+
+// Suma las metricas ADITIVAS de las filas diarias que caen en el rango y deriva
+// CTR/CPC/CPM/costo por resultado. Reproduce exactamente lo que reporta Meta
+// para ese rango (verificado contra sus totales del periodo completo).
+function aggregate(rows, since, until) {
+  const inRange = rows.filter(r => r.date >= since && r.date <= until);
+  const spend = inRange.reduce((a, r) => a + r.spend, 0);
+  const impressions = inRange.reduce((a, r) => a + r.impressions, 0);
+  const clicks = inRange.reduce((a, r) => a + r.clicks, 0);
+  const results = ADS.resultActionType
+    ? inRange.reduce((a, r) => a + (r.actions[ADS.resultActionType] || 0), 0)
+    : 0;
+  return {
+    spend, impressions, clicks, results,
+    ctr: impressions ? (clicks / impressions) * 100 : null,
+    cpc: clicks ? spend / clicks : null,
+    cpm: impressions ? (spend / impressions) * 1000 : null,
+    costPerResult: results ? spend / results : null,
+  };
+}
+
+// El alcance es una metrica DEDUPLICADA (personas unicas): sumar el alcance de
+// cada dia contaria varias veces a la misma persona. Solo Meta puede calcularlo,
+// y solo para el rango que se le pidio. Por eso el valor exacto existe unicamente
+// para el periodo completo; en un subrango se muestra "n/d" en vez de inventarlo.
+//
+// "Periodo completo" = los limites del calendario (lo que deja el boton "Ver
+// todo"), no las fechas con las que se llamo a la API: minDate/maxDate cubren
+// todos los dias con datos, asi que el agregado sobre ese span es identico a los
+// totales que devolvio Meta.
+function isFullRange(since, until) {
+  return since === minDate && until === maxDate;
+}
+
+function renderAdsKpis(since, until) {
+  const row = document.getElementById('ads-kpi-row');
+  if (!row || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // En el rango completo se usan los totales EXACTOS de Meta (mismo numero que
+  // ve en el Administrador de anuncios); en un subrango se recalcula del diario.
+  const a = full ? ADS.totals : aggregate(ADS.daily, since, until);
+
+  const tiles = [];
+  if (a.results) {
+    tiles.push(kpiTile(fmtNum(a.results), ADS.resultLabel || 'Resultados'));
+    tiles.push(kpiTile(fmtMoney(a.costPerResult), 'Costo por resultado'));
+  }
+  tiles.push(kpiTile(fmtMoney(a.spend), 'Importe gastado'));
+  tiles.push(full
+    ? kpiTile(fmtNum(ADS.totals.reach), 'Alcance')
+    : kpiTile('n/d', 'Alcance', true));
+  tiles.push(kpiTile(fmtNum(a.impressions), 'Impresiones'));
+  tiles.push(kpiTile(fmtNum(a.clicks), 'Clics'));
+  tiles.push(kpiTile(fmtPct(a.ctr), 'CTR'));
+  tiles.push(kpiTile(fmtMoney(a.cpc), 'CPC'));
+  tiles.push(kpiTile(fmtMoney(a.cpm), 'CPM'));
+  row.innerHTML = tiles.join('');
+
+  const note = document.getElementById('ads-range-note');
+  if (note) {
+    note.hidden = full;
+    note.textContent = full ? '' :
+      'El alcance no se puede calcular para un rango personalizado: es una metrica de personas ' +
+      'unicas y sumar el alcance de cada dia contaria varias veces a la misma persona. ' +
+      'Pulsa "Ver todo" para ver el alcance real del periodo completo. El resto de metricas ' +
+      'si corresponden al rango elegido.';
+  }
+}
+
+function renderAdsCampaigns(since, until) {
+  const body = document.getElementById('ads-campaigns-body');
+  if (!body || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // Agrupa las filas campaña/dia del rango y reconstruye una fila por campaña.
+  const byName = {};
+  ADS.campaignDaily
+    .filter(r => r.date >= since && r.date <= until)
+    .forEach(r => {
+      (byName[r.name] = byName[r.name] || []).push(r);
+    });
+
+  const rows = Object.keys(byName).map(name => {
+    const a = aggregate(byName[name], since, until);
+    // El alcance por campaña tiene el mismo problema de deduplicacion: solo se
+    // muestra el de Meta cuando esta seleccionado el periodo completo.
+    const reach = full ? (ADS.reachByCampaign[name] ?? null) : null;
+    return { name, ...a, reach };
+  }).filter(c => c.spend > 0 || c.impressions > 0)
+    .sort((a, b) => b.spend - a.spend);
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="9" class="empty">No hay campañas con datos en el rango.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(c => `
+        <tr>
+          <td class="post-caption" title="${c.name}">${c.name}</td>
+          <td class="num">${fmtMoney(c.spend)}</td>
+          <td class="num">${full ? fmtNum(c.reach) : 'n/d'}</td>
+          <td class="num">${fmtNum(c.impressions)}</td>
+          <td class="num">${fmtNum(c.clicks)}</td>
+          <td class="num">${fmtPct(c.ctr)}</td>
+          <td class="num">${fmtMoney(c.cpc)}</td>
+          <td class="num">${c.results ? fmtNum(c.results) : '-'}</td>
+          <td class="num">${c.costPerResult ? fmtMoney(c.costPerResult) : '-'}</td>
+        </tr>`).join('');
+}
+
+// Resumen organico: cuenta los posts del rango y suma su engagement/alcance.
+function renderOrganicSummary(since, until) {
+  const row = document.getElementById('organic-summary-row');
+  if (!row) return;
+
+  const inRange = POSTS.filter(p => p.date >= since && p.date <= until);
+  const hasIg = inRange.some(p => p.platform === 'Instagram');
+  const engagement = inRange.reduce((a, p) => a + (p.engagement || 0), 0);
+  const reach = inRange.reduce((a, p) => a + (p.reach || 0), 0);
+
+  const tiles = [kpiTile(fmtNum(inRange.length), 'Posts publicados en el periodo')];
+  if (hasIg) tiles.push(kpiTile(fmtNum(reach), 'Alcance total (Instagram)'));
+  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Engagement total (FB + IG)' : 'Engagement total (Facebook)'));
+  row.innerHTML = tiles.join('');
+}
+
+function applyDateFilter() {
+  const since = selStart;
+  const until = selEnd;
+  if (!since || !until || since > until) return;
+
+  Object.keys(chartData).forEach(id => {
+    const { points, color } = chartData[id];
+    const filtered = points.filter(p => p.label >= since && p.label <= until);
+    renderLineChart(id, filtered, color);
+  });
+
+  document.querySelectorAll('tr[data-date]').forEach(row => {
+    const rowDate = row.getAttribute('data-date');
+    row.style.display = (rowDate >= since && rowDate <= until) ? '' : 'none';
+  });
+
+  renderAdsKpis(since, until);
+  renderAdsCampaigns(since, until);
+  renderOrganicSummary(since, until);
+}
+
+function fmtShort(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d} ${MONTH_ES[parseInt(m, 10) - 1].slice(0, 3)} ${y}`;
+}
+
+// Fabrica de calendarios: cada pestaña instancia el suyo con sus propios IDs,
+// pero todos comparten selStart/selEnd y sincronizan sus etiquetas al cambiar.
+const datePickers = [];
+
+function syncLabels() {
+  datePickers.forEach(p => p && p.updateTriggerLabel());
+}
+
+function createDatePicker(ids) {
+  const trigger = document.getElementById(ids.trigger);
+  const popup = document.getElementById(ids.popup);
+  const calGrid = document.getElementById(ids.grid);
+  const calMonthLabel = document.getElementById(ids.monthLabel);
+  const calHint = document.getElementById(ids.hint);
+  const resetBtn = document.getElementById(ids.reset);
+  if (!trigger) return null;
+
+  let pendingStart = null;
+  let viewDate = maxDate ? new Date(maxDate + 'T00:00:00') : new Date();
+
+  function updateTriggerLabel() {
+    trigger.textContent = (selStart && selEnd) ? `${fmtShort(selStart)} - ${fmtShort(selEnd)}` : 'Elegir rango';
+  }
+
+  function renderCalendar() {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    calMonthLabel.textContent = `${MONTH_ES[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // semana arranca en lunes
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const rangeStart = pendingStart || selStart;
+    const rangeEnd = pendingStart ? null : selEnd;
+
+    calGrid.innerHTML = '';
+    for (let i = 0; i < startOffset; i++) {
+      calGrid.appendChild(document.createElement('span'));
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = day;
+      const disabled = (minDate && iso < minDate) || (maxDate && iso > maxDate);
+      btn.disabled = disabled;
+      if (!disabled) {
+        if (iso === rangeStart || iso === rangeEnd) btn.classList.add('range-endpoint');
+        else if (rangeEnd && iso > rangeStart && iso < rangeEnd) btn.classList.add('in-range');
+        // stopPropagation: onDayClick reconstruye la grilla (renderCalendar),
+        // lo que desprende este boton del DOM antes de que el listener de
+        // "clic afuera" (a nivel document) evalue popup.contains(e.target) --
+        // sin esto, el chequeo da falso y cierra el popup por error.
+        btn.addEventListener('click', (e) => { e.stopPropagation(); onDayClick(iso); });
+      }
+      calGrid.appendChild(btn);
+    }
+  }
+
+  function onDayClick(iso) {
+    if (!pendingStart) {
+      pendingStart = iso;
+      calHint.textContent = 'Elegi la fecha final';
+      renderCalendar();
+      return;
+    }
+    selStart = iso < pendingStart ? iso : pendingStart;
+    selEnd = iso < pendingStart ? pendingStart : iso;
+    pendingStart = null;
+    calHint.textContent = '';
+    syncLabels();
+    applyDateFilter();
+    popup.hidden = true;
+  }
+
+  document.getElementById(ids.prev).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  document.getElementById(ids.next).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+    renderCalendar();
+  });
+
+  trigger.addEventListener('click', () => {
+    popup.hidden = !popup.hidden;
+    if (!popup.hidden) {
+      pendingStart = null;
+      calHint.textContent = '';
+      viewDate = selEnd ? new Date(selEnd + 'T00:00:00') : new Date();
+      renderCalendar();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!popup.hidden && !popup.contains(e.target) && e.target !== trigger) {
+      popup.hidden = true;
+    }
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      selStart = minDate;
+      selEnd = maxDate;
+      syncLabels();
+      applyDateFilter();
+    });
+  }
+
+  return { updateTriggerLabel };
+}
+
+datePickers.push(createDatePicker({
+  trigger: 'filter-trigger', popup: 'calendar-popup', grid: 'cal-grid',
+  monthLabel: 'cal-month-label', hint: 'cal-hint',
+  prev: 'cal-prev', next: 'cal-next', reset: 'filter-reset',
+}));
+datePickers.push(createDatePicker({
+  trigger: 'p-filter-trigger', popup: 'p-calendar-popup', grid: 'p-cal-grid',
+  monthLabel: 'p-cal-month-label', hint: 'p-cal-hint',
+  prev: 'p-cal-prev', next: 'p-cal-next', reset: 'p-filter-reset',
+}));
+
+syncLabels();
+applyDateFilter();
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Insights organicos - Meta</title>
+<style>
+  :root {
+    /* Paleta de marca i.punto Marketing Digital: negro + amarillo del logo. */
+    --surface-1:      #161616;
+    --page-plane:     #0a0a0a;
+    --text-primary:   #ffffff;
+    --text-secondary: #b9b8b2;
+    --text-muted:     #8a8a83;
+    --gridline:       #2a2a2a;
+    --baseline:       #3a3a3a;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #f4dc00;
+    --accent-contrast:#0a0a0a;
+    --fb:             #3987e5;
+    --ig:             #199e70;
+    --positive:       #199e70;
+    --warning:        #e0a349;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .app-shell { display: flex; align-items: flex-start; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .content { flex: 1; min-width: 0; padding: 24px; }
+  .brand { font-size: 15px; font-weight: 600; margin: 0 0 16px; padding: 0 12px; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left; background: transparent; border: none;
+    color: var(--text-secondary); padding: 10px 12px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; margin-bottom: 4px; font-family: inherit;
+  }
+  .nav-btn:hover { background: var(--page-plane); }
+  .nav-btn.active { background: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+  .nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin: 20px 0 0; padding: 0 12px; }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 14px; display:flex; align-items:center; gap:8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+  .dot.fb { background: var(--fb); }
+  .dot.ig { background: var(--ig); }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .kpi .value { font-size: 26px; font-weight: 600; color: var(--accent); }
+  .kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--gridline); }
+  .post-caption { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  a.permalink { color: var(--accent); text-decoration: none; }
+  .chart-wrap { position: relative; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
+    font-size: 11px; padding: 4px 8px; border-radius: 6px; opacity: 0; transform: translate(-50%, -120%);
+    white-space: nowrap; transition: opacity 0.1s;
+  }
+  .empty { color: var(--text-muted); font-size: 13px; }
+  .date-filter { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px; }
+  .date-range-picker { position: relative; }
+  .date-pill {
+    background: var(--page-plane); color: var(--text-primary); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 14px; font-size: 13px; font-family: inherit; cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-pill:hover { border-color: var(--accent); }
+  #filter-reset {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  #filter-reset:hover { background: var(--accent); color: var(--accent-contrast); }
+  .calendar-popup {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .calendar-header button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 6px; line-height: 1;
+  }
+  .calendar-header button:hover { background: var(--page-plane); }
+  .calendar-header span { font-size: 13px; font-weight: 600; }
+  .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .calendar-weekdays span { font-size: 10px; color: var(--text-muted); padding: 4px 0; }
+  .calendar-grid button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 12px;
+    padding: 6px 0; border-radius: 6px; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .calendar-grid button:hover:not(:disabled) { background: var(--page-plane); }
+  .calendar-grid button:disabled { color: var(--text-muted); opacity: 0.35; cursor: default; }
+  /* !important: estas dos marcan el estado de seleccion vigente y no deben
+     desaparecer si el mouse queda posicionado encima (:hover tiene mas
+     especificidad que una sola clase de estado). */
+  .calendar-grid button.in-range { background: rgba(244,220,0,0.15) !important; }
+  .calendar-grid button.range-endpoint {
+    background: var(--accent) !important; color: var(--accent-contrast) !important; font-weight: 700;
+  }
+  .calendar-hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; text-align: center; min-height: 14px; }
+  .rec-card h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .rec-card .dot.alerta { background: var(--warning); }
+  .rec-card .dot.positivo { background: var(--positive); }
+  .rec-card .dot.info { background: var(--fb); }
+  .rec-stat { font-size: 13px; font-weight: 600; margin: 0 0 6px; font-variant-numeric: tabular-nums; }
+  .rec-detail { font-size: 13px; color: var(--text-secondary); margin: 0; }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <nav class="sidebar">
+      <div class="brand">Insights organicos</div>
+      <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
+      <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
+      <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
+      <p class="subtitle">Generado el 2026-07-14 16:03 UTC</p>
+    </nav>
+    <main class="content">
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="filter-trigger" class="date-pill"></button>
+            <div id="calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="cal-month-label"></span>
+                <button type="button" id="cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="cal-grid" class="calendar-grid"></div>
+              <p id="cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="filter-reset" type="button">Ver todo</button>
+        </div>
+
+        <div class="kpi-row"><div class="kpi"><div class="value">3.953</div><div class="label">Fans - Quality Lab - Análisis Clínicos</div></div><div class="kpi"><div class="value">52</div><div class="label">Seguidores - @santvellab77</div></div></div>
+
+        
+  <div class="card">
+    <h2><span class="dot fb"></span>Quality Lab - Análisis Clínicos (Facebook) - engagement diario</h2>
+    <div class="chart-wrap"><div id="fb_chart_0"></div></div>
+  </div>
+  <div class="card">
+    <h2><span class="dot ig"></span>@santvellab77 (Instagram) - alcance diario</h2>
+    <div class="chart-wrap"><div id="ig_chart_0"></div></div>
+  </div>
+
+        
+  <div class="card">
+    <h2>Posts (ordenados por alcance)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th></th><th>Plataforma</th><th>Contenido</th><th>Fecha</th>
+          <th class="num">Alcance</th><th class="num">Interacciones</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-date="2026-07-13">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/745556491_1739704564265516_4985547999109479785_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Po1rsJMcYbEQ7kNvwFhUoS-&_nc_oc=Adp5Nh_xFxmds5BeL_cE2vhehlMIxsS3SQg0KrDUizbwWFH0xUpdVoBEPewRai8p8JI&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQEUE4MLCybgZfPWdkwU06EgO_tNTPG1EMhMQmbivsaYjN4MSiPAnVWKwfpFQ2nXSB37KfY4aDyGtQ&oh=00_AQAy77dARydFw2p4FF7IK8y-Ujm1ZevUeubhXpNc3VZH8g&oe=6A5C419F" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Tu salud merece más beneficios. 💙
+
+Con la Membresía Quality Lab cuidar de ti y d">Tu salud merece más beneficios. 💙
+
+Con la Membresía Quality Lab cuidar de ti y d</td>
+          <td>2026-07-13</td>
+          <td class="num">-</td>
+          <td class="num">1</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1739953064240666" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-12">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/745334101_1739703397598966_1740119399204279607_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zs0yDkNexXgQ7kNvwFVYKqY&_nc_oc=AdrenU0WFQB1nCpbkxp7-t7ySJ9CMqC75yV255U7xIwWH5oCdmt0qPlyR8nIS-umikU&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQGc795GPMy4ThzSThXrtD4cFd8Sjao8fJUiEtd0aW1vA7qduINO3ymKQj9fxChJ3K3FmD3LuYBTMg&oh=00_AQDUYQlZPxZgaET9lWcuy-BnNerqz62Ga46Uemi7IiWqaA&oe=6A5C4A76" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="El crecimiento de una empresa comienza con el bienestar de las personas que la h">El crecimiento de una empresa comienza con el bienestar de las personas que la h</td>
+          <td>2026-07-12</td>
+          <td class="num">-</td>
+          <td class="num">4</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1739703600932279" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-08">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/741636589_1735977374638235_3426675863041923578_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=102&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xbRm-ERf9mEQ7kNvwF-tXt7&_nc_oc=AdrCGwnrzl_wUfsqLUVn5akOPO_AaSBRJMaNLzgNc0XfL5RHDyC2VLHW1xdJJCFdE6M&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQGmicTnrQHZx-Tz451f2vWkmZzvQHzq6HPOxBzmFL-AgiuL_UNiBiz5omefF2TxaTSqxAEglYYjYw&oh=00_AQB7iEQinCmgDMY4kURrLQlU7DRIjPBRh-WVZhF8Bpq7CQ&oe=6A5C225C" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🩸 Tu salud empieza con un análisis confiable.
+
+Realiza tu Biometría Hemática por">🩸 Tu salud empieza con un análisis confiable.
+
+Realiza tu Biometría Hemática por</td>
+          <td>2026-07-08</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1735977457971560" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-05">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/741248762_1733192121583427_300705240591551374_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=104&ccb=1-7&_nc_sid=127cfc&_nc_ohc=fdEojOz__R8Q7kNvwEvysh6&_nc_oc=AdqH2KSPsDgS0u__jnW1xS3_V6UUXWph4gJWBwb97zXmn2VJ-CDnqEg-VrjRsxL_US0&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQFPT2nEjK4X645dEfTnUgVSu2npzJS1XOl97ACeA-xpSHREzbAbwPzo2aHbCoHt7qc8Tf2kFJcIHQ&oh=00_AQDDN72OBSmFIvosCrjnILvJv7IMZkuhK7EEm79EOHIuPg&oe=6A5C3CDA" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🧪 ¿Necesitas un examen toxicológico para tu empresa o algún trámite?
+
+En Quality">🧪 ¿Necesitas un examen toxicológico para tu empresa o algún trámite?
+
+En Quality</td>
+          <td>2026-07-05</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1733192371583402" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-03">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/736931556_1730923541810285_7136606597466824539_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=y07pUG4ofYEQ7kNvwHc09Q6&_nc_oc=AdrIAiJt-l1oUYC3rN4_mWXrfat2S26J_J1_ymg22qruk5sfSd0GjI2_j327w2X_XUE&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQG5qL5f7fpDgyNZMWVfCNlGW4e6qYpb1YNCBUrGGbhWPJXiFaYlvfjJp5jjKGYh05fQQWC8ICduFw&oh=00_AQB869uFOjJPJrLEORigG5jG3oaMyPZ3bhYcBLT-xR4-uA&oe=6A5C4B7D" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Aquí tienes un copy con enfoque de prevención y venta para Quality Lab:
+
+La salu">Aquí tienes un copy con enfoque de prevención y venta para Quality Lab:
+
+La salu</td>
+          <td>2026-07-03</td>
+          <td class="num">-</td>
+          <td class="num">1</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1730924001810239" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-02">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/734656182_1729810665254906_7149763477266914275_n.png?stp=dst-png_p720x720&_nc_cat=103&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=dULtw2M4yokQ7kNvwExUuuG&_nc_oc=AdoIuwMLy-m5ChFEtHN7sLNWYFjw-AK0xAYrMojq14mmZySpnqoR4JgVS_K1FIUHXaQ&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQHRWrXlOPlnrNGH2BiNvoeyOrk4ISoCOKLJDRmS5zDC3Rqrp5in14-4R1TbZumU9fIHuzGvx3tTxw&oh=00_AQBEEaqTkN1G4v4bQh-Bp5nbCV1k3gmSCpcPQ80w5UM0VA&oe=6A5C21C0" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="(sin texto)">(sin texto)</td>
+          <td>2026-07-02</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1475506247583084?substory_index=1475506247583084" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-02">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/735969958_1729808448588461_6106688207807526619_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=TL7sA0ZMTtMQ7kNvwEPo1On&_nc_oc=AdrxwfoK9ED1a6kE1gfBUmFRBor55FY1ABL4HJGjjBafCPP9MBWlQMy9OG1JpCf0bGs&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQH_cByBAUb9RtTB76vFe6-T3WNSdCpzc38lMDMlkpk_Jv1w6yg7lexBAyefxDcpWqxp-6H_Rnd1aQ&oh=00_AQD9IDYGZs2Mlbfm5aawEZdrKDp3VgN1cDGxN2ZqTmqcnQ&oe=6A5C3ECD" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="💜 ¡En julio cuidar de tu salud cuesta menos!
+
+Este mes aprovecha nuestras promoc">💜 ¡En julio cuidar de tu salud cuesta menos!
+
+Este mes aprovecha nuestras promoc</td>
+          <td>2026-07-02</td>
+          <td class="num">-</td>
+          <td class="num">379</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1729808608588445" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-02">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t1.6435-9/55622742_324203711624424_8105207649580089344_n.png?stp=dst-jpg_tt6&_nc_cat=110&ccb=1-7&_nc_sid=86c6b0&_nc_ohc=FZojqo9xOFIQ7kNvwFBTgQ_&_nc_oc=AdpflYu2EB8BjEIoNGLRUmoG611VH2eP4IKE7N-D81BRoPj0b-GULdvLfwMzY7xJtzQ&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQFrtotBEExqKDIYHrBd8EvWLXyBcbf4OwQiIza5g_WG7gbUlPH8XdLG4WVck63a4V82p2i3Ggbuew&oh=00_AQB6SHtTSfPJETSINTpH8De_0f9d7g27STDDF-kqIv-WFA&oe=6A7DC215" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="(sin texto)">(sin texto)</td>
+          <td>2026-07-02</td>
+          <td class="num">-</td>
+          <td class="num">1</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1732054427838287?substory_index=1732054427838287" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-25">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/730120682_1723143179254988_737495990814504844_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=TZi4n4zu1DIQ7kNvwE2mef-&_nc_oc=AdqoTPFBYWBTPQEEwo8cK6Iis8WFCb0D03iKTe4ciRiS24Mr1ztvSpvDgfKUYKEctt4&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQG4JMVdUbCZt9E0kr-DzBVJ1kn6wxnJQZmToV_iJQXRcpFWPYnKidQiyvbEf-GYXZQKqDYTW8eF_Q&oh=00_AQD5KKDW173qRCpVcQlnQtH5C-2UJW380Nl08ne88NCrjg&oe=6A5C2422" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="¿Sabías que la diabetes puede avanzar durante años sin presentar síntomas? 🩸
+
+La">¿Sabías que la diabetes puede avanzar durante años sin presentar síntomas? 🩸
+
+La</td>
+          <td>2026-06-25</td>
+          <td class="num">-</td>
+          <td class="num">8</td>
+          <td><a class="permalink" href="https://www.facebook.com/1730126955223277/posts/1723146572587982" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-21">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/721666366_2479954939133963_518990985423180252_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=hU7X8SXHzIAQ7kNvwEwqER3&_nc_oc=Adr8S5L1SBc3OLjkkuuqj4iZwU1IFOmgYzT9Ut9BsbnLnfxV2ESRx0D3ty8iVvIcAGk&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=iYoxEsigvVi988nt7hpN4A&_nc_tpa=Q5bMBQECC-UhkmyAgqKjZKpkQKpoFUGq-ZpOjVgSPZAo0-F_b-rKi4IH_62oWPB0zeiua27j7IxVmorIpQ&oh=00_AQCFSy0QuVYGgypQDepYEgE6FLCA0FtDYSyo_AWSwBoSlw&oe=6A5C3414" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="“DETRÁS DE LA SALUD Y LA TRANQUILIDAD DE CADA HOGAR” 💙👨‍👧‍👦
+
+Esas pequeñas manos">“DETRÁS DE LA SALUD Y LA TRANQUILIDAD DE CADA HOGAR” 💙👨‍👧‍👦
+
+Esas pequeñas manos</td>
+          <td>2026-06-21</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/2620087378438624/" target="_blank" rel="noopener">Ver</a></td>
+        </tr></tbody>
+    </table>
+  </div>
+      </section>
+      <section id="tab-pautas" class="tab-panel">
+        <h1>Pauta (anuncios pagados)</h1>
+        <p class="subtitle" style="padding:0;margin:2px 0 18px;">Cuenta: iPunto Pauta Digital · Moneda: MXN · Campañas: Qlty</p>
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="p-filter-trigger" class="date-pill"></button>
+            <div id="p-calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="p-cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="p-cal-month-label"></span>
+                <button type="button" id="p-cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="p-cal-grid" class="calendar-grid"></div>
+              <p id="p-cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="p-filter-reset" type="button">Ver todo</button>
+        </div>
+        <div class="kpi-row"><div class="kpi"><div class="value">374</div><div class="label">Conversaciones iniciadas</div></div><div class="kpi"><div class="value">$21,01 MXN</div><div class="label">Costo por resultado</div></div><div class="kpi"><div class="value">$7.859,50 MXN</div><div class="label">Importe gastado</div></div><div class="kpi"><div class="value">59.620</div><div class="label">Alcance</div></div><div class="kpi"><div class="value">193.901</div><div class="label">Impresiones</div></div><div class="kpi"><div class="value">5.576</div><div class="label">Clics</div></div><div class="kpi"><div class="value">2,88%</div><div class="label">CTR</div></div><div class="kpi"><div class="value">$1,41 MXN</div><div class="label">CPC</div></div><div class="kpi"><div class="value">$40,53 MXN</div><div class="label">CPM</div></div></div>
+        
+  <div class="card">
+    <h2><span class="dot" style="background:var(--accent)"></span>Resultados diarios</h2>
+    <div class="chart-wrap"><div id="ads_results_chart"></div></div>
+  </div>
+        
+  <div class="card">
+    <h2>Campañas (ordenadas por inversion)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Campaña</th><th class="num">Inversion</th><th class="num">Alcance</th>
+          <th class="num">Impresiones</th><th class="num">Clics</th><th class="num">CTR</th>
+          <th class="num">CPC</th><th class="num">Resultados</th><th class="num">Costo/result.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="post-caption" title="QLTY_PROMOS_ENERO_26">QLTY_PROMOS_ENERO_26</td>
+          <td class="num">$1.814,13 MXN</td>
+          <td class="num">13.854</td>
+          <td class="num">35.585</td>
+          <td class="num">1.178</td>
+          <td class="num">3,31%</td>
+          <td class="num">$1,54 MXN</td>
+          <td class="num">85</td>
+          <td class="num">$21,34 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="QLTY_Promos_Junio26">QLTY_Promos_Junio26</td>
+          <td class="num">$1.749,41 MXN</td>
+          <td class="num">12.692</td>
+          <td class="num">29.068</td>
+          <td class="num">845</td>
+          <td class="num">2,91%</td>
+          <td class="num">$2,07 MXN</td>
+          <td class="num">67</td>
+          <td class="num">$26,11 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="QLTY_Msgs_Promos_Mayo">QLTY_Msgs_Promos_Mayo</td>
+          <td class="num">$1.552,75 MXN</td>
+          <td class="num">18.475</td>
+          <td class="num">65.573</td>
+          <td class="num">1.459</td>
+          <td class="num">2,23%</td>
+          <td class="num">$1,06 MXN</td>
+          <td class="num">78</td>
+          <td class="num">$19,91 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="QLTY_Promos_Abril_26">QLTY_Promos_Abril_26</td>
+          <td class="num">$1.387,24 MXN</td>
+          <td class="num">10.417</td>
+          <td class="num">32.057</td>
+          <td class="num">994</td>
+          <td class="num">3,10%</td>
+          <td class="num">$1,40 MXN</td>
+          <td class="num">50</td>
+          <td class="num">$27,74 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="QLTY_PROMOS_FEBRERO_26">QLTY_PROMOS_FEBRERO_26</td>
+          <td class="num">$1.110,07 MXN</td>
+          <td class="num">10.863</td>
+          <td class="num">24.247</td>
+          <td class="num">734</td>
+          <td class="num">3,03%</td>
+          <td class="num">$1,51 MXN</td>
+          <td class="num">54</td>
+          <td class="num">$20,56 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="QLTY_PROMOS_PROMOS_JULIO">QLTY_PROMOS_PROMOS_JULIO</td>
+          <td class="num">$245,90 MXN</td>
+          <td class="num">4.021</td>
+          <td class="num">7.371</td>
+          <td class="num">366</td>
+          <td class="num">4,97%</td>
+          <td class="num">$0,67 MXN</td>
+          <td class="num">40</td>
+          <td class="num">$6,15 MXN</td>
+        </tr></tbody>
+    </table>
+  </div>
+      </section>
+      <section id="tab-recomendaciones" class="tab-panel">
+        <div class="kpi-row"><div class="kpi"><div class="value">10</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">0</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">394</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mejor mes</div></div></div>
+
+        
+  <div class="card">
+    <h2>Analisis mensual</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th><th class="num">Posts FB</th><th class="num">Posts IG</th>
+          <th class="num">Engagement prom. FB</th><th class="num">Alcance prom. IG</th>
+          <th class="num">Cadencia (post/sem)</th><th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Enero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Febrero 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Marzo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Abril 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Mayo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Junio 2026</td>
+          <td class="num">2</td>
+          <td class="num">0</td>
+          <td class="num">4</td>
+          <td class="num">-</td>
+          <td class="num">0.5</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Julio 2026</td>
+          <td class="num">8</td>
+          <td class="num">0</td>
+          <td class="num">48</td>
+          <td class="num">-</td>
+          <td class="num">3.0</td>
+          <td>mes en curso</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+        
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Facebook</h3>
+    <p class="rec-stat">0.3 dias con post/semana (minimo recomendado: 3)</p>
+    <p class="rec-detail">En los ultimos 195 dias hubo posts en solo 8 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Instagram</h3>
+    <p class="rec-stat">0.0 dias con post/semana (minimo recomendado: 3)</p>
+    <p class="rec-detail">En los ultimos 195 dias hubo posts en solo 0 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot positivo"></span>Engagement en alza para Quality Lab - Análisis Clínicos (Facebook)</h3>
+    <p class="rec-stat">ultimos 30 dias: 39.8 vs 29.3 de los 30 dias previos (+36%)</p>
+    <p class="rec-detail">La tendencia reciente supera al periodo anterior. Vale la pena identificar que esta funcionando para mantenerlo.</p>
+  </div>
+  <div class="card rec-card">
+    <h3><span class="dot alerta"></span>Alcance en baja para @santvellab77 (Instagram)</h3>
+    <p class="rec-stat">ultimos 30 dias: 48.0 vs 92.3 de los 30 dias previos (-48%)</p>
+    <p class="rec-detail">La tendencia reciente esta por debajo del periodo anterior. Vale la pena revisar que cambio en el contenido o la cadencia de publicacion.</p>
+  </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026-01-02", "value": 2}, {"label": "2026-01-03", "value": 1}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 1}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 1}, {"label": "2026-01-08", "value": 4}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 61}, {"label": "2026-01-11", "value": 47}, {"label": "2026-01-12", "value": 0}, {"label": "2026-01-13", "value": 1}, {"label": "2026-01-14", "value": 96}, {"label": "2026-01-15", "value": 87}, {"label": "2026-01-16", "value": 78}, {"label": "2026-01-17", "value": 79}, {"label": "2026-01-18", "value": 45}, {"label": "2026-01-19", "value": 53}, {"label": "2026-01-20", "value": 82}, {"label": "2026-01-21", "value": 39}, {"label": "2026-01-22", "value": 57}, {"label": "2026-01-23", "value": 73}, {"label": "2026-01-24", "value": 62}, {"label": "2026-01-25", "value": 42}, {"label": "2026-01-26", "value": 50}, {"label": "2026-01-27", "value": 54}, {"label": "2026-01-28", "value": 2}, {"label": "2026-01-29", "value": 10}, {"label": "2026-01-30", "value": 99}, {"label": "2026-01-31", "value": 88}, {"label": "2026-02-01", "value": 82}, {"label": "2026-02-02", "value": 48}, {"label": "2026-02-03", "value": 74}, {"label": "2026-02-04", "value": 32}, {"label": "2026-02-05", "value": 8}, {"label": "2026-02-06", "value": 5}, {"label": "2026-02-07", "value": 9}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 0}, {"label": "2026-02-10", "value": 29}, {"label": "2026-02-11", "value": 7}, {"label": "2026-02-12", "value": 1}, {"label": "2026-02-13", "value": 2}, {"label": "2026-02-14", "value": 7}, {"label": "2026-02-15", "value": 1}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 30}, {"label": "2026-02-18", "value": 50}, {"label": "2026-02-19", "value": 129}, {"label": "2026-02-20", "value": 81}, {"label": "2026-02-21", "value": 77}, {"label": "2026-02-22", "value": 66}, {"label": "2026-02-23", "value": 45}, {"label": "2026-02-24", "value": 75}, {"label": "2026-02-25", "value": 44}, {"label": "2026-02-26", "value": 45}, {"label": "2026-02-27", "value": 41}, {"label": "2026-02-28", "value": 36}, {"label": "2026-03-01", "value": 69}, {"label": "2026-03-02", "value": 60}, {"label": "2026-03-03", "value": 6}, {"label": "2026-03-04", "value": 1}, {"label": "2026-03-05", "value": 1}, {"label": "2026-03-06", "value": 3}, {"label": "2026-03-07", "value": 6}, {"label": "2026-03-08", "value": 3}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 13}, {"label": "2026-03-11", "value": 0}, {"label": "2026-03-12", "value": 4}, {"label": "2026-03-13", "value": 3}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 0}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 1}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 2}, {"label": "2026-03-21", "value": 8}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 1}, {"label": "2026-03-24", "value": 2}, {"label": "2026-03-25", "value": 0}, {"label": "2026-03-26", "value": 0}, {"label": "2026-03-27", "value": 1}, {"label": "2026-03-28", "value": 59}, {"label": "2026-03-29", "value": 4}, {"label": "2026-03-30", "value": 2}, {"label": "2026-04-01", "value": 2}, {"label": "2026-04-02", "value": 1}, {"label": "2026-04-03", "value": 0}, {"label": "2026-04-04", "value": 1}, {"label": "2026-04-05", "value": 1}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 1}, {"label": "2026-04-08", "value": 4}, {"label": "2026-04-09", "value": 8}, {"label": "2026-04-10", "value": 2}, {"label": "2026-04-11", "value": 3}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 14}, {"label": "2026-04-14", "value": 67}, {"label": "2026-04-15", "value": 31}, {"label": "2026-04-16", "value": 6}, {"label": "2026-04-17", "value": 64}, {"label": "2026-04-18", "value": 44}, {"label": "2026-04-19", "value": 48}, {"label": "2026-04-20", "value": 34}, {"label": "2026-04-21", "value": 41}, {"label": "2026-04-22", "value": 56}, {"label": "2026-04-23", "value": 34}, {"label": "2026-04-24", "value": 48}, {"label": "2026-04-25", "value": 25}, {"label": "2026-04-26", "value": 17}, {"label": "2026-04-27", "value": 16}, {"label": "2026-04-28", "value": 3}, {"label": "2026-04-29", "value": 17}, {"label": "2026-04-30", "value": 45}, {"label": "2026-05-01", "value": 49}, {"label": "2026-05-02", "value": 34}, {"label": "2026-05-03", "value": 48}, {"label": "2026-05-04", "value": 36}, {"label": "2026-05-05", "value": 8}, {"label": "2026-05-06", "value": 4}, {"label": "2026-05-07", "value": 35}, {"label": "2026-05-08", "value": 111}, {"label": "2026-05-09", "value": 109}, {"label": "2026-05-10", "value": 100}, {"label": "2026-05-11", "value": 73}, {"label": "2026-05-12", "value": 110}, {"label": "2026-05-13", "value": 99}, {"label": "2026-05-14", "value": 98}, {"label": "2026-05-15", "value": 106}, {"label": "2026-05-16", "value": 99}, {"label": "2026-05-17", "value": 76}, {"label": "2026-05-18", "value": 83}, {"label": "2026-05-19", "value": 94}, {"label": "2026-05-20", "value": 42}, {"label": "2026-05-21", "value": 1}, {"label": "2026-05-22", "value": 13}, {"label": "2026-05-23", "value": 71}, {"label": "2026-05-24", "value": 58}, {"label": "2026-05-25", "value": 34}, {"label": "2026-05-26", "value": 38}, {"label": "2026-05-27", "value": 14}, {"label": "2026-05-28", "value": 64}, {"label": "2026-05-29", "value": 39}, {"label": "2026-05-30", "value": 2}, {"label": "2026-05-31", "value": 1}, {"label": "2026-06-01", "value": 1}, {"label": "2026-06-02", "value": 3}, {"label": "2026-06-03", "value": 0}, {"label": "2026-06-04", "value": 23}, {"label": "2026-06-05", "value": 2}, {"label": "2026-06-06", "value": 1}, {"label": "2026-06-07", "value": 2}, {"label": "2026-06-08", "value": 1}, {"label": "2026-06-09", "value": 0}, {"label": "2026-06-10", "value": 10}, {"label": "2026-06-11", "value": 1}, {"label": "2026-06-12", "value": 0}, {"label": "2026-06-13", "value": 0}, {"label": "2026-06-14", "value": 1}, {"label": "2026-06-15", "value": 0}, {"label": "2026-06-16", "value": 29}, {"label": "2026-06-17", "value": 76}, {"label": "2026-06-18", "value": 45}, {"label": "2026-06-19", "value": 19}, {"label": "2026-06-20", "value": 23}, {"label": "2026-06-21", "value": 33}, {"label": "2026-06-22", "value": 45}, {"label": "2026-06-23", "value": 54}, {"label": "2026-06-24", "value": 81}, {"label": "2026-06-25", "value": 104}, {"label": "2026-06-26", "value": 112}, {"label": "2026-06-27", "value": 113}, {"label": "2026-06-29", "value": 72}, {"label": "2026-06-30", "value": 26}, {"label": "2026-07-01", "value": 1}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-03", "value": 0}, {"label": "2026-07-04", "value": 3}, {"label": "2026-07-05", "value": 0}, {"label": "2026-07-06", "value": 0}, {"label": "2026-07-07", "value": 1}, {"label": "2026-07-08", "value": 188}, {"label": "2026-07-09", "value": 66}, {"label": "2026-07-10", "value": 1}, {"label": "2026-07-11", "value": 6}, {"label": "2026-07-12", "value": 0}, {"label": "2026-07-13", "value": 4}, {"label": "2026-07-14", "value": 92}]}, "ig_chart_0": {"color": "#1baf7a", "points": [{"label": "2026-01-01", "value": 1}, {"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 0}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 0}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 34}, {"label": "2026-01-10", "value": 22}, {"label": "2026-01-11", "value": 0}, {"label": "2026-01-12", "value": 0}, {"label": "2026-01-13", "value": 150}, {"label": "2026-01-14", "value": 72}, {"label": "2026-01-15", "value": 114}, {"label": "2026-01-16", "value": 55}, {"label": "2026-01-17", "value": 58}, {"label": "2026-01-18", "value": 40}, {"label": "2026-01-19", "value": 52}, {"label": "2026-01-20", "value": 23}, {"label": "2026-01-21", "value": 36}, {"label": "2026-01-22", "value": 23}, {"label": "2026-01-23", "value": 15}, {"label": "2026-01-24", "value": 17}, {"label": "2026-01-25", "value": 24}, {"label": "2026-01-26", "value": 39}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 30}, {"label": "2026-01-31", "value": 42}, {"label": "2026-02-01", "value": 39}, {"label": "2026-02-02", "value": 62}, {"label": "2026-02-03", "value": 24}, {"label": "2026-02-04", "value": 0}, {"label": "2026-02-05", "value": 0}, {"label": "2026-02-06", "value": 1}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 0}, {"label": "2026-02-10", "value": 0}, {"label": "2026-02-11", "value": 0}, {"label": "2026-02-12", "value": 0}, {"label": "2026-02-13", "value": 0}, {"label": "2026-02-14", "value": 1}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 24}, {"label": "2026-02-17", "value": 57}, {"label": "2026-02-18", "value": 67}, {"label": "2026-02-19", "value": 72}, {"label": "2026-02-20", "value": 51}, {"label": "2026-02-21", "value": 37}, {"label": "2026-02-22", "value": 47}, {"label": "2026-02-23", "value": 44}, {"label": "2026-02-24", "value": 37}, {"label": "2026-02-25", "value": 27}, {"label": "2026-02-26", "value": 22}, {"label": "2026-02-27", "value": 19}, {"label": "2026-02-28", "value": 30}, {"label": "2026-03-02", "value": 3}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 0}, {"label": "2026-03-05", "value": 0}, {"label": "2026-03-06", "value": 0}, {"label": "2026-03-07", "value": 0}, {"label": "2026-03-08", "value": 0}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 0}, {"label": "2026-03-11", "value": 0}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 0}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 1}, {"label": "2026-03-18", "value": 0}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 0}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 0}, {"label": "2026-03-26", "value": 0}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 0}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 0}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 0}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 0}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 68}, {"label": "2026-04-14", "value": 26}, {"label": "2026-04-15", "value": 4}, {"label": "2026-04-16", "value": 31}, {"label": "2026-04-17", "value": 28}, {"label": "2026-04-18", "value": 42}, {"label": "2026-04-19", "value": 19}, {"label": "2026-04-20", "value": 52}, {"label": "2026-04-21", "value": 48}, {"label": "2026-04-22", "value": 34}, {"label": "2026-04-23", "value": 76}, {"label": "2026-04-24", "value": 36}, {"label": "2026-04-25", "value": 23}, {"label": "2026-04-26", "value": 6}, {"label": "2026-04-27", "value": 0}, {"label": "2026-04-28", "value": 30}, {"label": "2026-04-29", "value": 83}, {"label": "2026-05-01", "value": 17}, {"label": "2026-05-02", "value": 46}, {"label": "2026-05-03", "value": 44}, {"label": "2026-05-04", "value": 18}, {"label": "2026-05-05", "value": 0}, {"label": "2026-05-06", "value": 59}, {"label": "2026-05-07", "value": 120}, {"label": "2026-05-08", "value": 110}, {"label": "2026-05-09", "value": 155}, {"label": "2026-05-10", "value": 189}, {"label": "2026-05-11", "value": 160}, {"label": "2026-05-12", "value": 124}, {"label": "2026-05-13", "value": 183}, {"label": "2026-05-14", "value": 145}, {"label": "2026-05-15", "value": 109}, {"label": "2026-05-16", "value": 177}, {"label": "2026-05-17", "value": 148}, {"label": "2026-05-18", "value": 190}, {"label": "2026-05-19", "value": 107}, {"label": "2026-05-20", "value": 0}, {"label": "2026-05-21", "value": 120}, {"label": "2026-05-22", "value": 280}, {"label": "2026-05-23", "value": 587}, {"label": "2026-05-24", "value": 206}, {"label": "2026-05-25", "value": 182}, {"label": "2026-05-26", "value": 45}, {"label": "2026-05-27", "value": 189}, {"label": "2026-05-28", "value": 100}, {"label": "2026-05-29", "value": 0}, {"label": "2026-05-31", "value": 0}, {"label": "2026-06-01", "value": 0}, {"label": "2026-06-02", "value": 0}, {"label": "2026-06-03", "value": 0}, {"label": "2026-06-04", "value": 0}, {"label": "2026-06-05", "value": 0}, {"label": "2026-06-06", "value": 0}, {"label": "2026-06-07", "value": 0}, {"label": "2026-06-08", "value": 0}, {"label": "2026-06-09", "value": 0}, {"label": "2026-06-10", "value": 0}, {"label": "2026-06-11", "value": 0}, {"label": "2026-06-12", "value": 0}, {"label": "2026-06-13", "value": 0}, {"label": "2026-06-14", "value": 0}, {"label": "2026-06-15", "value": 157}, {"label": "2026-06-16", "value": 129}, {"label": "2026-06-17", "value": 45}, {"label": "2026-06-18", "value": 60}, {"label": "2026-06-19", "value": 107}, {"label": "2026-06-20", "value": 98}, {"label": "2026-06-21", "value": 75}, {"label": "2026-06-22", "value": 133}, {"label": "2026-06-23", "value": 125}, {"label": "2026-06-24", "value": 82}, {"label": "2026-06-25", "value": 66}, {"label": "2026-06-26", "value": 51}, {"label": "2026-06-27", "value": 91}, {"label": "2026-06-28", "value": 142}, {"label": "2026-06-30", "value": 0}, {"label": "2026-07-01", "value": 0}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-03", "value": 1}, {"label": "2026-07-04", "value": 0}, {"label": "2026-07-05", "value": 0}, {"label": "2026-07-06", "value": 0}, {"label": "2026-07-07", "value": 37}, {"label": "2026-07-08", "value": 11}, {"label": "2026-07-09", "value": 0}, {"label": "2026-07-10", "value": 0}, {"label": "2026-07-11", "value": 0}, {"label": "2026-07-12", "value": 0}, {"label": "2026-07-13", "value": 29}]}, "ads_results_chart": {"color": "#f4dc00", "points": [{"label": "2026-01-09", "value": 4}, {"label": "2026-01-10", "value": 6}, {"label": "2026-01-11", "value": 0}, {"label": "2026-01-13", "value": 7}, {"label": "2026-01-14", "value": 8}, {"label": "2026-01-15", "value": 4}, {"label": "2026-01-16", "value": 7}, {"label": "2026-01-17", "value": 2}, {"label": "2026-01-18", "value": 4}, {"label": "2026-01-19", "value": 2}, {"label": "2026-01-20", "value": 3}, {"label": "2026-01-21", "value": 4}, {"label": "2026-01-22", "value": 5}, {"label": "2026-01-23", "value": 1}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 3}, {"label": "2026-01-26", "value": 4}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 4}, {"label": "2026-01-30", "value": 5}, {"label": "2026-01-31", "value": 5}, {"label": "2026-02-01", "value": 1}, {"label": "2026-02-02", "value": 6}, {"label": "2026-02-03", "value": 0}, {"label": "2026-02-04", "value": 0}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-16", "value": 1}, {"label": "2026-02-17", "value": 6}, {"label": "2026-02-18", "value": 5}, {"label": "2026-02-19", "value": 4}, {"label": "2026-02-20", "value": 4}, {"label": "2026-02-21", "value": 3}, {"label": "2026-02-22", "value": 3}, {"label": "2026-02-23", "value": 5}, {"label": "2026-02-24", "value": 3}, {"label": "2026-02-25", "value": 3}, {"label": "2026-02-26", "value": 5}, {"label": "2026-02-27", "value": 5}, {"label": "2026-02-28", "value": 1}, {"label": "2026-03-01", "value": 5}, {"label": "2026-03-02", "value": 0}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 1}, {"label": "2026-03-06", "value": 0}, {"label": "2026-04-13", "value": 4}, {"label": "2026-04-14", "value": 2}, {"label": "2026-04-15", "value": 1}, {"label": "2026-04-16", "value": 8}, {"label": "2026-04-17", "value": 2}, {"label": "2026-04-18", "value": 5}, {"label": "2026-04-19", "value": 3}, {"label": "2026-04-20", "value": 2}, {"label": "2026-04-21", "value": 4}, {"label": "2026-04-22", "value": 1}, {"label": "2026-04-23", "value": 3}, {"label": "2026-04-24", "value": 2}, {"label": "2026-04-25", "value": 0}, {"label": "2026-04-26", "value": 0}, {"label": "2026-04-28", "value": 1}, {"label": "2026-04-29", "value": 2}, {"label": "2026-04-30", "value": 2}, {"label": "2026-05-01", "value": 1}, {"label": "2026-05-02", "value": 3}, {"label": "2026-05-03", "value": 2}, {"label": "2026-05-04", "value": 2}, {"label": "2026-05-05", "value": 0}, {"label": "2026-05-06", "value": 0}, {"label": "2026-05-07", "value": 13}, {"label": "2026-05-08", "value": 5}, {"label": "2026-05-09", "value": 7}, {"label": "2026-05-10", "value": 4}, {"label": "2026-05-11", "value": 5}, {"label": "2026-05-12", "value": 4}, {"label": "2026-05-13", "value": 4}, {"label": "2026-05-14", "value": 3}, {"label": "2026-05-15", "value": 3}, {"label": "2026-05-16", "value": 3}, {"label": "2026-05-17", "value": 1}, {"label": "2026-05-18", "value": 0}, {"label": "2026-05-19", "value": 5}, {"label": "2026-05-20", "value": 1}, {"label": "2026-05-21", "value": 4}, {"label": "2026-05-22", "value": 4}, {"label": "2026-05-23", "value": 2}, {"label": "2026-05-24", "value": 2}, {"label": "2026-05-25", "value": 2}, {"label": "2026-05-26", "value": 0}, {"label": "2026-05-27", "value": 4}, {"label": "2026-05-28", "value": 2}, {"label": "2026-06-15", "value": 5}, {"label": "2026-06-16", "value": 9}, {"label": "2026-06-17", "value": 2}, {"label": "2026-06-18", "value": 0}, {"label": "2026-06-19", "value": 1}, {"label": "2026-06-20", "value": 2}, {"label": "2026-06-21", "value": 2}, {"label": "2026-06-22", "value": 5}, {"label": "2026-06-23", "value": 2}, {"label": "2026-06-24", "value": 13}, {"label": "2026-06-25", "value": 5}, {"label": "2026-06-26", "value": 10}, {"label": "2026-06-27", "value": 6}, {"label": "2026-06-28", "value": 4}, {"label": "2026-06-29", "value": 1}, {"label": "2026-07-01", "value": 0}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-03", "value": 0}, {"label": "2026-07-07", "value": 19}, {"label": "2026-07-08", "value": 5}, {"label": "2026-07-09", "value": 0}, {"label": "2026-07-10", "value": 0}, {"label": "2026-07-11", "value": 0}, {"label": "2026-07-12", "value": 1}, {"label": "2026-07-13", "value": 7}, {"label": "2026-07-14", "value": 8}]}};
+
+function renderLineChart(containerId, points, color) {
+  const container = document.getElementById(containerId);
+  if (!points || points.length < 2) {
+    container.innerHTML = '<p class="empty">No hay suficientes datos para graficar esta serie.</p>';
+    return;
+  }
+  const width = container.clientWidth || 600;
+  const height = 180;
+  const padL = 40, padR = 12, padT = 12, padB = 24;
+  const xs = points.map((_, i) => i);
+  const ys = points.map(p => p.value);
+  const minY = Math.min(0, ...ys);
+  const maxY = Math.max(...ys) * 1.1 || 1;
+
+  const xScale = i => padL + (i / (points.length - 1)) * (width - padL - padR);
+  const yScale = v => height - padB - ((v - minY) / (maxY - minY)) * (height - padT - padB);
+
+  const path = xs.map(i => `${i === 0 ? 'M' : 'L'} ${xScale(i)},${yScale(ys[i])}`).join(' ');
+
+  const gridlines = 4;
+  let gridSvg = '';
+  for (let g = 0; g <= gridlines; g++) {
+    const v = minY + (g / gridlines) * (maxY - minY);
+    const y = yScale(v);
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${width - padR}" y2="${y}" stroke="var(--gridline)" stroke-width="1"/>`;
+    gridSvg += `<text x="${padL - 6}" y="${y + 3}" font-size="10" fill="var(--text-muted)" text-anchor="end">${Math.round(v)}</text>`;
+  }
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
+      ${gridSvg}
+      <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="tooltip"></div>
+  `;
+
+  const svg = container.querySelector('svg');
+  const tooltip = container.querySelector('.tooltip');
+  const hitLayer = document.createElementNS(svgNS, 'rect');
+  hitLayer.setAttribute('x', padL); hitLayer.setAttribute('y', 0);
+  hitLayer.setAttribute('width', width - padL - padR); hitLayer.setAttribute('height', height);
+  hitLayer.setAttribute('fill', 'transparent');
+  svg.appendChild(hitLayer);
+
+  const crosshair = document.createElementNS(svgNS, 'line');
+  crosshair.setAttribute('y1', padT); crosshair.setAttribute('y2', height - padB);
+  crosshair.setAttribute('stroke', 'var(--baseline)'); crosshair.setAttribute('stroke-width', '1');
+  crosshair.style.display = 'none';
+  svg.appendChild(crosshair);
+
+  svg.addEventListener('mousemove', (e) => {
+    const rect = svg.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (width / rect.width);
+    let idx = Math.round(((px - padL) / (width - padL - padR)) * (points.length - 1));
+    idx = Math.max(0, Math.min(points.length - 1, idx));
+    const cx = xScale(idx);
+    crosshair.setAttribute('x1', cx); crosshair.setAttribute('x2', cx);
+    crosshair.style.display = 'block';
+    tooltip.style.opacity = 1;
+    tooltip.style.left = `${(cx / width) * 100}%`;
+    tooltip.style.top = `${(yScale(ys[idx]) / height) * 100}%`;
+    tooltip.textContent = `${points[idx].label}: ${points[idx].value.toLocaleString()}`;
+  });
+  svg.addEventListener('mouseleave', () => {
+    crosshair.style.display = 'none';
+    tooltip.style.opacity = 0;
+  });
+}
+
+const MONTH_ES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+const allLabels = Object.values(chartData).flatMap(({ points }) => points.map(p => p.label)).sort();
+const minDate = allLabels[0];
+const maxDate = allLabels[allLabels.length - 1];
+
+// Estado del rango COMPARTIDO entre pestañas: los calendarios de Insights y de
+// Pauta controlan y reflejan el mismo [selStart, selEnd].
+let selStart = minDate;
+let selEnd = maxDate;
+
+function applyDateFilter() {
+  const since = selStart;
+  const until = selEnd;
+  if (!since || !until || since > until) return;
+
+  Object.keys(chartData).forEach(id => {
+    const { points, color } = chartData[id];
+    const filtered = points.filter(p => p.label >= since && p.label <= until);
+    renderLineChart(id, filtered, color);
+  });
+
+  document.querySelectorAll('tr[data-date]').forEach(row => {
+    const rowDate = row.getAttribute('data-date');
+    row.style.display = (rowDate >= since && rowDate <= until) ? '' : 'none';
+  });
+}
+
+function fmtShort(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d} ${MONTH_ES[parseInt(m, 10) - 1].slice(0, 3)} ${y}`;
+}
+
+// Fabrica de calendarios: cada pestaña instancia el suyo con sus propios IDs,
+// pero todos comparten selStart/selEnd y sincronizan sus etiquetas al cambiar.
+const datePickers = [];
+
+function syncLabels() {
+  datePickers.forEach(p => p && p.updateTriggerLabel());
+}
+
+function createDatePicker(ids) {
+  const trigger = document.getElementById(ids.trigger);
+  const popup = document.getElementById(ids.popup);
+  const calGrid = document.getElementById(ids.grid);
+  const calMonthLabel = document.getElementById(ids.monthLabel);
+  const calHint = document.getElementById(ids.hint);
+  const resetBtn = document.getElementById(ids.reset);
+  if (!trigger) return null;
+
+  let pendingStart = null;
+  let viewDate = maxDate ? new Date(maxDate + 'T00:00:00') : new Date();
+
+  function updateTriggerLabel() {
+    trigger.textContent = (selStart && selEnd) ? `${fmtShort(selStart)} - ${fmtShort(selEnd)}` : 'Elegir rango';
+  }
+
+  function renderCalendar() {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    calMonthLabel.textContent = `${MONTH_ES[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // semana arranca en lunes
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const rangeStart = pendingStart || selStart;
+    const rangeEnd = pendingStart ? null : selEnd;
+
+    calGrid.innerHTML = '';
+    for (let i = 0; i < startOffset; i++) {
+      calGrid.appendChild(document.createElement('span'));
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = day;
+      const disabled = (minDate && iso < minDate) || (maxDate && iso > maxDate);
+      btn.disabled = disabled;
+      if (!disabled) {
+        if (iso === rangeStart || iso === rangeEnd) btn.classList.add('range-endpoint');
+        else if (rangeEnd && iso > rangeStart && iso < rangeEnd) btn.classList.add('in-range');
+        // stopPropagation: onDayClick reconstruye la grilla (renderCalendar),
+        // lo que desprende este boton del DOM antes de que el listener de
+        // "clic afuera" (a nivel document) evalue popup.contains(e.target) --
+        // sin esto, el chequeo da falso y cierra el popup por error.
+        btn.addEventListener('click', (e) => { e.stopPropagation(); onDayClick(iso); });
+      }
+      calGrid.appendChild(btn);
+    }
+  }
+
+  function onDayClick(iso) {
+    if (!pendingStart) {
+      pendingStart = iso;
+      calHint.textContent = 'Elegi la fecha final';
+      renderCalendar();
+      return;
+    }
+    selStart = iso < pendingStart ? iso : pendingStart;
+    selEnd = iso < pendingStart ? pendingStart : iso;
+    pendingStart = null;
+    calHint.textContent = '';
+    syncLabels();
+    applyDateFilter();
+    popup.hidden = true;
+  }
+
+  document.getElementById(ids.prev).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  document.getElementById(ids.next).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+    renderCalendar();
+  });
+
+  trigger.addEventListener('click', () => {
+    popup.hidden = !popup.hidden;
+    if (!popup.hidden) {
+      pendingStart = null;
+      calHint.textContent = '';
+      viewDate = selEnd ? new Date(selEnd + 'T00:00:00') : new Date();
+      renderCalendar();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!popup.hidden && !popup.contains(e.target) && e.target !== trigger) {
+      popup.hidden = true;
+    }
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      selStart = minDate;
+      selEnd = maxDate;
+      syncLabels();
+      applyDateFilter();
+    });
+  }
+
+  return { updateTriggerLabel };
+}
+
+datePickers.push(createDatePicker({
+  trigger: 'filter-trigger', popup: 'calendar-popup', grid: 'cal-grid',
+  monthLabel: 'cal-month-label', hint: 'cal-hint',
+  prev: 'cal-prev', next: 'cal-next', reset: 'filter-reset',
+}));
+datePickers.push(createDatePicker({
+  trigger: 'p-filter-trigger', popup: 'p-calendar-popup', grid: 'p-cal-grid',
+  monthLabel: 'p-cal-month-label', hint: 'p-cal-hint',
+  prev: 'p-cal-prev', next: 'p-cal-next', reset: 'p-filter-reset',
+}));
+
+syncLabels();
+applyDateFilter();
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -20,6 +20,14 @@
     --ig:             #199e70;
     --positive:       #199e70;
     --warning:        #e0a349;
+    --negative:       #e5534b;
+    /* Acentos multicolor para los tiles y graficas (sobre la base negro+amarillo
+       de i.punto), para el look dinamico tipo dashboard de agencia. */
+    --c-purple:       #8b5cf6;
+    --c-blue:         #3987e5;
+    --c-teal:         #2dd4bf;
+    --c-pink:         #ff7a90;
+    --c-green:        #199e70;
   }
   * { box-sizing: border-box; }
   body {
@@ -66,9 +74,31 @@
   .dot.fb { background: var(--fb); }
   .dot.ig { background: var(--ig); }
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
-  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-  .kpi .value { font-size: 26px; font-weight: 600; color: var(--accent); }
-  .kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .kpi {
+    position: relative; overflow: hidden;
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 16px 16px;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .kpi:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.22); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+  /* Barra de acento superior que cicla colores para el look multicolor. */
+  .kpi::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); }
+  .kpi-row .kpi:nth-child(6n+1)::before { background: var(--accent); }
+  .kpi-row .kpi:nth-child(6n+2)::before { background: var(--c-purple); }
+  .kpi-row .kpi:nth-child(6n+3)::before { background: var(--c-teal); }
+  .kpi-row .kpi:nth-child(6n+4)::before { background: var(--c-blue); }
+  .kpi-row .kpi:nth-child(6n+5)::before { background: var(--c-pink); }
+  .kpi-row .kpi:nth-child(6n+6)::before { background: var(--c-green); }
+  .kpi .value { font-size: 30px; font-weight: 700; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+  .kpi .label { font-size: 11px; color: var(--text-secondary); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .delta {
+    display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700;
+    margin-top: 8px; border-radius: 999px; padding: 2px 8px; font-variant-numeric: tabular-nums;
+  }
+  .delta.up { color: var(--positive); background: rgba(25,158,112,0.15); }
+  .delta.down { color: var(--negative); background: rgba(229,83,75,0.15); }
+  .delta.flat { color: var(--text-muted); background: rgba(255,255,255,0.06); }
+  .delta-legend { color: var(--text-muted); font-size: 11px; margin: -8px 0 16px; padding: 0 4px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
   th { color: var(--text-muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -85,11 +115,10 @@
   }
   .empty { color: var(--text-muted); font-size: 13px; }
   /* Marcas solo-pauta (el token no administra su Pagina): no hay nada organico
-     que enseñar, asi que se ocultan esas dos pestañas en vez de dejarlas vacias. */
+     que enseñar, asi que se oculta la pestaña Organico en vez de dejarla vacia.
+     (Las recomendaciones ahora viven DENTRO de la pestaña Organico.) */
   .app-shell.pauta-only .nav-btn[data-tab="dashboard"],
-  .app-shell.pauta-only .nav-btn[data-tab="recomendaciones"],
-  .app-shell.pauta-only #tab-dashboard,
-  .app-shell.pauta-only #tab-recomendaciones { display: none; }
+  .app-shell.pauta-only #tab-dashboard { display: none; }
   .range-note {
     color: var(--text-muted); font-size: 12px; line-height: 1.5;
     margin: -6px 0 18px; padding: 0 4px;
@@ -142,16 +171,70 @@
   .rec-card .dot.info { background: var(--fb); }
   .rec-stat { font-size: 13px; font-weight: 600; margin: 0 0 6px; font-variant-numeric: tabular-nums; }
   .rec-detail { font-size: 13px; color: var(--text-secondary); margin: 0; }
+  .section-title { font-size: 18px; margin: 30px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  /* Pauta: banner de la campaña ACTIVA (estado en vivo de Meta) */
+  .active-banner {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: linear-gradient(90deg, rgba(25,158,112,0.16), transparent);
+    border: 1px solid rgba(25,158,112,0.35); border-left: 4px solid var(--positive);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;
+  }
+  .active-banner.none { background: none; border-color: var(--border); border-left-color: var(--baseline); }
+  .active-banner .pulse {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--positive); flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(25,158,112,0.6); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(25,158,112,0.6); }
+    70% { box-shadow: 0 0 0 9px rgba(25,158,112,0); }
+    100% { box-shadow: 0 0 0 0 rgba(25,158,112,0); }
+  }
+  .active-banner .ab-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .active-banner .ab-names { font-size: 15px; font-weight: 700; }
+  .active-chip {
+    background: rgba(25,158,112,0.18); color: var(--positive); border-radius: 999px;
+    padding: 3px 11px; font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  /* Pauta: dona + barras lado a lado */
+  .mini-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .mini-title { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: var(--text-secondary); }
+  .donut-legend { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12px; }
+  .donut-legend li { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .donut-legend .sw { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .donut-legend .lg-val { margin-left: auto; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar-row { margin-bottom: 11px; }
+  .bar-head { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; margin-bottom: 4px; }
+  .bar-head .bar-val { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+  .bar-track { background: var(--page-plane); border-radius: 5px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 5px; }
+  /* Pauta: tarjeta de diagnostico (analisis de la campaña) */
+  .diag-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .diag-sem { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; }
+  .diag-sem .dot { width: 12px; height: 12px; }
+  .sem-Rojo { color: #e5534b; } .sem-Rojo .dot { background: #e5534b; }
+  .sem-Amarillo { color: var(--warning); } .sem-Amarillo .dot { background: var(--warning); }
+  .sem-Verde { color: var(--positive); } .sem-Verde .dot { background: var(--positive); }
+  .sem-none { color: var(--text-muted); } .sem-none .dot { background: var(--text-muted); }
+  .diag-badge { font-size: 11px; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+  .diag-summary { font-size: 13px; color: var(--text-primary); margin: 0 0 14px; line-height: 1.55; }
+  .diag-anoms { margin: 0 0 14px; padding: 0; list-style: none; }
+  .diag-anoms li { font-size: 13px; color: var(--text-secondary); padding: 7px 0 7px 20px; position: relative; border-bottom: 1px solid var(--gridline); }
+  .diag-anoms li:before { content: "⚠"; position: absolute; left: 0; }
+  .diag-anoms b { color: var(--text-primary); font-weight: 600; }
+  .diag-rec { border: 1px solid var(--border); border-radius: 10px; padding: 4px 14px; margin: 0 0 14px; }
+  .diag-rec table { width: 100%; }
+  .diag-rec td { border-bottom: 1px solid var(--gridline); font-size: 13px; }
+  .diag-rec td.k { color: var(--text-muted); width: 130px; }
+  .diag-evidence { font-size: 12px; color: var(--text-muted); white-space: pre-line; margin: 10px 0 0; line-height: 1.5; }
 </style>
 </head>
 <body>
   <div class="app-shell pauta-only">
     <nav class="sidebar">
       <div class="brand">Pauta</div>
-      <button class="nav-btn active" data-tab="dashboard" type="button">Insights</button>
+      <button class="nav-btn active" data-tab="dashboard" type="button">Orgánico</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
-      <button class="nav-btn" data-tab="recomendaciones" type="button">Recomendaciones</button>
-      <p class="subtitle">Generado el 2026-07-17 16:22 UTC</p>
+      <p class="subtitle">Generado el 2026-07-20 15:06 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -179,75 +262,10 @@
         
 
         <div class="card"><h2>Posts</h2><p class="empty">No se encontraron posts.</p></div>
-      </section>
-      <section id="tab-pautas" class="tab-panel">
-        <h1>Pauta (anuncios pagados)</h1>
-        <p class="subtitle" style="padding:0;margin:2px 0 18px;">Cuenta: iPunto Pauta Digital · Moneda: MXN · Campañas: PARA2</p>
-        <div class="card date-filter">
-          <div class="date-range-picker">
-            <button type="button" id="p-filter-trigger" class="date-pill"></button>
-            <div id="p-calendar-popup" class="calendar-popup" hidden>
-              <div class="calendar-header">
-                <button type="button" id="p-cal-prev" aria-label="Mes anterior">‹</button>
-                <span id="p-cal-month-label"></span>
-                <button type="button" id="p-cal-next" aria-label="Mes siguiente">›</button>
-              </div>
-              <div class="calendar-weekdays">
-                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
-              </div>
-              <div id="p-cal-grid" class="calendar-grid"></div>
-              <p id="p-cal-hint" class="calendar-hint"></p>
-            </div>
-          </div>
-          <button id="p-filter-reset" type="button">Ver todo</button>
-        </div>
-        <div class="kpi-row" id="ads-kpi-row"><div class="kpi"><div class="value">189</div><div class="label">Conversaciones iniciadas</div></div><div class="kpi"><div class="value">$2,93 MXN</div><div class="label">Costo por resultado</div></div><div class="kpi"><div class="value">$554,14 MXN</div><div class="label">Importe gastado</div></div><div class="kpi"><div class="value">12.535</div><div class="label">Alcance</div></div><div class="kpi"><div class="value">25.004</div><div class="label">Impresiones</div></div><div class="kpi"><div class="value">1.425</div><div class="label">Clics</div></div><div class="kpi"><div class="value">5,70%</div><div class="label">CTR</div></div><div class="kpi"><div class="value">$0,39 MXN</div><div class="label">CPC</div></div><div class="kpi"><div class="value">$22,16 MXN</div><div class="label">CPM</div></div></div>
-        <p id="ads-range-note" class="range-note" hidden></p>
-        
-  <div class="card">
-    <h2><span class="dot" style="background:var(--accent)"></span>Resultados diarios</h2>
-    <div class="chart-wrap"><div id="ads_results_chart"></div></div>
-  </div>
-        
-  <div class="card">
-    <h2>Campañas (ordenadas por inversion)</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Campaña</th><th class="num">Inversion</th><th class="num">Alcance</th>
-          <th class="num">Impresiones</th><th class="num">Clics</th><th class="num">CTR</th>
-          <th class="num">CPC</th><th class="num">Resultados</th><th class="num">Costo/result.</th>
-        </tr>
-      </thead>
-      <tbody id="ads-campaigns-body">
-        <tr>
-          <td class="post-caption" title="PARA2_Msgs_Vacante_Parrillero">PARA2_Msgs_Vacante_Parrillero</td>
-          <td class="num">$418,73 MXN</td>
-          <td class="num">7.706</td>
-          <td class="num">16.899</td>
-          <td class="num">567</td>
-          <td class="num">3,36%</td>
-          <td class="num">$0,74 MXN</td>
-          <td class="num">63</td>
-          <td class="num">$6,65 MXN</td>
-        </tr>
-        <tr>
-          <td class="post-caption" title="PARA2_MSGS_VACANTE_CAJERA_26">PARA2_MSGS_VACANTE_CAJERA_26</td>
-          <td class="num">$135,41 MXN</td>
-          <td class="num">4.809</td>
-          <td class="num">8.105</td>
-          <td class="num">858</td>
-          <td class="num">10,59%</td>
-          <td class="num">$0,16 MXN</td>
-          <td class="num">126</td>
-          <td class="num">$1,07 MXN</td>
-        </tr></tbody>
-    </table>
-  </div>
-      </section>
-      <section id="tab-recomendaciones" class="tab-panel">
+
+        <h1 class="section-title">Recomendaciones</h1>
         <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">0</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">0</div><div class="label">Engagement total (Facebook)</div></div></div>
-        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido en Insights o en Pauta.
+        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido.
         El desglose mensual y las recomendaciones analizan siempre el periodo completo.</p>
 
         
@@ -332,7 +350,103 @@
   <div class="card rec-card">
     <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Facebook</h3>
     <p class="rec-stat">0.0 dias con post/semana (minimo recomendado: 3)</p>
-    <p class="rec-detail">En los ultimos 198 dias hubo posts en solo 0 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+    <p class="rec-detail">En los ultimos 201 dias hubo posts en solo 0 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
+  </div>
+      </section>
+      <section id="tab-pautas" class="tab-panel">
+        <h1>Pauta (anuncios pagados)</h1>
+        <p class="subtitle" style="padding:0;margin:2px 0 18px;">Cuenta: iPunto Pauta Digital · Moneda: MXN · Campañas: PARA2</p>
+        <div class="active-banner"><span class="pulse"></span><span class="ab-label">Campañas activas ahora</span><span class="ab-names" style="display:flex;gap:8px;flex-wrap:wrap;"><span class="active-chip">PARA2_HISTORIA_TACO</span><span class="active-chip">PARA2_ABO_MSG_VACANTEPUE_PARRILLERO</span></span></div>
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="p-filter-trigger" class="date-pill"></button>
+            <div id="p-calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="p-cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="p-cal-month-label"></span>
+                <button type="button" id="p-cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="p-cal-grid" class="calendar-grid"></div>
+              <p id="p-cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="p-filter-reset" type="button">Ver todo</button>
+        </div>
+        <div class="kpi-row" id="ads-kpi-row"><div class="kpi"><div class="value">189</div><div class="label">Conversaciones iniciadas</div></div><div class="kpi"><div class="value">$2,93 MXN</div><div class="label">Costo por resultado</div></div><div class="kpi"><div class="value">$554,14 MXN</div><div class="label">Importe gastado</div></div><div class="kpi"><div class="value">12.535</div><div class="label">Alcance</div></div><div class="kpi"><div class="value">25.004</div><div class="label">Impresiones</div></div><div class="kpi"><div class="value">1.425</div><div class="label">Clics</div></div><div class="kpi"><div class="value">5,70%</div><div class="label">CTR</div></div><div class="kpi"><div class="value">$0,39 MXN</div><div class="label">CPC</div></div><div class="kpi"><div class="value">$22,16 MXN</div><div class="label">CPM</div></div></div>
+        <p class="delta-legend">Los indicadores ▲▼ comparan cada métrica contra el periodo anterior de la misma duración (aparecen al elegir un rango).</p>
+        <p id="ads-range-note" class="range-note" hidden></p>
+        
+  <div class="card">
+    <h2><span class="dot" style="background:var(--accent)"></span>Resultados diarios</h2>
+    <div class="chart-wrap"><div id="ads_results_chart"></div></div>
+  </div>
+        
+  <div class="card">
+    <h2>Distribución de la pauta por campaña</h2>
+    <div class="mini-charts">
+      <div>
+        <p class="mini-title">Inversión por campaña</p>
+        <div id="ads_spend_donut"></div>
+      </div>
+      <div>
+        <p class="mini-title">Resultados por campaña</p>
+        <div id="ads_results_bar"></div>
+      </div>
+    </div>
+  </div>
+        
+  <div class="card">
+    <h2>Campañas (ordenadas por inversion)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Campaña</th><th class="num">Inversion</th><th class="num">Alcance</th>
+          <th class="num">Impresiones</th><th class="num">Clics</th><th class="num">CTR</th>
+          <th class="num">CPC</th><th class="num">Resultados</th><th class="num">Costo/result.</th>
+        </tr>
+      </thead>
+      <tbody id="ads-campaigns-body">
+        <tr>
+          <td class="post-caption" title="PARA2_Msgs_Vacante_Parrillero">PARA2_Msgs_Vacante_Parrillero</td>
+          <td class="num">$418,73 MXN</td>
+          <td class="num">7.706</td>
+          <td class="num">16.899</td>
+          <td class="num">567</td>
+          <td class="num">3,36%</td>
+          <td class="num">$0,74 MXN</td>
+          <td class="num">63</td>
+          <td class="num">$6,65 MXN</td>
+        </tr>
+        <tr>
+          <td class="post-caption" title="PARA2_MSGS_VACANTE_CAJERA_26">PARA2_MSGS_VACANTE_CAJERA_26</td>
+          <td class="num">$135,41 MXN</td>
+          <td class="num">4.809</td>
+          <td class="num">8.105</td>
+          <td class="num">858</td>
+          <td class="num">10,59%</td>
+          <td class="num">$0,16 MXN</td>
+          <td class="num">126</td>
+          <td class="num">$1,07 MXN</td>
+        </tr></tbody>
+    </table>
+  </div>
+        
+  <div class="card">
+    <h2>Análisis de la campaña</h2>
+    <div class="diag-head">
+      <span class="diag-sem sem-Verde"><span class="dot"></span>Verde</span>
+      <span class="diag-badge">Prioridad: Baja</span>
+      <span class="diag-badge">Confianza: Medio</span>
+    </div>
+    <p class="diag-summary">En 7d: 19 conversaciones iniciadas a 9.97 MXN c/u; sin anomalias relevantes.</p>
+    
+    
+    <p class="diag-evidence">7d -> gasto 189.43 MXN, conversaciones iniciadas: 19, CTR 2.37%, CPC 1.05, CPM 24.75, CPR 9.97, frecuencia 1.99.
+3d -> CTR n/d%, CPR n/d | 3d previos -> CTR 2.54%, CPR 7.43.</p>
+    <p class="diag-evidence" style="margin-top:12px;">Generado automáticamente por pauta_analysis.py · datos vía Meta Ads. Toda recomendación es sugerencia; la ejecución la aprueba Paid Media.</p>
   </div>
       </section>
     </main>
@@ -343,7 +457,7 @@ const chartData = {"ads_results_chart": {"color": "#f4dc00", "points": [{"label"
 // Datos de pauta con granularidad DIARIA: permiten recalcular los KPIs y la
 // tabla de campañas para cualquier rango sin volver a llamar a la Graph API
 // (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
-const ADS = {"hasData": true, "currency": "MXN", "resultActionType": "onsite_conversion.messaging_conversation_started_7d", "resultLabel": "Conversaciones iniciadas", "totals": {"spend": 554.14, "impressions": 25004, "clicks": 1425, "results": 189, "reach": 12535, "ctr": 5.7, "cpc": 0.39, "cpm": 22.16, "costPerResult": 2.93}, "reachByCampaign": {"PARA2_Msgs_Vacante_Parrillero": 7706, "PARA2_MSGS_VACANTE_CAJERA_26": 4809}, "daily": [{"date": "2026-01-14", "spend": 34.04, "impressions": 1308, "clicks": 192, "actions": {"link_click": 43.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 31.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 48.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 10.0, "onsite_conversion.messaging_first_reply": 31.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 7.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 31.0}}, {"date": "2026-01-15", "spend": 36.42, "impressions": 2628, "clicks": 290, "actions": {"link_click": 59.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 66.0, "post_interaction_gross": 7.0, "page_engagement": 66.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_user_depth_2_message_send": 23.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 4.0, "onsite_conversion.messaging_user_depth_3_message_send": 12.0, "onsite_conversion.post_net_save": 4.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-16", "spend": 45.27, "impressions": 3064, "clicks": 292, "actions": {"link_click": 63.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 69.0, "like": 1.0, "post_interaction_gross": 6.0, "page_engagement": 70.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 6.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-17", "spend": 19.68, "impressions": 1105, "clicks": 84, "actions": {"link_click": 18.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 19.0, "post_interaction_gross": 1.0, "page_engagement": 19.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 14.0, "onsite_conversion.messaging_first_reply": 17.0, "post": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.messaging_conversation_started_7d": 17.0}}, {"date": "2026-01-22", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0}}, {"date": "2026-07-01", "spend": 24.69, "impressions": 795, "clicks": 53, "actions": {"link_click": 14.0, "post_reaction": 3.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 18.0, "post_interaction_gross": 4.0, "page_engagement": 18.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 5.0}}, {"date": "2026-07-02", "spend": 41.5, "impressions": 1326, "clicks": 64, "actions": {"link_click": 21.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 10.0, "post_engagement": 25.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 26.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_first_reply": 10.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_user_depth_5_message_send": 2.0, "onsite_conversion.messaging_conversation_started_7d": 10.0}}, {"date": "2026-07-03", "spend": 73.21, "impressions": 2742, "clicks": 128, "actions": {"link_click": 42.0, "post_reaction": 6.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 49.0, "post_interaction_gross": 7.0, "page_engagement": 49.0, "onsite_conversion.messaging_welcome_message_view": 22.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 15.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 16.0}}, {"date": "2026-07-04", "spend": 89.9, "impressions": 4383, "clicks": 141, "actions": {"onsite_conversion.lead": 1.0, "offsite_complete_registration_add_meta_leads": 1.0, "link_click": 54.0, "offsite_search_add_meta_leads": 1.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_web_lead": 1.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 58.0, "post_interaction_gross": 4.0, "page_engagement": 58.0, "onsite_conversion.messaging_welcome_message_view": 30.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 13.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 4.0, "lead": 1.0, "offsite_content_view_add_meta_leads": 1.0, "onsite_conversion.messaging_conversation_started_7d": 13.0, "onsite_conversion.lead_grouped": 1.0}}, {"date": "2026-07-05", "spend": 100.25, "impressions": 4461, "clicks": 100, "actions": {"link_click": 31.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 12.0, "onsite_conversion.total_messaging_connection": 11.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 16.0, "comment": 3.0, "page_engagement": 48.0, "onsite_conversion.messaging_welcome_message_view": 20.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_user_depth_2_message_send": 8.0, "onsite_conversion.messaging_first_reply": 7.0, "onsite_conversion.post_unsave": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_user_depth_3_message_send": 4.0, "onsite_conversion.post_net_save": 0.0, "onsite_conversion.post_net_like": 12.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 7.0}}, {"date": "2026-07-06", "spend": 89.18, "impressions": 3192, "clicks": 81, "actions": {"link_click": 37.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 42.0, "like": 1.0, "post_interaction_gross": 5.0, "page_engagement": 43.0, "onsite_conversion.messaging_welcome_message_view": 26.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 11.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 11.0}}, {"date": "2026-07-07", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 1.0}}, {"date": "2026-07-08", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-09", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0}}, {"date": "2026-07-10", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-12", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}], "campaignDaily": [{"date": "2026-01-14", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 34.04, "impressions": 1308, "clicks": 192, "actions": {"link_click": 43.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 31.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 48.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 10.0, "onsite_conversion.messaging_first_reply": 31.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 7.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 31.0}}, {"date": "2026-01-15", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 36.42, "impressions": 2628, "clicks": 290, "actions": {"link_click": 59.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 66.0, "post_interaction_gross": 7.0, "page_engagement": 66.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_user_depth_2_message_send": 23.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 4.0, "onsite_conversion.messaging_user_depth_3_message_send": 12.0, "onsite_conversion.post_net_save": 4.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-16", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 45.27, "impressions": 3064, "clicks": 292, "actions": {"link_click": 63.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 69.0, "like": 1.0, "post_interaction_gross": 6.0, "page_engagement": 70.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 6.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-17", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 19.68, "impressions": 1105, "clicks": 84, "actions": {"link_click": 18.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 19.0, "post_interaction_gross": 1.0, "page_engagement": 19.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 14.0, "onsite_conversion.messaging_first_reply": 17.0, "post": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.messaging_conversation_started_7d": 17.0}}, {"date": "2026-01-22", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0}}, {"date": "2026-07-01", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 24.69, "impressions": 795, "clicks": 53, "actions": {"link_click": 14.0, "post_reaction": 3.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 18.0, "post_interaction_gross": 4.0, "page_engagement": 18.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 5.0}}, {"date": "2026-07-02", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 41.5, "impressions": 1326, "clicks": 64, "actions": {"link_click": 21.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 10.0, "post_engagement": 25.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 26.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_first_reply": 10.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_user_depth_5_message_send": 2.0, "onsite_conversion.messaging_conversation_started_7d": 10.0}}, {"date": "2026-07-03", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 73.21, "impressions": 2742, "clicks": 128, "actions": {"link_click": 42.0, "post_reaction": 6.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 49.0, "post_interaction_gross": 7.0, "page_engagement": 49.0, "onsite_conversion.messaging_welcome_message_view": 22.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 15.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 16.0}}, {"date": "2026-07-04", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 89.9, "impressions": 4383, "clicks": 141, "actions": {"onsite_conversion.lead": 1.0, "offsite_complete_registration_add_meta_leads": 1.0, "link_click": 54.0, "offsite_search_add_meta_leads": 1.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_web_lead": 1.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 58.0, "post_interaction_gross": 4.0, "page_engagement": 58.0, "onsite_conversion.messaging_welcome_message_view": 30.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 13.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 4.0, "lead": 1.0, "offsite_content_view_add_meta_leads": 1.0, "onsite_conversion.messaging_conversation_started_7d": 13.0, "onsite_conversion.lead_grouped": 1.0}}, {"date": "2026-07-05", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 100.25, "impressions": 4461, "clicks": 100, "actions": {"link_click": 31.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 12.0, "onsite_conversion.total_messaging_connection": 11.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 16.0, "comment": 3.0, "page_engagement": 48.0, "onsite_conversion.messaging_welcome_message_view": 20.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_user_depth_2_message_send": 8.0, "onsite_conversion.messaging_first_reply": 7.0, "onsite_conversion.post_unsave": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_user_depth_3_message_send": 4.0, "onsite_conversion.post_net_save": 0.0, "onsite_conversion.post_net_like": 12.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 7.0}}, {"date": "2026-07-06", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 89.18, "impressions": 3192, "clicks": 81, "actions": {"link_click": 37.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 42.0, "like": 1.0, "post_interaction_gross": 5.0, "page_engagement": 43.0, "onsite_conversion.messaging_welcome_message_view": 26.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 11.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 11.0}}, {"date": "2026-07-07", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 1.0}}, {"date": "2026-07-08", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-09", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0}}, {"date": "2026-07-10", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-12", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}], "fullRange": {"since": "2026-01-01", "until": "2026-07-17"}};
+const ADS = {"hasData": true, "currency": "MXN", "resultActionType": "onsite_conversion.messaging_conversation_started_7d", "resultLabel": "Conversaciones iniciadas", "totals": {"spend": 554.14, "impressions": 25004, "clicks": 1425, "results": 189, "reach": 12535, "ctr": 5.7, "cpc": 0.39, "cpm": 22.16, "costPerResult": 2.93}, "reachByCampaign": {"PARA2_Msgs_Vacante_Parrillero": 7706, "PARA2_MSGS_VACANTE_CAJERA_26": 4809}, "daily": [{"date": "2026-01-14", "spend": 34.04, "impressions": 1308, "clicks": 192, "actions": {"link_click": 43.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 31.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 48.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 10.0, "onsite_conversion.messaging_first_reply": 31.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 7.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 31.0}}, {"date": "2026-01-15", "spend": 36.42, "impressions": 2628, "clicks": 290, "actions": {"link_click": 59.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 66.0, "post_interaction_gross": 7.0, "page_engagement": 66.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_user_depth_2_message_send": 23.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 4.0, "onsite_conversion.messaging_user_depth_3_message_send": 12.0, "onsite_conversion.post_net_save": 4.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-16", "spend": 45.27, "impressions": 3064, "clicks": 292, "actions": {"link_click": 63.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 69.0, "like": 1.0, "post_interaction_gross": 6.0, "page_engagement": 70.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 6.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-17", "spend": 19.68, "impressions": 1105, "clicks": 84, "actions": {"link_click": 18.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 19.0, "post_interaction_gross": 1.0, "page_engagement": 19.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 14.0, "onsite_conversion.messaging_first_reply": 17.0, "post": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.messaging_conversation_started_7d": 17.0}}, {"date": "2026-01-22", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0}}, {"date": "2026-07-01", "spend": 24.69, "impressions": 795, "clicks": 53, "actions": {"link_click": 14.0, "post_reaction": 3.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 18.0, "post_interaction_gross": 4.0, "page_engagement": 18.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 5.0}}, {"date": "2026-07-02", "spend": 41.5, "impressions": 1326, "clicks": 64, "actions": {"link_click": 21.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 10.0, "post_engagement": 25.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 26.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_first_reply": 10.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_user_depth_5_message_send": 2.0, "onsite_conversion.messaging_conversation_started_7d": 10.0}}, {"date": "2026-07-03", "spend": 73.21, "impressions": 2742, "clicks": 128, "actions": {"link_click": 42.0, "post_reaction": 6.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 49.0, "post_interaction_gross": 7.0, "page_engagement": 49.0, "onsite_conversion.messaging_welcome_message_view": 22.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 15.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 16.0}}, {"date": "2026-07-04", "spend": 89.9, "impressions": 4383, "clicks": 141, "actions": {"onsite_conversion.lead": 1.0, "offsite_complete_registration_add_meta_leads": 1.0, "link_click": 54.0, "offsite_search_add_meta_leads": 1.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_web_lead": 1.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 58.0, "post_interaction_gross": 4.0, "page_engagement": 58.0, "onsite_conversion.messaging_welcome_message_view": 30.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 13.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 4.0, "lead": 1.0, "offsite_content_view_add_meta_leads": 1.0, "onsite_conversion.messaging_conversation_started_7d": 13.0, "onsite_conversion.lead_grouped": 1.0}}, {"date": "2026-07-05", "spend": 100.25, "impressions": 4461, "clicks": 100, "actions": {"link_click": 31.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 12.0, "onsite_conversion.total_messaging_connection": 11.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 16.0, "comment": 3.0, "page_engagement": 48.0, "onsite_conversion.messaging_welcome_message_view": 20.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_user_depth_2_message_send": 8.0, "onsite_conversion.messaging_first_reply": 7.0, "onsite_conversion.post_unsave": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_user_depth_3_message_send": 4.0, "onsite_conversion.post_net_save": 0.0, "onsite_conversion.post_net_like": 12.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 7.0}}, {"date": "2026-07-06", "spend": 89.18, "impressions": 3192, "clicks": 81, "actions": {"link_click": 37.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 42.0, "like": 1.0, "post_interaction_gross": 5.0, "page_engagement": 43.0, "onsite_conversion.messaging_welcome_message_view": 26.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 11.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 11.0}}, {"date": "2026-07-07", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 1.0}}, {"date": "2026-07-08", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-09", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0}}, {"date": "2026-07-10", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-12", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}], "campaignDaily": [{"date": "2026-01-14", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 34.04, "impressions": 1308, "clicks": 192, "actions": {"link_click": 43.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 31.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 48.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 10.0, "onsite_conversion.messaging_first_reply": 31.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 7.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 31.0}}, {"date": "2026-01-15", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 36.42, "impressions": 2628, "clicks": 290, "actions": {"link_click": 59.0, "post_reaction": 3.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 66.0, "post_interaction_gross": 7.0, "page_engagement": 66.0, "post_interaction_net": 8.0, "onsite_conversion.messaging_user_depth_2_message_send": 23.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 4.0, "onsite_conversion.messaging_user_depth_3_message_send": 12.0, "onsite_conversion.post_net_save": 4.0, "onsite_conversion.post_net_like": 2.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-16", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 45.27, "impressions": 3064, "clicks": 292, "actions": {"link_click": 63.0, "post_reaction": 4.0, "onsite_conversion.total_messaging_connection": 39.0, "onsite_conversion.post_unlike": 1.0, "post_engagement": 69.0, "like": 1.0, "post_interaction_gross": 6.0, "page_engagement": 70.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 6.0, "onsite_conversion.messaging_first_reply": 39.0, "onsite_conversion.post_save": 2.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.post_net_save": 2.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 39.0}}, {"date": "2026-01-17", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 19.68, "impressions": 1105, "clicks": 84, "actions": {"link_click": 18.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 19.0, "post_interaction_gross": 1.0, "page_engagement": 19.0, "post_interaction_net": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 14.0, "onsite_conversion.messaging_first_reply": 17.0, "post": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 5.0, "onsite_conversion.messaging_conversation_started_7d": 17.0}}, {"date": "2026-01-22", "name": "PARA2_MSGS_VACANTE_CAJERA_26", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0}}, {"date": "2026-07-01", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 24.69, "impressions": 795, "clicks": 53, "actions": {"link_click": 14.0, "post_reaction": 3.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_conversion.total_messaging_connection": 5.0, "post_engagement": 18.0, "post_interaction_gross": 4.0, "page_engagement": 18.0, "onsite_conversion.messaging_welcome_message_view": 5.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_first_reply": 5.0, "post": 1.0, "onsite_conversion.post_net_like": 3.0, "onsite_conversion.messaging_conversation_started_7d": 5.0}}, {"date": "2026-07-02", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 41.5, "impressions": 1326, "clicks": 64, "actions": {"link_click": 21.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 2.0, "onsite_conversion.total_messaging_connection": 10.0, "post_engagement": 25.0, "like": 1.0, "post_interaction_gross": 4.0, "page_engagement": 26.0, "onsite_conversion.messaging_welcome_message_view": 11.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 4.0, "onsite_conversion.messaging_first_reply": 10.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.post_net_like": 4.0, "onsite_conversion.messaging_user_depth_5_message_send": 2.0, "onsite_conversion.messaging_conversation_started_7d": 10.0}}, {"date": "2026-07-03", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 73.21, "impressions": 2742, "clicks": 128, "actions": {"link_click": 42.0, "post_reaction": 6.0, "onsite_conversion.messaging_conversation_replied_7d": 7.0, "onsite_conversion.total_messaging_connection": 18.0, "post_engagement": 49.0, "post_interaction_gross": 7.0, "page_engagement": 49.0, "onsite_conversion.messaging_welcome_message_view": 22.0, "post_interaction_net": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 2.0, "onsite_conversion.messaging_first_reply": 15.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_save": 1.0, "onsite_conversion.post_net_like": 6.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 16.0}}, {"date": "2026-07-04", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 89.9, "impressions": 4383, "clicks": 141, "actions": {"onsite_conversion.lead": 1.0, "offsite_complete_registration_add_meta_leads": 1.0, "link_click": 54.0, "offsite_search_add_meta_leads": 1.0, "post_reaction": 4.0, "onsite_conversion.messaging_conversation_replied_7d": 1.0, "onsite_web_lead": 1.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 58.0, "post_interaction_gross": 4.0, "page_engagement": 58.0, "onsite_conversion.messaging_welcome_message_view": 30.0, "post_interaction_net": 4.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 13.0, "onsite_conversion.messaging_user_depth_3_message_send": 2.0, "onsite_conversion.post_net_like": 4.0, "lead": 1.0, "offsite_content_view_add_meta_leads": 1.0, "onsite_conversion.messaging_conversation_started_7d": 13.0, "onsite_conversion.lead_grouped": 1.0}}, {"date": "2026-07-05", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 100.25, "impressions": 4461, "clicks": 100, "actions": {"link_click": 31.0, "post_reaction": 12.0, "onsite_conversion.messaging_conversation_replied_7d": 12.0, "onsite_conversion.total_messaging_connection": 11.0, "post_engagement": 47.0, "like": 1.0, "post_interaction_gross": 16.0, "comment": 3.0, "page_engagement": 48.0, "onsite_conversion.messaging_welcome_message_view": 20.0, "post_interaction_net": 17.0, "onsite_conversion.messaging_user_depth_2_message_send": 8.0, "onsite_conversion.messaging_first_reply": 7.0, "onsite_conversion.post_unsave": 1.0, "onsite_conversion.post_save": 1.0, "onsite_conversion.post_net_comment": 3.0, "onsite_conversion.messaging_user_depth_3_message_send": 4.0, "onsite_conversion.post_net_save": 0.0, "onsite_conversion.post_net_like": 12.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 7.0}}, {"date": "2026-07-06", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 89.18, "impressions": 3192, "clicks": 81, "actions": {"link_click": 37.0, "post_reaction": 5.0, "onsite_conversion.total_messaging_connection": 14.0, "post_engagement": 42.0, "like": 1.0, "post_interaction_gross": 5.0, "page_engagement": 43.0, "onsite_conversion.messaging_welcome_message_view": 26.0, "post_interaction_net": 5.0, "onsite_conversion.messaging_user_depth_2_message_send": 3.0, "onsite_conversion.messaging_first_reply": 11.0, "onsite_conversion.post_net_like": 5.0, "onsite_conversion.messaging_conversation_started_7d": 11.0}}, {"date": "2026-07-07", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_welcome_message_view": 7.0, "onsite_conversion.messaging_user_depth_2_message_send": 1.0, "onsite_conversion.messaging_first_reply": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_conversation_started_7d": 1.0}}, {"date": "2026-07-08", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-09", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.total_messaging_connection": 1.0, "onsite_conversion.messaging_user_depth_3_message_send": 1.0, "onsite_conversion.messaging_user_depth_5_message_send": 1.0}}, {"date": "2026-07-10", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 3.0}}, {"date": "2026-07-12", "name": "PARA2_Msgs_Vacante_Parrillero", "spend": 0.0, "impressions": 0, "clicks": 0, "actions": {"onsite_conversion.messaging_welcome_message_view": 1.0}}], "fullRange": {"since": "2026-01-01", "until": "2026-07-20"}};
 // Posts (organico) con su fecha, para recalcular el resumen por rango.
 const POSTS = [];
 
@@ -453,9 +567,50 @@ function fmtPct(n) {
   if (n === null || n === undefined) return '-';
   return fmtDec(n) + '%';
 }
-function kpiTile(valueHtml, label, muted) {
-  return `<div class="kpi"><div class="value${muted ? ' na' : ''}">${valueHtml}</div>` +
-         `<div class="label">${label}</div></div>`;
+// opts: { muted:bool, delta:htmlString }. Se mantiene compatible con llamadas
+// que solo pasan (valor, etiqueta).
+function kpiTile(valueHtml, label, opts) {
+  opts = opts || {};
+  const muted = opts.muted ? ' na' : '';
+  const delta = opts.delta || '';
+  return `<div class="kpi"><div class="value${muted}">${valueHtml}</div>` +
+         `<div class="label">${label}</div>${delta}</div>`;
+}
+
+// --- Deltas vs periodo anterior equivalente ---------------------------------
+function shiftDate(iso, days) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const da = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${da}`;
+}
+function daysBetween(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000) + 1;
+}
+// Periodo anterior de la MISMA duracion, inmediatamente antes del rango actual.
+function prevPeriod(since, until) {
+  const n = daysBetween(since, until);
+  const pu = shiftDate(since, -1);
+  const ps = shiftDate(pu, -(n - 1));
+  return [ps, pu];
+}
+function pctChange(cur, prev) {
+  if (cur === null || cur === undefined || prev === null || prev === undefined || prev === 0) return null;
+  return (cur - prev) / prev * 100;
+}
+// higherBetter: true => subir es bueno (verde); false => bajar es bueno; null => neutro (gris).
+function deltaChip(cur, prev, higherBetter) {
+  const pc = pctChange(cur, prev);
+  if (pc === null) return '';
+  const arrow = pc > 0 ? '▲' : (pc < 0 ? '▼' : '■');
+  let cls = 'flat';
+  if (higherBetter !== null && pc !== 0) {
+    const good = higherBetter ? pc > 0 : pc < 0;
+    cls = good ? 'up' : 'down';
+  }
+  return `<span class="delta ${cls}">${arrow} ${fmtDec(Math.abs(pc))}%</span>`;
 }
 
 // Suma las metricas ADITIVAS de las filas diarias que caen en el rango y deriva
@@ -500,20 +655,28 @@ function renderAdsKpis(since, until) {
   // ve en el Administrador de anuncios); en un subrango se recalcula del diario.
   const a = full ? ADS.totals : aggregate(ADS.daily, since, until);
 
+  // Periodo anterior equivalente para los deltas ▲▼. En rango completo el
+  // periodo previo cae antes del primer dia con datos -> agregados en 0 -> sin
+  // delta (no se inventa un cambio contra un periodo vacio).
+  const [ps, pu] = prevPeriod(since, until);
+  const prev = aggregate(ADS.daily, ps, pu);
+  const hasPrev = prev.spend > 0 || prev.impressions > 0;
+  const D = (cur, prv, hb) => hasPrev ? { delta: deltaChip(cur, prv, hb) } : {};
+
   const tiles = [];
   if (a.results) {
-    tiles.push(kpiTile(fmtNum(a.results), ADS.resultLabel || 'Resultados'));
-    tiles.push(kpiTile(fmtMoney(a.costPerResult), 'Costo por resultado'));
+    tiles.push(kpiTile(fmtNum(a.results), ADS.resultLabel || 'Resultados', D(a.results, prev.results, true)));
+    tiles.push(kpiTile(fmtMoney(a.costPerResult), 'Costo por resultado', D(a.costPerResult, prev.costPerResult, false)));
   }
-  tiles.push(kpiTile(fmtMoney(a.spend), 'Importe gastado'));
+  tiles.push(kpiTile(fmtMoney(a.spend), 'Importe gastado', D(a.spend, prev.spend, null)));
   tiles.push(full
     ? kpiTile(fmtNum(ADS.totals.reach), 'Alcance')
-    : kpiTile('n/d', 'Alcance', true));
-  tiles.push(kpiTile(fmtNum(a.impressions), 'Impresiones'));
-  tiles.push(kpiTile(fmtNum(a.clicks), 'Clics'));
-  tiles.push(kpiTile(fmtPct(a.ctr), 'CTR'));
-  tiles.push(kpiTile(fmtMoney(a.cpc), 'CPC'));
-  tiles.push(kpiTile(fmtMoney(a.cpm), 'CPM'));
+    : kpiTile('n/d', 'Alcance', { muted: true }));
+  tiles.push(kpiTile(fmtNum(a.impressions), 'Impresiones', D(a.impressions, prev.impressions, null)));
+  tiles.push(kpiTile(fmtNum(a.clicks), 'Clics', D(a.clicks, prev.clicks, null)));
+  tiles.push(kpiTile(fmtPct(a.ctr), 'CTR', D(a.ctr, prev.ctr, true)));
+  tiles.push(kpiTile(fmtMoney(a.cpc), 'CPC', D(a.cpc, prev.cpc, false)));
+  tiles.push(kpiTile(fmtMoney(a.cpm), 'CPM', D(a.cpm, prev.cpm, false)));
   row.innerHTML = tiles.join('');
 
   const note = document.getElementById('ads-range-note');
@@ -568,6 +731,80 @@ function renderAdsCampaigns(since, until) {
         </tr>`).join('');
 }
 
+// Paleta para distinguir campañas en la dona y las barras (arranca con el
+// amarillo de marca y sigue con acentos que contrastan sobre el fondo oscuro).
+const CAMPAIGN_COLORS = ['#f4dc00', '#3987e5', '#199e70', '#e0a349', '#b98cff', '#ff7a90', '#4dd0e1', '#9ccc65'];
+
+// Agrega spend/resultados por campaña dentro del rango, reusando la misma
+// logica aditiva de aggregate() sobre ADS.campaignDaily (ya embebido).
+function campaignAggregates(since, until) {
+  if (!ADS.hasData) return [];
+  const byName = {};
+  ADS.campaignDaily
+    .filter(r => r.date >= since && r.date <= until)
+    .forEach(r => { (byName[r.name] = byName[r.name] || []).push(r); });
+  return Object.keys(byName)
+    .map(name => {
+      const a = aggregate(byName[name], since, until);
+      return { name, spend: a.spend, results: a.results };
+    })
+    .filter(c => c.spend > 0)
+    .sort((a, b) => b.spend - a.spend);
+}
+
+// Dona de participacion (inversion por campaña). Se dibuja con segmentos de
+// circulo via stroke-dasharray: cada campaña ocupa su fraccion del total.
+function renderDonutChart(containerId, rows, key, fmt) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!rows.length) { el.innerHTML = '<p class="empty">Sin datos en el rango.</p>'; return; }
+  const total = rows.reduce((a, r) => a + r[key], 0) || 1;
+  const r = 52, cx = 70, cy = 70, C = 2 * Math.PI * r;
+  let offset = 0;
+  const segs = rows.map((row, i) => {
+    const dash = (row[key] / total) * C;
+    const color = CAMPAIGN_COLORS[i % CAMPAIGN_COLORS.length];
+    const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="18" stroke-dasharray="${dash} ${C - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"><title>${row.name}: ${fmt(row[key])}</title></circle>`;
+    offset += dash;
+    return seg;
+  }).join('');
+  const legend = rows.map((row, i) => {
+    const color = CAMPAIGN_COLORS[i % CAMPAIGN_COLORS.length];
+    const pct = (row[key] / total) * 100;
+    return `<li><span class="sw" style="background:${color}"></span><span class="post-caption" title="${row.name}" style="max-width:150px;">${row.name}</span><span class="lg-val">${fmt(row[key])} · ${fmtDec(pct)}%</span></li>`;
+  }).join('');
+  el.innerHTML = `<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;">
+    <svg viewBox="0 0 140 140" width="140" height="140">${segs}
+      <text x="70" y="66" text-anchor="middle" font-size="10" fill="var(--text-muted)">Total</text>
+      <text x="70" y="82" text-anchor="middle" font-size="12" fill="var(--text-primary)" font-weight="700">${fmt(total)}</text>
+    </svg>
+    <ul class="donut-legend" style="flex:1;min-width:170px;">${legend}</ul>
+  </div>`;
+}
+
+// Barras horizontales (resultados por campaña), normalizadas al maximo.
+function renderBarChart(containerId, rows, key, fmt, color) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const data = rows.filter(r => r[key] > 0);
+  if (!data.length) { el.innerHTML = '<p class="empty">Sin datos en el rango.</p>'; return; }
+  const max = Math.max(...data.map(r => r[key])) || 1;
+  el.innerHTML = data.map((r, i) => {
+    const w = (r[key] / max) * 100;
+    const c = color || CAMPAIGN_COLORS[i % CAMPAIGN_COLORS.length];
+    return `<div class="bar-row">
+      <div class="bar-head"><span class="post-caption" title="${r.name}" style="max-width:70%;">${r.name}</span><span class="bar-val">${fmt(r[key])}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${c};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderAdsCharts(since, until) {
+  const rows = campaignAggregates(since, until);
+  renderDonutChart('ads_spend_donut', rows, 'spend', v => fmtMoney(v));
+  renderBarChart('ads_results_bar', rows, 'results', v => fmtNum(v), 'var(--accent)');
+}
+
 // Resumen organico: cuenta los posts del rango y suma su engagement/alcance.
 function renderOrganicSummary(since, until) {
   const row = document.getElementById('organic-summary-row');
@@ -578,9 +815,17 @@ function renderOrganicSummary(since, until) {
   const engagement = inRange.reduce((a, p) => a + (p.engagement || 0), 0);
   const reach = inRange.reduce((a, p) => a + (p.reach || 0), 0);
 
-  const tiles = [kpiTile(fmtNum(inRange.length), 'Posts publicados en el periodo')];
-  if (hasIg) tiles.push(kpiTile(fmtNum(reach), 'Alcance total (Instagram)'));
-  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Engagement total (FB + IG)' : 'Engagement total (Facebook)'));
+  // Deltas vs el periodo anterior equivalente (mas posts/engagement/alcance = mejor).
+  const [ps, pu] = prevPeriod(since, until);
+  const prevRows = POSTS.filter(p => p.date >= ps && p.date <= pu);
+  const hasPrev = prevRows.length > 0;
+  const pEng = prevRows.reduce((a, p) => a + (p.engagement || 0), 0);
+  const pReach = prevRows.reduce((a, p) => a + (p.reach || 0), 0);
+  const D = (cur, prv) => hasPrev ? { delta: deltaChip(cur, prv, true) } : {};
+
+  const tiles = [kpiTile(fmtNum(inRange.length), 'Posts publicados en el periodo', D(inRange.length, prevRows.length))];
+  if (hasIg) tiles.push(kpiTile(fmtNum(reach), 'Alcance total (Instagram)', D(reach, pReach)));
+  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Engagement total (FB + IG)' : 'Engagement total (Facebook)', D(engagement, pEng)));
   row.innerHTML = tiles.join('');
 }
 
@@ -602,6 +847,7 @@ function applyDateFilter() {
 
   renderAdsKpis(since, until);
   renderAdsCampaigns(since, until);
+  renderAdsCharts(since, until);
   renderOrganicSummary(since, until);
 }
 

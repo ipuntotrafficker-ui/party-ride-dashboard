@@ -165,12 +165,6 @@
     background: var(--accent) !important; color: var(--accent-contrast) !important; font-weight: 700;
   }
   .calendar-hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; text-align: center; min-height: 14px; }
-  .rec-card h3 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
-  .rec-card .dot.alerta { background: var(--warning); }
-  .rec-card .dot.positivo { background: var(--positive); }
-  .rec-card .dot.info { background: var(--fb); }
-  .rec-stat { font-size: 13px; font-weight: 600; margin: 0 0 6px; font-variant-numeric: tabular-nums; }
-  .rec-detail { font-size: 13px; color: var(--text-secondary); margin: 0; }
   .section-title { font-size: 18px; margin: 30px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
   /* Pauta: banner de la campaña ACTIVA (estado en vivo de Meta) */
   .active-banner {
@@ -226,6 +220,33 @@
   .diag-rec td { border-bottom: 1px solid var(--gridline); font-size: 13px; }
   .diag-rec td.k { color: var(--text-muted); width: 130px; }
   .diag-evidence { font-size: 12px; color: var(--text-muted); white-space: pre-line; margin: 10px 0 0; line-height: 1.5; }
+  /* Pauta: tarjetas de mejor/peor anuncio (creativo) */
+  .creative-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .creative-card { border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+  .creative-card.best { border-color: rgba(25,158,112,0.4); background: rgba(25,158,112,0.06); }
+  .creative-card.worst { border-color: rgba(229,83,75,0.4); background: rgba(229,83,75,0.06); }
+  .creative-badge { display: inline-block; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+  .creative-card.best .creative-badge { color: var(--positive); }
+  .creative-card.worst .creative-badge { color: var(--negative); }
+  .creative-thumb {
+    width: 100%; height: 140px; object-fit: cover; border-radius: 8px;
+    background: var(--gridline); display: block; margin-bottom: 10px;
+  }
+  .creative-media { position: relative; margin-bottom: 10px; }
+  .creative-media .creative-thumb { margin-bottom: 0; }
+  .creative-play-btn {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(10,10,10,0.72); color: var(--text-primary); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .creative-play-btn:hover { background: var(--accent); color: var(--accent-contrast); transform: translate(-50%, -50%) scale(1.08); }
+  .creative-video-note { font-size: 11px; color: var(--text-muted); margin: 0 0 10px; }
+  .creative-format { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 3px; }
+  .creative-name { font-size: 13px; font-weight: 600; margin: 0 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .creative-metric { font-size: 13px; color: var(--text-primary); font-weight: 600; margin: 0 0 3px; }
+  .creative-spend { font-size: 12px; color: var(--text-secondary); margin: 0; }
 </style>
 </head>
 <body>
@@ -234,7 +255,7 @@
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Orgánico</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
-      <p class="subtitle">Generado el 2026-07-20 16:21 UTC</p>
+      <p class="subtitle">Generado el 2026-07-21 16:28 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -256,6 +277,12 @@
           </div>
           <button id="filter-reset" type="button">Ver todo</button>
         </div>
+
+        <h1 class="section-title" style="margin-top:0;padding-top:0;border-top:none;">Métricas de interacción</h1>
+        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">20</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">1.936</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">200</div><div class="label">Interacciones totales (FB + IG)</div></div><div class="kpi"><div class="value">3.188</div><div class="label">Visualizaciones (Instagram)</div></div><div class="kpi"><div class="value">27</div><div class="label">Visitas al perfil (Instagram)</div></div><div class="kpi"><div class="value">Mayo 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mes mas flojo</div></div></div>
+        <p class="delta-legend">Los indicadores ▲▼ comparan cada métrica contra el periodo anterior de la misma duración (aparecen al elegir un rango).</p>
+        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido.
+        El desglose mensual analiza siempre el periodo completo.</p>
 
         <div class="kpi-row"><div class="kpi"><div class="value">5</div><div class="label">Fans - IPunto Marketing (hoy)</div></div><div class="kpi"><div class="value">112</div><div class="label">Seguidores - @ipuntomk (hoy)</div></div></div>
 
@@ -281,7 +308,7 @@
       </thead>
       <tbody>
         <tr data-date="2026-07-16">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/746909939_18085599650558624_9003315907651627512_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=AmXFIZ9OeKsQ7kNvwGyWtzV&_nc_oc=Adq1tZ6M8FKouEbOKdLw0JGcJbH0mKwqI_aoeoIR39V3YM7zW1IeGw6uy1nlG0zMFvQ&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&_nc_tpa=Q5bMBQGi26bHdB9RuL03icU4LhatATOLhma25hMicYh0H_elmiLSoM4sZ9QVs0ddizay0rMeHVYPYVnuwg&oh=00_AQBfISjmUYXXmXb-9JTuzPeaYnC3KzPSEDFQpfhn55AM3A&oe=6A641F2E" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/746909939_18085599650558624_9003315907651627512_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=eupk2tbFI4IQ7kNvwEujcFG&_nc_oc=Adrp3f4SrDE4b-On14tg1CuaRWqImzj6W7p7nmWx1pfdD3VBaRE_9oZGgh0X8P1Fsyk&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&_nc_tpa=Q5bMBQGf9fDKt2aFkArAtRYE6sKe0tiRWAJmuEkEGciwbSuvGG4s-ckbYdW9rfzlA05TnlM-fkd9bJ-1FA&oh=00_AQAOVer_cLjR8sOiFr0Wbv83bsQoVCx8sO-1ZT10keQcNQ&oe=6A6570AE" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Vivir el mundo en un solo lugar mientras lo documentas. 🌍✨🎥 @aldeaglobal2026 
 
@@ -289,30 +316,21 @@ E">Vivir el mundo en un solo lugar mientras lo documentas. 🌍✨🎥 @aldeaglo
 
 E</td>
           <td>2026-07-16</td>
-          <td class="num">517</td>
+          <td class="num">524</td>
           <td class="num">31</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/Da29glIk8Gq/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
-        <tr data-date="2026-05-22">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/704681699_18078936524558624_2140434514584515808_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=EW5NHx0SGv8Q7kNvwEyvJST&_nc_oc=AdqE1bIcLyTB2ng5FIw_TzmcG3sFa_Fp5WNSaWV5h8lYKVmZwHwajlKI1-uVctVvKqc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&_nc_tpa=Q5bMBQHCS40j3TJh5A9mlOVGspshrlVwY0mSfas4qtaCTO4IkoOgiARgZAPEI4zhZtqLPdKzVc_u20y46Q&oh=00_AQBNgKXytRgdKH5h149NqaGpeWNDXv3MH1KWYnRvBkCE8w&oe=6A64284A" loading="lazy" /></td>
-          <td><span class="dot ig"></span> Instagram</td>
-          <td class="post-caption" title="🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva">🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva</td>
-          <td>2026-05-22</td>
-          <td class="num">337</td>
-          <td class="num">14</td>
-          <td><a class="permalink" href="https://www.instagram.com/reel/DYpf-SBib3A/" target="_blank" rel="noopener">Ver</a></td>
-        </tr>
         <tr data-date="2026-06-09">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.71878-15/720633844_2829390364096449_2953237115921152301_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Uh16PbB1Q2QQ7kNvwEvN8vE&_nc_oc=Adr7YpFq4LOVtWxm2QsGdjotMR8jd2Ewfh0SpVb7O6AfhuKVp8RGmgoLjJT9mYvVOzI&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&_nc_tpa=Q5bMBQF63BstP27HMfP0UJn-1A5_CtrEnj6oN2KhDKou0jN3pwILwRCHAPwooWd6lYlGZDOyApWlA8-sDw&oh=00_AQCLUdZAq7okU_WLUg1FAHpZPeEUehSuTswUuhZAIPHfVA&oe=6A64224B" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.71878-15/720633844_2829390364096449_2953237115921152301_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Uh16PbB1Q2QQ7kNvwEvN8vE&_nc_oc=Adr7YpFq4LOVtWxm2QsGdjotMR8jd2Ewfh0SpVb7O6AfhuKVp8RGmgoLjJT9mYvVOzI&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&_nc_tpa=Q5bMBQG1btkl408eafPnYHsIJeJ5bqqzjbbk5g2d3PSUYmZzHF7nw5ejshmRQKF-hBwPH-dbsQo55HKRuw&oh=00_AQCv_DD0rqGES_CXf1E8AYiJV64ZhIsY9tGsa_ztHt81oQ&oe=6A6573CB" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="El pre @aldeaglobal2026 🇲🇽💙💜">El pre @aldeaglobal2026 🇲🇽💙💜</td>
           <td>2026-06-09</td>
-          <td class="num">271</td>
+          <td class="num">273</td>
           <td class="num">29</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DZWEHntOyan/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-28">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/708854084_18079701269558624_6768578794873911894_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=5E_nB-jQVekQ7kNvwFb-AH0&_nc_oc=Adoo1NxY4jUPgoHRoBYxKPh9osoOBCDVwmcw4XllsaZ5wCGH2cdhsD2IP0ZMFMk2T38&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&_nc_tpa=Q5bMBQGAmANTX5d5MDu9jZwv1lmrzMOu86ZtFAf28nRu49SrfuBKkOA2I_bZ1btCwsLUBJ1dZvb07CrOpQ&oh=00_AQDRghFu8ih2R5kQgqwlqqK3nsJa7ihPKlQCQR1RVR-3Rg&oe=6A6415CF" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/708854084_18079701269558624_6768578794873911894_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=5E_nB-jQVekQ7kNvwFb-AH0&_nc_oc=Adoo1NxY4jUPgoHRoBYxKPh9osoOBCDVwmcw4XllsaZ5wCGH2cdhsD2IP0ZMFMk2T38&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&_nc_tpa=Q5bMBQGpoSUGIPlUT2FQX5JfWinP9jemFhjHtoiy__MzmAh7xIiZWczOduv2Iy7il7FqtKR5xeRuitjbhQ&oh=00_AQC3JxN1YxUIUTbIdaz9qsExkXyoFiyNq_9AubmakU6BRQ&oe=6A65674F" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Las mejores historias también se viven en pantalla grande. 🍿❤️
 
@@ -320,12 +338,12 @@ Cada función, ca">Las mejores historias también se viven en pantalla grande. �
 
 Cada función, ca</td>
           <td>2026-05-28</td>
-          <td class="num">250</td>
+          <td class="num">252</td>
           <td class="num">18</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DY5oQggDYTM/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-25">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/706134610_122203270820565124_6165209244006425378_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=vMIfAhTObEgQ7kNvwGhg6w0&_nc_oc=AdpRUXLjNkEPXJn0X4IxFS-0yRMC_wmQNO_nsOE7Ikp8iSq_sMYhaGbAopNXtr3407c&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&oh=00_AQAXlxbR5uuQWsYjkj-xxyw7vH-8O0bppYTPiYqCskVERg&oe=6A6421BB" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/706134610_122203270820565124_6165209244006425378_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=HRiVGsAyxFcQ7kNvwHWaBQs&_nc_oc=AdoV7APRiFhxRaCOxq-1fLQr3SM3-x6CSegUxNn2x4cfzUupP69ypHcRdb5BgLfpJ5k&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&oh=00_AQCpfnQFuDe4LEqkG85F3hyECeouiHaAnBSckxNwaCec8g&oe=6A65733B" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="¡Que las ideas tengan estilo siempre! 🎥🪄📌
 
@@ -333,30 +351,21 @@ Meet BOSS #2 💅 @maquis_coan">¡Que las ideas tengan estilo siempre! 🎥🪄�
 
 Meet BOSS #2 💅 @maquis_coan</td>
           <td>2026-05-25</td>
-          <td class="num">243</td>
+          <td class="num">244</td>
           <td class="num">39</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DYxN2mrEpkL/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-02">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/731221604_18083916926558624_1795140888549649448_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=lVQO4NiwQq0Q7kNvwFS4vQL&_nc_oc=AdqBm1iSCcN9vGYoBlnA6lXtMr1kP4ic9D2sabBfR1L-kzkZbhdzcvo6zST_8mYXAWU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&_nc_tpa=Q5bMBQELXxodEy3dvWTsKspyt_FL215awPjMaYGXoR_5hLrrim4BnbHlKqBblKxt9KW-SRm22F24LIqf4Q&oh=00_AQBnntKA_bG_v10WC7StsxwzJO1FQtQw0q2sNRrHYx9vLg&oe=6A6405C4" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/731221604_18083916926558624_1795140888549649448_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=a8PKK322TMQQ7kNvwFr_IKs&_nc_oc=AdpYhnPjbBceU5djA8r5ILbD26TXB7D54143jp7NNKStvEyOP5aPxxJFhLh11qejlNY&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&_nc_tpa=Q5bMBQFGXZnlB1msEygAiVqcedxkp6vtO5sOow3CmdQ0ITbP_k2HryWafRxU8ceeeL9SH0L0QaWtNSgciw&oh=00_AQA2HHBK1YbeCmahMiF4X5nDa-fPqt1AEi288m5nKtVA1w&oe=6A655744" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏">@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏</td>
           <td>2026-07-02</td>
-          <td class="num">183</td>
+          <td class="num">184</td>
           <td class="num">13</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/DaTPaKwxnQf/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
-        <tr data-date="2026-06-30">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/730125177_18083681381558624_6138289712167573265_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=rSmx7FDjECkQ7kNvwHY9VnC&_nc_oc=AdrZ8UzyVdoyq5-RBX2XiYugDGxOx6N2vewlfyyC4ItHKemAg9wey88muiXlrEQzXyc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&oh=00_AQDKyOY5dZjmi79KtHgDFuoHoBEJmdO4BH7BLjGnidRglg&oe=6A640ECE" loading="lazy" /></td>
-          <td><span class="dot ig"></span> Instagram</td>
-          <td class="post-caption" title="Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas ">Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas </td>
-          <td>2026-06-30</td>
-          <td class="num">166</td>
-          <td class="num">17</td>
-          <td><a class="permalink" href="https://www.instagram.com/p/DaOR0AZASGm/" target="_blank" rel="noopener">Ver</a></td>
-        </tr>
         <tr data-date="2026-07-19">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/751915636_18085980164558624_8604525001714692472_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=bkTJ5-KJEuEQ7kNvwGOnHs4&_nc_oc=AdoliW20xXna9X6NLwxn0aaOGgGMWwV1nh8DY1K5nYujKkLNNqv8u8q0pPtLGAJb3bA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&_nc_tpa=Q5bMBQHO3m3COPa7yJiUIh3FR6Ws5eQ25C9aYmBKW99-gr4jFpM5f__ue7ZL-NGbAzCnPQgiUbvt5wyHOQ&oh=00_AQAGCtlj-guKG3oOInsZNHOtGM1PKSF-28C098mT5VxV0Q&oe=6A6406A3" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/751915636_18085980164558624_8604525001714692472_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=bkTJ5-KJEuEQ7kNvwGOnHs4&_nc_oc=AdoliW20xXna9X6NLwxn0aaOGgGMWwV1nh8DY1K5nYujKkLNNqv8u8q0pPtLGAJb3bA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&_nc_tpa=Q5bMBQEkz7Ha7OU1WZK3AR1JI6cy90yXnoDBv974KL8f3Co1kZJ7AbwixupE6CVsJiWALenRV2nb-wQQ1A&oh=00_AQBuFx7bXjYbD-Ni8WkojxBhFf-EGaJ2C7Lj4wHhUPxREw&oe=6A655823" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="Una experiencia masiva capturada desde el cielo. 🌍✨🎥
 
@@ -364,21 +373,30 @@ Así lucen los grandes even">Una experiencia masiva capturada desde el cielo. �
 
 Así lucen los grandes even</td>
           <td>2026-07-19</td>
-          <td class="num">160</td>
+          <td class="num">169</td>
           <td class="num">13</td>
           <td><a class="permalink" href="https://www.instagram.com/reel/Da-2jMcjOS2/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
+        <tr data-date="2026-06-30">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/730125177_18083681381558624_6138289712167573265_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=M0GV68FoRPYQ7kNvwHz9w-c&_nc_oc=Adp1KteKstsVscFl_bPc2AMK0_IG9jfDIkvmch9Z9KvtJzmtV60aJW8esbtFLG2xrTE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&oh=00_AQDEAtZ9SdiYh-rWx37vNNtpoh879B7RUAhQ887bwlAvGA&oe=6A65604E" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas ">Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas </td>
+          <td>2026-06-30</td>
+          <td class="num">167</td>
+          <td class="num">17</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DaOR0AZASGm/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
         <tr data-date="2026-07-08">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742102396_122207477408565124_7149145849745167511_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=9aacnQYNDVUQ7kNvwEoYGNW&_nc_oc=AdpGiaTdJAY0RMcKi06Awiy6RiGuev7KWkpl5GTdojwiT1mUpJ0irCW7EADFD4uVF1I&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&oh=00_AQDorhnsDDYNaqzqh347iAEKs3Zk126WbPzwXsX9AtOuDg&oe=6A641120" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/742102396_122207477408565124_7149145849745167511_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=8dN4IqWqW30Q7kNvwEKdQUi&_nc_oc=AdpxbSe9bB5K-5rmWqrdO3np0ZqgCW5D49hcfqrDFPy4fkRuGvh3drdj9YGqgW09MZo&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&oh=00_AQB4irS0OvIDidSJERlenjIUmyNs-vWXazc9_c-BXWXJ5A&oe=6A6562A0" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic">📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic</td>
           <td>2026-07-08</td>
-          <td class="num">63</td>
+          <td class="num">65</td>
           <td class="num">11</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DaiZoIfkgnf/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-09">
-          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/741408927_122207594330565124_2113598648798429589_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=SSOMFzp45aoQ7kNvwE5NelA&_nc_oc=AdqR6WxBELn-MCu-_LoiKSHs6EvmJG3gZWrzexKU-1HPIKFYgRgIkcaoXgqzMvqHYhQ&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=k_taPVK6HLI9pK3BA8RNKQ&oh=00_AQApC9MikBOQc98kJ2cy6dqNwhTGnWs_oBnmammC_UGHaw&oe=6A6415B3" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/741408927_122207594330565124_2113598648798429589_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=SSOMFzp45aoQ7kNvwE5NelA&_nc_oc=AdqR6WxBELn-MCu-_LoiKSHs6EvmJG3gZWrzexKU-1HPIKFYgRgIkcaoXgqzMvqHYhQ&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&oh=00_AQCAb5XKCvVd_BLs_iL0cLT1K5w57bhUtpnTSh1VeRt3Iw&oe=6A656733" loading="lazy" /></td>
           <td><span class="dot ig"></span> Instagram</td>
           <td class="post-caption" title="No hay mejor sensación que ver una idea convertirse en algo real‼
 
@@ -386,12 +404,38 @@ Diseñamos est">No hay mejor sensación que ver una idea convertirse en algo rea
 
 Diseñamos est</td>
           <td>2026-07-09</td>
-          <td class="num">52</td>
+          <td class="num">53</td>
           <td class="num">22</td>
           <td><a class="permalink" href="https://www.instagram.com/p/DalkGr6kgrK/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
+        <tr data-date="2026-07-21">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/749652066_122208704906565124_5402791412983861436_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=EmTv9jSqMXIQ7kNvwHt1dmb&_nc_oc=AdowClIOJOlVEPEJNKBbo7ogiYAXj9n0zT0F08TSBDn1ugNS2M6X_2PxoO8WD2IHHOw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=b25mxkurP4_2dQK0UQrtLw&oh=00_AQDrdfuEKrHCsdWntSK5229mEZk6ko5EDJovvdC0P24vJw&oe=6A6568F3" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="📉 Tener actividad en redes no siempre significa generar ventas.
+
+Si tus publicac">📉 Tener actividad en redes no siempre significa generar ventas.
+
+Si tus publicac</td>
+          <td>2026-07-21</td>
+          <td class="num">5</td>
+          <td class="num">6</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DbD3Tqmkidm/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-07-21">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/749652066_122208704906565124_5402791412983861436_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=EmTv9jSqMXIQ7kNvwHt1dmb&_nc_oc=AdowClIOJOlVEPEJNKBbo7ogiYAXj9n0zT0F08TSBDn1ugNS2M6X_2PxoO8WD2IHHOw&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQEBLc3xQfQlrfwl8gixTDH9DfQLVjxMShIk4eqPURIYjxFSY3Idx4SFJjAL-eJ6afH6zFGACzoVwQ&oh=00_AQBQg0S_w4m51s1yXerIwoG3_-lq5TOAkeh16Gnk1mjjQA&oe=6A6568F3" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="📉 Tener actividad en redes no siempre significa generar ventas.
+
+Si tus publicac">📉 Tener actividad en redes no siempre significa generar ventas.
+
+Si tus publicac</td>
+          <td>2026-07-21</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122208705152565124" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
         <tr data-date="2026-07-19">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/749354582_4658825084348998_3506774562555315527_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=0QyTZqr7CDIQ7kNvwFY-Sgg&_nc_oc=AdoJltvQ6orCWaNzNCiXTXdTNrPDlNnYYbLv60bptM5NmbF8XnSaJwrXVhCW0isiIRw&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQFe0S66wuGQKvuWG40GeUIqF3xOFPrwDHIpbVgCeDgAxtL1pGb_nErHG-xDULYub9Gmb-ocBR7Rxg&oh=00_AQDTZApFbd31NkuGVludH1R-AWc8RoF_dqZ1Z8jv4h1ygg&oe=6A640565" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/749354582_4658825084348998_3506774562555315527_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=0QyTZqr7CDIQ7kNvwFY-Sgg&_nc_oc=AdoJltvQ6orCWaNzNCiXTXdTNrPDlNnYYbLv60bptM5NmbF8XnSaJwrXVhCW0isiIRw&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQFv8J5gzHW-nsdKJ0gcOBFvYwac9ywgpdbmFErTux_BxOQw-VxytMwP4ik4uabSt1FQz1AR6lt4Hw&oh=00_AQDmXVNOZI6Ksj6WffyWHIHFotCu35YfV3nkr5dDBlsjlA&oe=6A6556E5" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Una experiencia masiva capturada desde el cielo. 🌍✨🎥
 
@@ -404,7 +448,7 @@ Así lucen los grandes even</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1348496366733647/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-16">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/747079963_1512016446727278_4197220555823959500_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=603moPkSF6wQ7kNvwFjEUa9&_nc_oc=AdrpJQ92o3e_TQz1ObkVHsj3km4a6VVTiwQ2oBUMlatMWy0ps6Lo62g2IhfZaFAHYIg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQEGU8wq2ngc1lrlD9LSrqp8KQTh1iKd2CS2uUuN-Xk1Rmj11eFGM0lpX5aTERXH3ZEYgvMu-ftwMg&oh=00_AQDDa_Al_O1NPpSXXyJtQgyr4_XooM0Hq4h-4PHjPq5kHA&oe=6A641D8B" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/747079963_1512016446727278_4197220555823959500_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=603moPkSF6wQ7kNvwFjEUa9&_nc_oc=AdrpJQ92o3e_TQz1ObkVHsj3km4a6VVTiwQ2oBUMlatMWy0ps6Lo62g2IhfZaFAHYIg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQFVFOtRC4-YqjHc2_UoSObA1nBa85l6SkeJqoTIoKBbAILxMKSq8GeoDjrJgQcAc3F9LlSp-g2l3A&oh=00_AQAr6am0wI4isqTbK0bWGD4uVtt_w9o5Zm-psDUeIyIZLg&oe=6A656F0B" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Vivir el mundo en un solo lugar mientras lo documentas. 🌍✨🎥 @aldeaglobal2026 
 
@@ -417,7 +461,7 @@ E</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/27472536232404957/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-09">
-          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/741408927_122207594330565124_2113598648798429589_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=SSOMFzp45aoQ7kNvwE5NelA&_nc_oc=AdqR6WxBELn-MCu-_LoiKSHs6EvmJG3gZWrzexKU-1HPIKFYgRgIkcaoXgqzMvqHYhQ&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQGPSe9YBoSNmu4ltZA-bI1H9WnOaOY4bghm17N2L4a6wtvCK3EuTokG6jC-X01-ypnRk_l0qaK62g&oh=00_AQBTjDlMiqFZSPX_vtGY1163q0XAZ0Jp0tKDU9d9IJQR9A&oe=6A6415B3" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/741408927_122207594330565124_2113598648798429589_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=SSOMFzp45aoQ7kNvwE5NelA&_nc_oc=AdqR6WxBELn-MCu-_LoiKSHs6EvmJG3gZWrzexKU-1HPIKFYgRgIkcaoXgqzMvqHYhQ&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQFUTMwf2mN_5459KSgqrV9xI6Mgad6d8zLIeF_67oiVRF3A41WdOiuf9wsPl4L-YVebNFih_sbtvQ&oh=00_AQDbuSrIzEbX_dFR_KMDUD_MsnsSCith0nuH89cLNph3fw&oe=6A656733" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="No hay mejor sensación que ver una idea convertirse en algo real‼
 
@@ -430,7 +474,7 @@ Diseñamos est</td>
           <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122207594642565124" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-08">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/742102396_122207477408565124_7149145849745167511_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=9aacnQYNDVUQ7kNvwEoYGNW&_nc_oc=AdpGiaTdJAY0RMcKi06Awiy6RiGuev7KWkpl5GTdojwiT1mUpJ0irCW7EADFD4uVF1I&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQHpVFTrh3YMW6IDVaQU5_Dg6X2AxmTMhpZmsBKVe6Cwqakuv6uGSY38deeCFEOAJHi3PucyQURTsg&oh=00_AQBZdo7dPLZIvMTkrj4xxccEpDm_T8mP3gUfRiGMeHM8dg&oe=6A641120" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/742102396_122207477408565124_7149145849745167511_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=8dN4IqWqW30Q7kNvwEKdQUi&_nc_oc=AdpxbSe9bB5K-5rmWqrdO3np0ZqgCW5D49hcfqrDFPy4fkRuGvh3drdj9YGqgW09MZo&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQEbFAbwFTsnDwSJIvt4eQUY1n-BaB9SLjrvh2zgC267O5QqKIQTsR3-fASk8PUyMYgTAVj7tqGdiA&oh=00_AQAmr7snaCu7-J1WoBt7xTdj9UOBoBBEEk6OnriZNjkkig&oe=6A6562A0" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic">📸 Hoy toca cambiar el outfit por la bata… y las reuniones por crear en @oftalmic</td>
           <td>2026-07-08</td>
@@ -439,7 +483,7 @@ Diseñamos est</td>
           <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122207477456565124" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-07-02">
-          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/731221604_18083916926558624_1795140888549649448_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=lVQO4NiwQq0Q7kNvwFS4vQL&_nc_oc=AdqBm1iSCcN9vGYoBlnA6lXtMr1kP4ic9D2sabBfR1L-kzkZbhdzcvo6zST_8mYXAWU&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQHza0bTNy2BmEeh9ldhE1Ch26UL8mEadoxpeLq9hBNI2RkT1OapxfgyUBlgsv7veEsP8HYlNQm4Lw&oh=00_AQDeJbRfbbgstluocOPLy0PAUVNUMQIioeGz435l9aLzvA&oe=6A640694" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/731221604_18083916926558624_1795140888549649448_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=a8PKK322TMQQ7kNvwFr_IKs&_nc_oc=AdpYhnPjbBceU5djA8r5ILbD26TXB7D54143jp7NNKStvEyOP5aPxxJFhLh11qejlNY&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQHa2OskNiMzqNJKNVWgJBA_NXgJ7G26WXk0XvNJSYBg_6G-uSO5aIifCYewFTcK_CnPzEJlbY4dVw&oh=00_AQBNeKbTICGe0Wzz74VF8M24NZC0z7DdKMaSzgccXq2Hyw&oe=6A655814" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏">@citicmexico 2026 con @latidospormexico 🫀🤝 ¡Gracias por la oportunidad! 🙏</td>
           <td>2026-07-02</td>
@@ -448,7 +492,7 @@ Diseñamos est</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/916383974806189/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-30">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/730125177_18083681381558624_6138289712167573265_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=rSmx7FDjECkQ7kNvwHY9VnC&_nc_oc=AdrZ8UzyVdoyq5-RBX2XiYugDGxOx6N2vewlfyyC4ItHKemAg9wey88muiXlrEQzXyc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQHk_h_AeQPHJV6Um9N9vWFhlHbPs_s3ESOCkh51mkxSl-0T3wSdpdPrEGMft0Kap-XkgnYMAhtgwg&oh=00_AQC8mqUK7sNVMAaRFmXk5GNw_gUumz28xuMFg4KIeic-bQ&oe=6A640ECE" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/730125177_18083681381558624_6138289712167573265_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=M0GV68FoRPYQ7kNvwHz9w-c&_nc_oc=Adp1KteKstsVscFl_bPc2AMK0_IG9jfDIkvmch9Z9KvtJzmtV60aJW8esbtFLG2xrTE&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQEb7_MiJo1RvRjpVmFpLltjtDRDM-3TgxeHY5Rgpj2RuXqn7J4CRZ7lFYE6oNTyDGY0fNIrC9HLtQ&oh=00_AQDBMm9oKCNA44QXCBcHobtXEZCR9nzrfeOwT-gfs1plOg&oe=6A65604E" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas ">Hay proyectos que te retan. Otros que te inspiran. Y algunos logran hacer ambas </td>
           <td>2026-06-30</td>
@@ -457,7 +501,7 @@ Diseñamos est</td>
           <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122206722194565124" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-06-09">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.71878-10/720655403_959642560395421_6812763335375586454_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=-lX_yDnAxeAQ7kNvwEZgO5W&_nc_oc=Adpdq7se0x50eyIDY4ZSlGRfsIEaZYm3jpIHfWch1rm0Cqsc2bdquSx9829RbycA7oc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQGcZVRCKHZOp-1H3sZtml_FU-2IEZD9sehRFB7Me1qLsNk2QME3Wjms8jnRctrQupLTWDC14wBqYA&oh=00_AQC4g-R1qHD8KzMKV7UVrVVDBCaMZ9YGGErfUcS_uhJn6g&oe=6A6409E4" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.71878-10/720655403_959642560395421_6812763335375586454_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=U7Vjxi1hVXQQ7kNvwGKoGGd&_nc_oc=AdqQ_mG7_QqWoeTppmEFtrCmcGTEmKLvXKeuLZmXQRkzYuj1UJITy-o5a9jaHRfq5GA&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQHsXekgyghQ5KmmAeinXlifk57Hq0_rpkVJcgJCcQQlorDa65TYE8SKCRiYWAEfOZNdys-lGLhFcg&oh=00_AQATenQJs6vfi84NFGnXdTczo8H0VUtXP31xna4IHmHoiw&oe=6A655B64" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="El pre @aldeaglobal2026 🇲🇽💙💜">El pre @aldeaglobal2026 🇲🇽💙💜</td>
           <td>2026-06-09</td>
@@ -466,7 +510,7 @@ Diseñamos est</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/3549174588591591/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-28">
-          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t15.5256-10/707749925_854499034376154_3426992912904803109_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=bwaQSygbD5wQ7kNvwHO7SBF&_nc_oc=Adp8nDWu-CC5oxVKlaT_yfeO4cNMxir9aQDEJvI0ACIiGq2mO7K6cH-4tJXUG7W3G60&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQF7B_ojr5HFzO2vIhrVHIjxWXbWYZ_xX-l1MgwUnftlTK5HrgAOpKU0OoEBFldgRTPTwobSZ-pY2g&oh=00_AQDvbvsXULeGwnOrznwHgFQZZsHsrnXA-l3uCTLpSXWWXw&oe=6A643833" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t15.5256-10/707749925_854499034376154_3426992912904803109_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=bwaQSygbD5wQ7kNvwHO7SBF&_nc_oc=Adp8nDWu-CC5oxVKlaT_yfeO4cNMxir9aQDEJvI0ACIiGq2mO7K6cH-4tJXUG7W3G60&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQHsatkpRpZp3m2nYO8FCIHU-ULxpBHAiaCMApkQbjuTSWN1QpjooWfbbm0wCaMKjS5ezsd2dWou2Q&oh=00_AQA3a3RHuIHzQkVyKPTMnQhE7VgkH3tfn4Cs6i-xhbb7PA&oe=6A6589B3" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Las mejores historias también se viven en pantalla grande. 🍿❤️
 
@@ -479,30 +523,16 @@ Cada función, ca</td>
           <td><a class="permalink" href="https://www.facebook.com/reel/1032481339349782/" target="_blank" rel="noopener">Ver</a></td>
         </tr>
         <tr data-date="2026-05-25">
-          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/706134610_122203270820565124_6165209244006425378_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=vMIfAhTObEgQ7kNvwGhg6w0&_nc_oc=AdpRUXLjNkEPXJn0X4IxFS-0yRMC_wmQNO_nsOE7Ikp8iSq_sMYhaGbAopNXtr3407c&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQF5gu1vomYnXy4Kcw_ALsjjoGz5d3QCCvsR30jDlhEZh_csx9SImSDUdZlo3L3Ao3KvwYXDjMXDOA&oh=00_AQBYSn1ogZ7ge_tPoA9Y50NINIGMk8JwzRqqQAeSFd2ZaA&oe=6A6421BB" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/706134610_122203270820565124_6165209244006425378_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=HRiVGsAyxFcQ7kNvwHWaBQs&_nc_oc=AdoV7APRiFhxRaCOxq-1fLQr3SM3-x6CSegUxNn2x4cfzUupP69ypHcRdb5BgLfpJ5k&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=EYfevOODnmF2Qc5cxRO7ig&_nc_tpa=Q5bMBQE0m1qj8_zj_S-GmC2CgJKfzagNYwxnaKuOI4Ah_B2NcADq2SUfxzIEBQy3836IngAqhsZzkTrh7g&oh=00_AQA-BwceDmv3ULEj3bP1gqvU8Gu5cVbuKyOU_8ABL3Exfw&oe=6A65733B" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="¡Que las ideas tengan estilo siempre! 🎥🪄📌">¡Que las ideas tengan estilo siempre! 🎥🪄📌</td>
           <td>2026-05-25</td>
           <td class="num">-</td>
           <td class="num">0</td>
           <td><a class="permalink" href="https://www.facebook.com/122206917680565124/posts/122203270880565124" target="_blank" rel="noopener">Ver</a></td>
-        </tr>
-        <tr data-date="2026-05-22">
-          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/704558410_1313220907448745_358140987039526963_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=qMjyi_UgPu8Q7kNvwFqk0C5&_nc_oc=Adqmkb0Qz14USfl3MAxHAgY1AfGIOzD1ZU7OgvyQAEXGlTxexRCDq2M4YiSNhAtE040&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=yu_JqbXtMu00kK24Eoe-qw&_nc_tpa=Q5bMBQGsvall9z_en_JbThYdZ34mRklNn0LO7QgKFYmVZGyRIsscXe0BPkijvoABBl_4MsCVSiLl9VF6Sg&oh=00_AQBHRuJUvPt4e1wR5xAfu-o43WFVSues3RLu8o7S1ySkIA&oe=6A640178" loading="lazy" /></td>
-          <td><span class="dot fb"></span> Facebook</td>
-          <td class="post-caption" title="🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva">🚀✨ Las ideas no se quedan en una pantalla cuando hay un equipo dispuesto a lleva</td>
-          <td>2026-05-22</td>
-          <td class="num">-</td>
-          <td class="num">1</td>
-          <td><a class="permalink" href="https://www.facebook.com/reel/3180049895520181/" target="_blank" rel="noopener">Ver</a></td>
         </tr></tbody>
     </table>
   </div>
-
-        <h1 class="section-title">Recomendaciones</h1>
-        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">20</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">2.242</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">209</div><div class="label">Engagement total (FB + IG)</div></div><div class="kpi"><div class="value">Mayo 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mes mas flojo</div></div></div>
-        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido.
-        El desglose mensual y las recomendaciones analizan siempre el periodo completo.</p>
 
         
   <div class="card">
@@ -554,11 +584,11 @@ Cada función, ca</td>
         </tr>
         <tr>
           <td>Mayo 2026</td>
-          <td class="num">3</td>
-          <td class="num">3</td>
+          <td class="num">2</td>
+          <td class="num">2</td>
           <td class="num">0</td>
-          <td class="num">277</td>
-          <td class="num">0.7</td>
+          <td class="num">248</td>
+          <td class="num">0.5</td>
           <td>-</td>
         </tr>
         <tr>
@@ -566,52 +596,39 @@ Cada función, ca</td>
           <td class="num">2</td>
           <td class="num">2</td>
           <td class="num">0</td>
-          <td class="num">218</td>
+          <td class="num">220</td>
           <td class="num">0.5</td>
-          <td>-21% vs mes anterior</td>
+          <td>-11% vs mes anterior</td>
         </tr>
         <tr>
           <td>Julio 2026</td>
-          <td class="num">5</td>
-          <td class="num">5</td>
+          <td class="num">6</td>
+          <td class="num">6</td>
           <td class="num">0</td>
-          <td class="num">195</td>
-          <td class="num">1.8</td>
+          <td class="num">167</td>
+          <td class="num">2.0</td>
           <td>mes en curso</td>
         </tr></tbody>
     </table>
   </div>
 
         
-  <div class="card rec-card">
-    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Facebook</h3>
-    <p class="rec-stat">0.3 dias con post/semana (minimo recomendado: 3)</p>
-    <p class="rec-detail">En los ultimos 201 dias hubo posts en solo 10 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
-  </div>
-  <div class="card rec-card">
-    <h3><span class="dot alerta"></span>Poca frecuencia de publicacion en Instagram</h3>
-    <p class="rec-stat">0.3 dias con post/semana (minimo recomendado: 3)</p>
-    <p class="rec-detail">En los ultimos 201 dias hubo posts en solo 10 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</p>
-  </div>
-  <div class="card rec-card">
-    <h3><span class="dot info"></span>Reels alcanza mas que Feed en Instagram</h3>
-    <p class="rec-stat">alcance promedio 286 (n=6) vs 131 (Feed)</p>
-    <p class="rec-detail">Reels supera a Feed por 119% en alcance promedio. Vale la pena priorizar ese formato para publicaciones nuevas.</p>
-  </div>
-  <div class="card rec-card">
-    <h3><span class="dot positivo"></span>Buena conversacion en Instagram</h3>
-    <p class="rec-stat">27 comentarios / 171 likes (15.8%)</p>
-    <p class="rec-detail">El ratio de comentarios sobre likes es saludable: el contenido esta generando conversacion real, no solo consumo pasivo.</p>
-  </div>
-  <div class="card rec-card">
-    <h3><span class="dot alerta"></span>Engagement en baja para IPunto Marketing (Facebook)</h3>
-    <p class="rec-stat">ultimos 30 dias: 0.0 vs 0.1 de los 30 dias previos (-50%)</p>
-    <p class="rec-detail">La tendencia reciente esta por debajo del periodo anterior. Vale la pena revisar que cambio en el contenido o la cadencia de publicacion.</p>
-  </div>
-  <div class="card rec-card">
-    <h3><span class="dot positivo"></span>Alcance en alza para @ipuntomk (Instagram)</h3>
-    <p class="rec-stat">ultimos 30 dias: 52.2 vs 42.3 de los 30 dias previos (+24%)</p>
-    <p class="rec-detail">La tendencia reciente supera al periodo anterior. Vale la pena identificar que esta funcionando para mantenerlo.</p>
+  <div class="card">
+    <h2>Análisis orgánico</h2>
+    <div class="diag-head">
+      <span class="diag-sem sem-Rojo"><span class="dot"></span>Rojo</span>
+      <span class="diag-badge">Prioridad: Alta</span>
+      <span class="diag-badge">Confianza: Alto</span>
+    </div>
+    <p class="diag-summary">En el periodo: 20 posts, interacciones totales 200, alcance total 1936; poca frecuencia de publicacion en facebook.</p>
+    <ul class="diag-anoms"><li><b>Poca frecuencia de publicacion en Facebook</b> — 0.3 dias con post/semana (minimo recomendado: 3). En los ultimos 202 dias hubo posts en solo 10 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</li><li><b>Poca frecuencia de publicacion en Instagram</b> — 0.3 dias con post/semana (minimo recomendado: 3). En los ultimos 202 dias hubo posts en solo 10 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</li></ul>
+    <div class="diag-rec"><table><tr><td class="k">Acción</td><td>Aumentar la frecuencia de publicacion (minimo 3 veces por semana).</td></tr><tr><td class="k">Motivo</td><td>En los ultimos 202 dias hubo posts en solo 10 dias distintos. Publicar con mas regularidad ayuda a que el algoritmo siga mostrando la cuenta.</td></tr><tr><td class="k">Métrica</td><td>Cadencia</td></tr><tr><td class="k">Riesgo de no actuar</td><td>El algoritmo reduce el alcance organico de las cuentas que publican poco.</td></tr><tr><td class="k">Resultado esperado</td><td>Mas alcance e interaccion por mayor visibilidad organica.</td></tr><tr><td class="k">Responsable</td><td>Contenido y Diseño</td></tr></table></div>
+    <p class="diag-evidence">Periodo -> 20 posts, interacciones totales 200, alcance total 1936 (IG).
+- Poca frecuencia de publicacion en Facebook: 0.3 dias con post/semana (minimo recomendado: 3).
+- Poca frecuencia de publicacion en Instagram: 0.3 dias con post/semana (minimo recomendado: 3).
+- Buena conversacion en Instagram: 29 comentarios / 162 likes (17.9%).
+- Alcance en alza para @ipuntomk (Instagram): ultimos 30 dias: 51.8 vs 41.6 de los 30 dias previos (+25%).</p>
+    <p class="diag-evidence" style="margin-top:12px;">Generado automáticamente por organico_analysis.py · datos orgánicos de Meta. Toda recomendación es sugerencia; la ejecución la aprueba Paid Media / Contenido.</p>
   </div>
       </section>
       <section id="tab-pautas" class="tab-panel">
@@ -643,6 +660,7 @@ Cada función, ca</td>
         
         <div class="card"><h2>Campañas</h2><p class="empty">No hay campañas con datos en el rango.</p></div>
         
+        
   <div class="card">
     <h2>Análisis de la campaña</h2>
     <div class="diag-head">
@@ -654,20 +672,20 @@ Cada función, ca</td>
     
     
     <p class="diag-evidence">La cuenta es accesible pero no tuvo entrega en el periodo.</p>
-    <p class="diag-evidence" style="margin-top:12px;">Generado automáticamente por pauta_analysis.py · datos vía Meta Ads. Toda recomendación es sugerencia; la ejecución la aprueba Paid Media.</p>
+    <p class="diag-evidence" style="margin-top:12px;">Generado automáticamente por pauta_analysis.py · datos vía Meta Ads. Toda recomendación es sugerencia; la ejecución la aprueba Paid Media / Contenido.</p>
   </div>
       </section>
     </main>
   </div>
 
 <script>
-const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 0}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 0}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 0}, {"label": "2026-01-11", "value": 0}, {"label": "2026-01-12", "value": 0}, {"label": "2026-01-13", "value": 1}, {"label": "2026-01-14", "value": 0}, {"label": "2026-01-15", "value": 0}, {"label": "2026-01-16", "value": 0}, {"label": "2026-01-17", "value": 0}, {"label": "2026-01-18", "value": 0}, {"label": "2026-01-19", "value": 0}, {"label": "2026-01-20", "value": 0}, {"label": "2026-01-21", "value": 0}, {"label": "2026-01-22", "value": 0}, {"label": "2026-01-23", "value": 0}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 0}, {"label": "2026-01-26", "value": 0}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 0}, {"label": "2026-01-30", "value": 0}, {"label": "2026-01-31", "value": 0}, {"label": "2026-02-01", "value": 0}, {"label": "2026-02-02", "value": 0}, {"label": "2026-02-03", "value": 0}, {"label": "2026-02-04", "value": 0}, {"label": "2026-02-05", "value": 0}, {"label": "2026-02-06", "value": 0}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 0}, {"label": "2026-02-10", "value": 1}, {"label": "2026-02-11", "value": 0}, {"label": "2026-02-12", "value": 0}, {"label": "2026-02-13", "value": 0}, {"label": "2026-02-14", "value": 0}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 0}, {"label": "2026-02-18", "value": 0}, {"label": "2026-02-19", "value": 0}, {"label": "2026-02-20", "value": 0}, {"label": "2026-02-21", "value": 0}, {"label": "2026-02-22", "value": 0}, {"label": "2026-02-23", "value": 0}, {"label": "2026-02-24", "value": 0}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 0}, {"label": "2026-02-28", "value": 0}, {"label": "2026-03-01", "value": 0}, {"label": "2026-03-02", "value": 0}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 0}, {"label": "2026-03-05", "value": 0}, {"label": "2026-03-06", "value": 0}, {"label": "2026-03-07", "value": 0}, {"label": "2026-03-08", "value": 0}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 0}, {"label": "2026-03-11", "value": 0}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 0}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 0}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 0}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 0}, {"label": "2026-03-26", "value": 0}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 0}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 0}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 2}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 0}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 0}, {"label": "2026-04-16", "value": 0}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 0}, {"label": "2026-04-19", "value": 0}, {"label": "2026-04-20", "value": 0}, {"label": "2026-04-21", "value": 0}, {"label": "2026-04-22", "value": 0}, {"label": "2026-04-23", "value": 0}, {"label": "2026-04-24", "value": 0}, {"label": "2026-04-25", "value": 0}, {"label": "2026-04-26", "value": 0}, {"label": "2026-04-27", "value": 0}, {"label": "2026-04-28", "value": 1}, {"label": "2026-04-29", "value": 0}, {"label": "2026-04-30", "value": 1}, {"label": "2026-05-01", "value": 0}, {"label": "2026-05-02", "value": 0}, {"label": "2026-05-03", "value": 0}, {"label": "2026-05-04", "value": 0}, {"label": "2026-05-05", "value": 0}, {"label": "2026-05-06", "value": 0}, {"label": "2026-05-07", "value": 0}, {"label": "2026-05-08", "value": 0}, {"label": "2026-05-09", "value": 0}, {"label": "2026-05-10", "value": 0}, {"label": "2026-05-11", "value": 0}, {"label": "2026-05-12", "value": 0}, {"label": "2026-05-13", "value": 0}, {"label": "2026-05-14", "value": 0}, {"label": "2026-05-15", "value": 0}, {"label": "2026-05-16", "value": 0}, {"label": "2026-05-17", "value": 0}, {"label": "2026-05-18", "value": 0}, {"label": "2026-05-19", "value": 3}, {"label": "2026-05-20", "value": 0}, {"label": "2026-05-21", "value": 1}, {"label": "2026-05-22", "value": 0}, {"label": "2026-05-23", "value": 1}, {"label": "2026-05-24", "value": 0}, {"label": "2026-05-25", "value": 0}, {"label": "2026-05-26", "value": 0}, {"label": "2026-05-27", "value": 0}, {"label": "2026-05-28", "value": 0}, {"label": "2026-05-29", "value": 0}, {"label": "2026-05-30", "value": 0}, {"label": "2026-05-31", "value": 0}, {"label": "2026-06-01", "value": 0}, {"label": "2026-06-02", "value": 0}, {"label": "2026-06-03", "value": 0}, {"label": "2026-06-04", "value": 0}, {"label": "2026-06-05", "value": 0}, {"label": "2026-06-06", "value": 0}, {"label": "2026-06-07", "value": 0}, {"label": "2026-06-08", "value": 0}, {"label": "2026-06-09", "value": 0}, {"label": "2026-06-10", "value": 0}, {"label": "2026-06-11", "value": 0}, {"label": "2026-06-12", "value": 0}, {"label": "2026-06-13", "value": 0}, {"label": "2026-06-14", "value": 0}, {"label": "2026-06-15", "value": 0}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 0}, {"label": "2026-06-18", "value": 0}, {"label": "2026-06-19", "value": 0}, {"label": "2026-06-20", "value": 0}, {"label": "2026-06-21", "value": 0}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 0}, {"label": "2026-06-24", "value": 0}, {"label": "2026-06-25", "value": 0}, {"label": "2026-06-26", "value": 0}, {"label": "2026-06-27", "value": 0}, {"label": "2026-06-29", "value": 0}, {"label": "2026-06-30", "value": 0}, {"label": "2026-07-01", "value": 0}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-03", "value": 0}, {"label": "2026-07-04", "value": 0}, {"label": "2026-07-05", "value": 0}, {"label": "2026-07-06", "value": 0}, {"label": "2026-07-07", "value": 0}, {"label": "2026-07-08", "value": 0}, {"label": "2026-07-09", "value": 0}, {"label": "2026-07-10", "value": 0}, {"label": "2026-07-11", "value": 0}, {"label": "2026-07-12", "value": 0}, {"label": "2026-07-13", "value": 0}, {"label": "2026-07-14", "value": 0}, {"label": "2026-07-15", "value": 0}, {"label": "2026-07-16", "value": 0}, {"label": "2026-07-17", "value": 1}, {"label": "2026-07-18", "value": 0}, {"label": "2026-07-19", "value": 0}, {"label": "2026-07-20", "value": 0}]}, "ig_chart_0": {"color": "#1baf7a", "points": [{"label": "2026-01-01", "value": 0}, {"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 1}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 1}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 0}, {"label": "2026-01-11", "value": 1}, {"label": "2026-01-12", "value": 1}, {"label": "2026-01-13", "value": 0}, {"label": "2026-01-14", "value": 1}, {"label": "2026-01-15", "value": 0}, {"label": "2026-01-16", "value": 0}, {"label": "2026-01-17", "value": 1}, {"label": "2026-01-18", "value": 0}, {"label": "2026-01-19", "value": 0}, {"label": "2026-01-20", "value": 1}, {"label": "2026-01-21", "value": 0}, {"label": "2026-01-22", "value": 0}, {"label": "2026-01-23", "value": 1}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 0}, {"label": "2026-01-26", "value": 1}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 0}, {"label": "2026-01-31", "value": 0}, {"label": "2026-02-01", "value": 0}, {"label": "2026-02-02", "value": 1}, {"label": "2026-02-03", "value": 1}, {"label": "2026-02-04", "value": 1}, {"label": "2026-02-05", "value": 1}, {"label": "2026-02-06", "value": 2}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 1}, {"label": "2026-02-10", "value": 3}, {"label": "2026-02-11", "value": 1}, {"label": "2026-02-12", "value": 1}, {"label": "2026-02-13", "value": 0}, {"label": "2026-02-14", "value": 0}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 0}, {"label": "2026-02-18", "value": 0}, {"label": "2026-02-19", "value": 0}, {"label": "2026-02-20", "value": 1}, {"label": "2026-02-21", "value": 0}, {"label": "2026-02-22", "value": 0}, {"label": "2026-02-23", "value": 0}, {"label": "2026-02-24", "value": 1}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 93}, {"label": "2026-02-28", "value": 182}, {"label": "2026-03-02", "value": 4}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 3}, {"label": "2026-03-05", "value": 3}, {"label": "2026-03-06", "value": 3}, {"label": "2026-03-07", "value": 1}, {"label": "2026-03-08", "value": 1}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 1}, {"label": "2026-03-11", "value": 2}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 1}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 4}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 1}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 49}, {"label": "2026-03-26", "value": 16}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 1}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 2}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 1}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 1}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 0}, {"label": "2026-04-16", "value": 1}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 0}, {"label": "2026-04-19", "value": 0}, {"label": "2026-04-20", "value": 0}, {"label": "2026-04-21", "value": 2}, {"label": "2026-04-22", "value": 0}, {"label": "2026-04-23", "value": 52}, {"label": "2026-04-24", "value": 13}, {"label": "2026-04-25", "value": 7}, {"label": "2026-04-26", "value": 6}, {"label": "2026-04-27", "value": 69}, {"label": "2026-04-28", "value": 177}, {"label": "2026-04-29", "value": 230}, {"label": "2026-05-01", "value": 28}, {"label": "2026-05-02", "value": 6}, {"label": "2026-05-03", "value": 7}, {"label": "2026-05-04", "value": 153}, {"label": "2026-05-05", "value": 77}, {"label": "2026-05-06", "value": 176}, {"label": "2026-05-07", "value": 24}, {"label": "2026-05-08", "value": 211}, {"label": "2026-05-09", "value": 31}, {"label": "2026-05-10", "value": 3}, {"label": "2026-05-11", "value": 2}, {"label": "2026-05-12", "value": 4}, {"label": "2026-05-13", "value": 4}, {"label": "2026-05-14", "value": 18}, {"label": "2026-05-15", "value": 47}, {"label": "2026-05-16", "value": 53}, {"label": "2026-05-17", "value": 9}, {"label": "2026-05-18", "value": 154}, {"label": "2026-05-19", "value": 47}, {"label": "2026-05-20", "value": 128}, {"label": "2026-05-21", "value": 19}, {"label": "2026-05-22", "value": 243}, {"label": "2026-05-23", "value": 64}, {"label": "2026-05-24", "value": 5}, {"label": "2026-05-25", "value": 140}, {"label": "2026-05-26", "value": 91}, {"label": "2026-05-27", "value": 4}, {"label": "2026-05-28", "value": 182}, {"label": "2026-05-29", "value": 32}, {"label": "2026-05-31", "value": 1}, {"label": "2026-06-01", "value": 1}, {"label": "2026-06-02", "value": 1}, {"label": "2026-06-03", "value": 1}, {"label": "2026-06-04", "value": 3}, {"label": "2026-06-05", "value": 2}, {"label": "2026-06-06", "value": 3}, {"label": "2026-06-07", "value": 1}, {"label": "2026-06-08", "value": 174}, {"label": "2026-06-09", "value": 49}, {"label": "2026-06-10", "value": 16}, {"label": "2026-06-11", "value": 21}, {"label": "2026-06-12", "value": 26}, {"label": "2026-06-13", "value": 7}, {"label": "2026-06-14", "value": 4}, {"label": "2026-06-15", "value": 1}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 0}, {"label": "2026-06-18", "value": 2}, {"label": "2026-06-19", "value": 26}, {"label": "2026-06-20", "value": 9}, {"label": "2026-06-21", "value": 1}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 1}, {"label": "2026-06-24", "value": 1}, {"label": "2026-06-25", "value": 0}, {"label": "2026-06-26", "value": 0}, {"label": "2026-06-27", "value": 1}, {"label": "2026-06-28", "value": 2}, {"label": "2026-06-30", "value": 202}, {"label": "2026-07-01", "value": 46}, {"label": "2026-07-02", "value": 156}, {"label": "2026-07-03", "value": 32}, {"label": "2026-07-04", "value": 23}, {"label": "2026-07-05", "value": 4}, {"label": "2026-07-06", "value": 3}, {"label": "2026-07-07", "value": 70}, {"label": "2026-07-08", "value": 136}, {"label": "2026-07-09", "value": 34}, {"label": "2026-07-10", "value": 9}, {"label": "2026-07-11", "value": 6}, {"label": "2026-07-12", "value": 3}, {"label": "2026-07-13", "value": 5}, {"label": "2026-07-14", "value": 33}, {"label": "2026-07-15", "value": 19}, {"label": "2026-07-16", "value": 441}, {"label": "2026-07-17", "value": 73}, {"label": "2026-07-18", "value": 54}, {"label": "2026-07-19", "value": 176}]}};
+const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 0}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 0}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 0}, {"label": "2026-01-11", "value": 0}, {"label": "2026-01-12", "value": 0}, {"label": "2026-01-13", "value": 1}, {"label": "2026-01-14", "value": 0}, {"label": "2026-01-15", "value": 0}, {"label": "2026-01-16", "value": 0}, {"label": "2026-01-17", "value": 0}, {"label": "2026-01-18", "value": 0}, {"label": "2026-01-19", "value": 0}, {"label": "2026-01-20", "value": 0}, {"label": "2026-01-21", "value": 0}, {"label": "2026-01-22", "value": 0}, {"label": "2026-01-23", "value": 0}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 0}, {"label": "2026-01-26", "value": 0}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 0}, {"label": "2026-01-30", "value": 0}, {"label": "2026-01-31", "value": 0}, {"label": "2026-02-01", "value": 0}, {"label": "2026-02-02", "value": 0}, {"label": "2026-02-03", "value": 0}, {"label": "2026-02-04", "value": 0}, {"label": "2026-02-05", "value": 0}, {"label": "2026-02-06", "value": 0}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 0}, {"label": "2026-02-10", "value": 1}, {"label": "2026-02-11", "value": 0}, {"label": "2026-02-12", "value": 0}, {"label": "2026-02-13", "value": 0}, {"label": "2026-02-14", "value": 0}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 0}, {"label": "2026-02-18", "value": 0}, {"label": "2026-02-19", "value": 0}, {"label": "2026-02-20", "value": 0}, {"label": "2026-02-21", "value": 0}, {"label": "2026-02-22", "value": 0}, {"label": "2026-02-23", "value": 0}, {"label": "2026-02-24", "value": 0}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 0}, {"label": "2026-02-28", "value": 0}, {"label": "2026-03-01", "value": 0}, {"label": "2026-03-02", "value": 0}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 0}, {"label": "2026-03-05", "value": 0}, {"label": "2026-03-06", "value": 0}, {"label": "2026-03-07", "value": 0}, {"label": "2026-03-08", "value": 0}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 0}, {"label": "2026-03-11", "value": 0}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 0}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 0}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 0}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 0}, {"label": "2026-03-26", "value": 0}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 0}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 0}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 2}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 0}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 0}, {"label": "2026-04-16", "value": 0}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 0}, {"label": "2026-04-19", "value": 0}, {"label": "2026-04-20", "value": 0}, {"label": "2026-04-21", "value": 0}, {"label": "2026-04-22", "value": 0}, {"label": "2026-04-23", "value": 0}, {"label": "2026-04-24", "value": 0}, {"label": "2026-04-25", "value": 0}, {"label": "2026-04-26", "value": 0}, {"label": "2026-04-27", "value": 0}, {"label": "2026-04-28", "value": 1}, {"label": "2026-04-29", "value": 0}, {"label": "2026-04-30", "value": 1}, {"label": "2026-05-01", "value": 0}, {"label": "2026-05-02", "value": 0}, {"label": "2026-05-03", "value": 0}, {"label": "2026-05-04", "value": 0}, {"label": "2026-05-05", "value": 0}, {"label": "2026-05-06", "value": 0}, {"label": "2026-05-07", "value": 0}, {"label": "2026-05-08", "value": 0}, {"label": "2026-05-09", "value": 0}, {"label": "2026-05-10", "value": 0}, {"label": "2026-05-11", "value": 0}, {"label": "2026-05-12", "value": 0}, {"label": "2026-05-13", "value": 0}, {"label": "2026-05-14", "value": 0}, {"label": "2026-05-15", "value": 0}, {"label": "2026-05-16", "value": 0}, {"label": "2026-05-17", "value": 0}, {"label": "2026-05-18", "value": 0}, {"label": "2026-05-19", "value": 3}, {"label": "2026-05-20", "value": 0}, {"label": "2026-05-21", "value": 1}, {"label": "2026-05-22", "value": 0}, {"label": "2026-05-23", "value": 1}, {"label": "2026-05-24", "value": 0}, {"label": "2026-05-25", "value": 0}, {"label": "2026-05-26", "value": 0}, {"label": "2026-05-27", "value": 0}, {"label": "2026-05-28", "value": 0}, {"label": "2026-05-29", "value": 0}, {"label": "2026-05-30", "value": 0}, {"label": "2026-05-31", "value": 0}, {"label": "2026-06-01", "value": 0}, {"label": "2026-06-02", "value": 0}, {"label": "2026-06-03", "value": 0}, {"label": "2026-06-04", "value": 0}, {"label": "2026-06-05", "value": 0}, {"label": "2026-06-06", "value": 0}, {"label": "2026-06-07", "value": 0}, {"label": "2026-06-08", "value": 0}, {"label": "2026-06-09", "value": 0}, {"label": "2026-06-10", "value": 0}, {"label": "2026-06-11", "value": 0}, {"label": "2026-06-12", "value": 0}, {"label": "2026-06-13", "value": 0}, {"label": "2026-06-14", "value": 0}, {"label": "2026-06-15", "value": 0}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 0}, {"label": "2026-06-18", "value": 0}, {"label": "2026-06-19", "value": 0}, {"label": "2026-06-20", "value": 0}, {"label": "2026-06-21", "value": 0}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 0}, {"label": "2026-06-24", "value": 0}, {"label": "2026-06-25", "value": 0}, {"label": "2026-06-26", "value": 0}, {"label": "2026-06-27", "value": 0}, {"label": "2026-06-29", "value": 0}, {"label": "2026-06-30", "value": 0}, {"label": "2026-07-01", "value": 0}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-03", "value": 0}, {"label": "2026-07-04", "value": 0}, {"label": "2026-07-05", "value": 0}, {"label": "2026-07-06", "value": 0}, {"label": "2026-07-07", "value": 0}, {"label": "2026-07-08", "value": 0}, {"label": "2026-07-09", "value": 0}, {"label": "2026-07-10", "value": 0}, {"label": "2026-07-11", "value": 0}, {"label": "2026-07-12", "value": 0}, {"label": "2026-07-13", "value": 0}, {"label": "2026-07-14", "value": 0}, {"label": "2026-07-15", "value": 0}, {"label": "2026-07-16", "value": 0}, {"label": "2026-07-17", "value": 1}, {"label": "2026-07-18", "value": 0}, {"label": "2026-07-19", "value": 0}, {"label": "2026-07-20", "value": 0}, {"label": "2026-07-21", "value": 0}]}, "ig_chart_0": {"color": "#1baf7a", "points": [{"label": "2026-01-01", "value": 0}, {"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 1}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 1}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 0}, {"label": "2026-01-11", "value": 1}, {"label": "2026-01-12", "value": 1}, {"label": "2026-01-13", "value": 0}, {"label": "2026-01-14", "value": 1}, {"label": "2026-01-15", "value": 0}, {"label": "2026-01-16", "value": 0}, {"label": "2026-01-17", "value": 1}, {"label": "2026-01-18", "value": 0}, {"label": "2026-01-19", "value": 0}, {"label": "2026-01-20", "value": 1}, {"label": "2026-01-21", "value": 0}, {"label": "2026-01-22", "value": 0}, {"label": "2026-01-23", "value": 1}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 0}, {"label": "2026-01-26", "value": 1}, {"label": "2026-01-27", "value": 0}, {"label": "2026-01-28", "value": 0}, {"label": "2026-01-29", "value": 0}, {"label": "2026-01-31", "value": 0}, {"label": "2026-02-01", "value": 0}, {"label": "2026-02-02", "value": 1}, {"label": "2026-02-03", "value": 1}, {"label": "2026-02-04", "value": 1}, {"label": "2026-02-05", "value": 1}, {"label": "2026-02-06", "value": 2}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 1}, {"label": "2026-02-10", "value": 3}, {"label": "2026-02-11", "value": 1}, {"label": "2026-02-12", "value": 1}, {"label": "2026-02-13", "value": 0}, {"label": "2026-02-14", "value": 0}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 0}, {"label": "2026-02-18", "value": 0}, {"label": "2026-02-19", "value": 0}, {"label": "2026-02-20", "value": 1}, {"label": "2026-02-21", "value": 0}, {"label": "2026-02-22", "value": 0}, {"label": "2026-02-23", "value": 0}, {"label": "2026-02-24", "value": 1}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 93}, {"label": "2026-02-28", "value": 182}, {"label": "2026-03-02", "value": 4}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 3}, {"label": "2026-03-05", "value": 3}, {"label": "2026-03-06", "value": 3}, {"label": "2026-03-07", "value": 1}, {"label": "2026-03-08", "value": 1}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 1}, {"label": "2026-03-11", "value": 2}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 1}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 4}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 1}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 49}, {"label": "2026-03-26", "value": 16}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 1}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 2}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 1}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 1}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 0}, {"label": "2026-04-16", "value": 1}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 0}, {"label": "2026-04-19", "value": 0}, {"label": "2026-04-20", "value": 0}, {"label": "2026-04-21", "value": 2}, {"label": "2026-04-22", "value": 0}, {"label": "2026-04-23", "value": 52}, {"label": "2026-04-24", "value": 13}, {"label": "2026-04-25", "value": 7}, {"label": "2026-04-26", "value": 6}, {"label": "2026-04-27", "value": 69}, {"label": "2026-04-28", "value": 177}, {"label": "2026-04-29", "value": 230}, {"label": "2026-05-01", "value": 28}, {"label": "2026-05-02", "value": 6}, {"label": "2026-05-03", "value": 7}, {"label": "2026-05-04", "value": 153}, {"label": "2026-05-05", "value": 77}, {"label": "2026-05-06", "value": 176}, {"label": "2026-05-07", "value": 24}, {"label": "2026-05-08", "value": 211}, {"label": "2026-05-09", "value": 31}, {"label": "2026-05-10", "value": 3}, {"label": "2026-05-11", "value": 2}, {"label": "2026-05-12", "value": 4}, {"label": "2026-05-13", "value": 4}, {"label": "2026-05-14", "value": 18}, {"label": "2026-05-15", "value": 47}, {"label": "2026-05-16", "value": 53}, {"label": "2026-05-17", "value": 9}, {"label": "2026-05-18", "value": 154}, {"label": "2026-05-19", "value": 47}, {"label": "2026-05-20", "value": 128}, {"label": "2026-05-21", "value": 19}, {"label": "2026-05-22", "value": 243}, {"label": "2026-05-23", "value": 64}, {"label": "2026-05-24", "value": 5}, {"label": "2026-05-25", "value": 140}, {"label": "2026-05-26", "value": 91}, {"label": "2026-05-27", "value": 4}, {"label": "2026-05-28", "value": 182}, {"label": "2026-05-29", "value": 32}, {"label": "2026-05-31", "value": 1}, {"label": "2026-06-01", "value": 1}, {"label": "2026-06-02", "value": 1}, {"label": "2026-06-03", "value": 1}, {"label": "2026-06-04", "value": 3}, {"label": "2026-06-05", "value": 2}, {"label": "2026-06-06", "value": 3}, {"label": "2026-06-07", "value": 1}, {"label": "2026-06-08", "value": 174}, {"label": "2026-06-09", "value": 49}, {"label": "2026-06-10", "value": 16}, {"label": "2026-06-11", "value": 21}, {"label": "2026-06-12", "value": 26}, {"label": "2026-06-13", "value": 7}, {"label": "2026-06-14", "value": 4}, {"label": "2026-06-15", "value": 1}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 0}, {"label": "2026-06-18", "value": 2}, {"label": "2026-06-19", "value": 26}, {"label": "2026-06-20", "value": 9}, {"label": "2026-06-21", "value": 1}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 1}, {"label": "2026-06-24", "value": 1}, {"label": "2026-06-25", "value": 0}, {"label": "2026-06-26", "value": 0}, {"label": "2026-06-27", "value": 1}, {"label": "2026-06-28", "value": 2}, {"label": "2026-06-30", "value": 202}, {"label": "2026-07-01", "value": 46}, {"label": "2026-07-02", "value": 156}, {"label": "2026-07-03", "value": 32}, {"label": "2026-07-04", "value": 23}, {"label": "2026-07-05", "value": 4}, {"label": "2026-07-06", "value": 3}, {"label": "2026-07-07", "value": 70}, {"label": "2026-07-08", "value": 136}, {"label": "2026-07-09", "value": 34}, {"label": "2026-07-10", "value": 9}, {"label": "2026-07-11", "value": 6}, {"label": "2026-07-12", "value": 3}, {"label": "2026-07-13", "value": 5}, {"label": "2026-07-14", "value": 33}, {"label": "2026-07-15", "value": 19}, {"label": "2026-07-16", "value": 441}, {"label": "2026-07-17", "value": 73}, {"label": "2026-07-18", "value": 54}, {"label": "2026-07-19", "value": 176}, {"label": "2026-07-20", "value": 14}]}};
 // Datos de pauta con granularidad DIARIA: permiten recalcular los KPIs y la
 // tabla de campañas para cualquier rango sin volver a llamar a la Graph API
 // (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
 const ADS = {"hasData": false};
 // Posts (organico) con su fecha, para recalcular el resumen por rango.
-const POSTS = [{"date": "2026-07-19", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-07-16", "platform": "Facebook", "engagement": 1, "reach": 0}, {"date": "2026-07-09", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-07-08", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-07-02", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-06-30", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-06-09", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-05-28", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-05-25", "platform": "Facebook", "engagement": 0, "reach": 0}, {"date": "2026-05-22", "platform": "Facebook", "engagement": 1, "reach": 0}, {"date": "2026-07-19", "platform": "Instagram", "engagement": 13, "reach": 160}, {"date": "2026-07-16", "platform": "Instagram", "engagement": 31, "reach": 517}, {"date": "2026-07-09", "platform": "Instagram", "engagement": 22, "reach": 52}, {"date": "2026-07-08", "platform": "Instagram", "engagement": 11, "reach": 63}, {"date": "2026-07-02", "platform": "Instagram", "engagement": 13, "reach": 183}, {"date": "2026-06-30", "platform": "Instagram", "engagement": 17, "reach": 166}, {"date": "2026-06-09", "platform": "Instagram", "engagement": 29, "reach": 271}, {"date": "2026-05-28", "platform": "Instagram", "engagement": 18, "reach": 250}, {"date": "2026-05-25", "platform": "Instagram", "engagement": 39, "reach": 243}, {"date": "2026-05-22", "platform": "Instagram", "engagement": 14, "reach": 337}];
+const POSTS = [{"date": "2026-07-21", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-07-19", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-07-16", "platform": "Facebook", "engagement": 1, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-07-09", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-07-08", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-07-02", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-06-30", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-06-09", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-05-28", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-05-25", "platform": "Facebook", "engagement": 0, "reach": 0, "views": 0, "profileVisits": 0}, {"date": "2026-07-21", "platform": "Instagram", "engagement": 6, "reach": 5, "views": 17, "profileVisits": 2}, {"date": "2026-07-19", "platform": "Instagram", "engagement": 13, "reach": 169, "views": 214, "profileVisits": 0}, {"date": "2026-07-16", "platform": "Instagram", "engagement": 31, "reach": 524, "views": 823, "profileVisits": 0}, {"date": "2026-07-09", "platform": "Instagram", "engagement": 22, "reach": 53, "views": 139, "profileVisits": 3}, {"date": "2026-07-08", "platform": "Instagram", "engagement": 11, "reach": 65, "views": 164, "profileVisits": 6}, {"date": "2026-07-02", "platform": "Instagram", "engagement": 13, "reach": 184, "views": 244, "profileVisits": 0}, {"date": "2026-06-30", "platform": "Instagram", "engagement": 17, "reach": 167, "views": 322, "profileVisits": 1}, {"date": "2026-06-09", "platform": "Instagram", "engagement": 29, "reach": 273, "views": 415, "profileVisits": 0}, {"date": "2026-05-28", "platform": "Instagram", "engagement": 18, "reach": 252, "views": 349, "profileVisits": 0}, {"date": "2026-05-25", "platform": "Instagram", "engagement": 39, "reach": 244, "views": 501, "profileVisits": 15}];
 
 function renderLineChart(containerId, points, color) {
   const container = document.getElementById(containerId);
@@ -1022,18 +1040,28 @@ function renderOrganicSummary(since, until) {
   const hasIg = inRange.some(p => p.platform === 'Instagram');
   const engagement = inRange.reduce((a, p) => a + (p.engagement || 0), 0);
   const reach = inRange.reduce((a, p) => a + (p.reach || 0), 0);
+  // views/profileVisits solo los reporta Instagram (Facebook Standard Access
+  // no expone reproducciones ni visitas al perfil por post).
+  const views = inRange.reduce((a, p) => a + (p.views || 0), 0);
+  const visits = inRange.reduce((a, p) => a + (p.profileVisits || 0), 0);
 
-  // Deltas vs el periodo anterior equivalente (mas posts/engagement/alcance = mejor).
+  // Deltas vs el periodo anterior equivalente (mas posts/interacciones/alcance = mejor).
   const [ps, pu] = prevPeriod(since, until);
   const prevRows = POSTS.filter(p => p.date >= ps && p.date <= pu);
   const hasPrev = prevRows.length > 0;
   const pEng = prevRows.reduce((a, p) => a + (p.engagement || 0), 0);
   const pReach = prevRows.reduce((a, p) => a + (p.reach || 0), 0);
+  const pViews = prevRows.reduce((a, p) => a + (p.views || 0), 0);
+  const pVisits = prevRows.reduce((a, p) => a + (p.profileVisits || 0), 0);
   const D = (cur, prv) => hasPrev ? { delta: deltaChip(cur, prv, true) } : {};
 
   const tiles = [kpiTile(fmtNum(inRange.length), 'Posts publicados en el periodo', D(inRange.length, prevRows.length))];
   if (hasIg) tiles.push(kpiTile(fmtNum(reach), 'Alcance total (Instagram)', D(reach, pReach)));
-  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Engagement total (FB + IG)' : 'Engagement total (Facebook)', D(engagement, pEng)));
+  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Interacciones totales (FB + IG)' : 'Interacciones totales (Facebook)', D(engagement, pEng)));
+  if (hasIg) {
+    tiles.push(kpiTile(fmtNum(views), 'Visualizaciones (Instagram)', D(views, pViews)));
+    tiles.push(kpiTile(fmtNum(visits), 'Visitas al perfil (Instagram)', D(visits, pVisits)));
+  }
   row.innerHTML = tiles.join('');
 }
 
@@ -1206,6 +1234,42 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 if (document.querySelector('.app-shell').classList.contains('pauta-only')) {
   document.querySelector('.nav-btn[data-tab="pautas"]').click();
 }
+
+// Boton "reproducir" en las tarjetas de mejor/peor anuncio: carga el video
+// REAL solo al hacer clic (no autoplay), para no pesar la pagina de entrada y
+// para que un link de Meta ya vencido solo rompa ese clic puntual, no toda
+// la tarjeta (el link del video caduca mas rapido que el de la miniatura).
+document.querySelectorAll('.creative-play-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const wrap = btn.closest('.creative-media');
+    const url = wrap && wrap.dataset.videoUrl;
+    const img = wrap && wrap.querySelector('img.creative-thumb');
+    if (!wrap || !url || !img) return;
+    const thumbSrc = img.src;
+    const video = document.createElement('video');
+    video.src = url;
+    video.controls = true;
+    video.autoplay = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.className = 'creative-thumb';
+    // Si el link del video ya vencio (mas fragil que el de la miniatura),
+    // se restaura la portada original en vez de dejar un reproductor roto.
+    video.addEventListener('error', () => {
+      const restored = document.createElement('img');
+      restored.className = 'creative-thumb';
+      restored.loading = 'lazy';
+      restored.src = thumbSrc;
+      wrap.replaceChild(restored, video);
+      const note = document.createElement('p');
+      note.className = 'creative-video-note';
+      note.textContent = 'El video ya no esta disponible (el enlace de Meta caduco). Se muestra la portada.';
+      wrap.after(note);
+    }, { once: true });
+    wrap.replaceChild(video, img);
+    btn.remove();
+  });
+});
 </script>
 </body>
 </html>

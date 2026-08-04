@@ -319,7 +319,7 @@
       <div class="brand">Pauta</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Orgánico</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
-      <p class="subtitle">Generado el 2026-08-04 16:53 UTC</p>
+      <p class="subtitle">Generado el 2026-08-04 17:18 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -626,7 +626,7 @@
         <p class="creative-spend">Inversión: $168,55 MXN</p>
       </div></div>
   </div>
-        
+        <div class="card"><h2>Métricas ideales vs. mes / rango actual</h2><p class="range-note">Comparación automática para decidir si conviene mantener o ajustar.</p><div id="ads-targets-content"></div></div>
         
   <div class="card">
     <h2>Análisis de la campaña</h2>
@@ -657,7 +657,7 @@ const POSTS = [];
 // Incluye tres meses anteriores al inicio visible exclusivamente para calcular
 // la referencia del semaforo de enero y febrero.
 const ORGANIC_HISTORY = [];
-const TARGETS = null;
+const TARGETS = {"status": "referencia_historica", "source": "Promedio de los 3 meses calendario anteriores", "organic": null, "ads": {"mode": "prior_3_calendar_months"}};
 
 function renderLineChart(containerId, points, color) {
   const container = document.getElementById(containerId);
@@ -1174,7 +1174,8 @@ function renderTargetRows(containerId, rows, note) {
   const wrap = document.getElementById(containerId);
   if (!wrap) return;
   if (!rows.length) {
-    wrap.innerHTML = '<p class="empty">No hay datos suficientes para comparar este rango.</p>';
+    wrap.innerHTML = `<p class="empty">No hay datos suficientes para comparar este rango.</p>
+      <p class="range-note">${escapeHtml(note)}</p>`;
     return;
   }
   wrap.innerHTML = `<div class="table-wrap"><table class="target-table">
@@ -1227,29 +1228,77 @@ function renderOrganicTargets(since, until) {
 }
 
 function renderAdsTargets(since, until) {
-  if (!TARGETS || !TARGETS.ads || !ADS.hasData) return;
+  if (!TARGETS || !TARGETS.ads) return;
+  if (!ADS.hasData) {
+    const wrap = document.getElementById('ads-targets-content');
+    if (wrap) wrap.innerHTML = '<p class="empty">Sin actividad de pauta o sin datos suficientes en el periodo.</p>';
+    return;
+  }
   const a = isFullRange(since, until) ? ADS.totals : aggregate(ADS.daily, since, until);
   const cfg = TARGETS.ads;
   const days = Math.max(1, Math.round((new Date(until) - new Date(since)) / 86400000) + 1);
-  const budgetTarget = cfg.monthly_budget ? cfg.monthly_budget * days / 30 : null;
-  const resultTarget = budgetTarget && cfg.cost_per_result_max ? budgetTarget / cfg.cost_per_result_max : null;
+  let budgetTarget = cfg.monthly_budget ? cfg.monthly_budget * days / 30 : null;
+  let resultTarget = budgetTarget && cfg.cost_per_result_max ? budgetTarget / cfg.cost_per_result_max : null;
+  let cprTarget = cfg.cost_per_result_max;
+  let ctrTarget = cfg.ctr_min;
+  let cpcTarget = cfg.cpc_max;
+  let cpmTarget = cfg.cpm_max;
+  let targetSource = `Presupuesto y resultados se prorratean a ${days} días; CTR, CPC y CPM requieren validación de Paid Media.`;
+
+  if (cfg.mode === 'prior_3_calendar_months') {
+    const start = new Date(since + 'T00:00:00');
+    const historical = [];
+    for (let i = 1; i <= 3; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth() - i, 1);
+      const y = d.getFullYear(), month = d.getMonth();
+      const m = String(month + 1).padStart(2, '0');
+      const lastDay = new Date(y, month + 1, 0).getDate();
+      const periodStart = `${y}-${m}-01`;
+      const periodEnd = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
+      const hasCoverage = ADS.daily.some(row => row.date >= periodStart && row.date <= periodEnd);
+      if (!hasCoverage) continue;
+      const value = aggregate(ADS.daily, periodStart, periodEnd);
+      historical.push({
+        ...value,
+        spendPerDay: value.spend / lastDay,
+        resultsPerDay: value.results / lastDay,
+      });
+    }
+    if (historical.length >= 2) {
+      const mean = key => historical.reduce((sum, item) => sum + (Number(item[key]) || 0), 0) / historical.length;
+      budgetTarget = mean('spendPerDay') * days;
+      resultTarget = mean('resultsPerDay') * days;
+      const validMean = key => {
+        const values = historical.map(item => item[key]).filter(value => value != null);
+        return values.length >= 2 ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+      };
+      cprTarget = validMean('costPerResult');
+      ctrTarget = validMean('ctr');
+      cpcTarget = validMean('cpc');
+      cpmTarget = validMean('cpm');
+      targetSource = `${historical.length} meses calendario anteriores de la misma cuenta; inversión y resultados normalizados a ${days} días.`;
+    } else {
+      budgetTarget = resultTarget = cprTarget = ctrTarget = cpcTarget = cpmTarget = null;
+      targetSource = 'Se necesitan al menos 2 meses anteriores con entrega para construir una referencia histórica.';
+    }
+  }
   const money = value => fmtMoney(value);
   const rows = [
     { label: ADS.resultLabel || 'Resultados', actual:a.results, target:resultTarget, direction:'min', tolerance:.10, format:fmtNum,
-      reading: cls => cls === 'green' ? 'El volumen esperado se está cumpliendo.' : cls === 'yellow' ? 'Volumen ligeramente debajo; vigilar el costo.' : 'Revisar entrega, creatividad y conversión.' },
-    { label:'Costo por resultado', actual:a.costPerResult, target:cfg.cost_per_result_max, direction:'max', tolerance:.10, format:money,
+      reading: cls => !cls ? 'No hay dato actual para evaluar el volumen.' : cls === 'green' ? 'El volumen esperado se está cumpliendo.' : cls === 'yellow' ? 'Volumen ligeramente debajo; vigilar el costo.' : 'Revisar entrega, creatividad y conversión.' },
+    { label:'Costo por resultado', actual:a.costPerResult, target:cprTarget, direction:'max', tolerance:.10, format:money,
       reading: cls => !cls ? 'Aún no hay resultados para calcular el costo.' : cls === 'green' ? 'Costo dentro del objetivo configurado.' : cls === 'yellow' ? 'Costo cercano al límite.' : 'Prioridad: reducir el costo por conversación.' },
     { label:'Inversión acumulada', actual:a.spend, target:budgetTarget, direction:'range', tolerance:.10, format:money,
-      reading: cls => cls === 'green' ? 'Ritmo de inversión dentro de la banda ±10%.' : 'Revisar subentrega, sobreconsumo o distribución del presupuesto.' },
-    { label:'CTR', actual:a.ctr, target:cfg.ctr_min, direction:'min', tolerance:.10, format:fmtPct,
-      reading: cls => cls === 'green' ? 'Los anuncios generan interés suficiente.' : cls === 'yellow' ? 'Interés cerca de la referencia.' : 'Probar nuevos hooks, copies o creativos.' },
-    { label:'CPC', actual:a.cpc, target:cfg.cpc_max, direction:'max', tolerance:.10, format:money,
-      reading: cls => cls === 'green' ? 'Costo de tráfico controlado.' : cls === 'yellow' ? 'Costo de tráfico cerca del límite.' : 'Revisar CTR, segmentación y calidad creativa.' },
-    { label:'CPM', actual:a.cpm, target:cfg.cpm_max, direction:'max', tolerance:.10, format:money,
-      reading: cls => cls === 'green' ? 'Costo de exposición controlado.' : cls === 'yellow' ? 'Costo de exposición cerca del límite.' : 'Revisar audiencia, competencia y ubicaciones.' },
+      reading: cls => !cls ? 'No hay inversión actual para comparar.' : cls === 'green' ? 'Ritmo de inversión dentro de la banda ±10%.' : 'Revisar subentrega, sobreconsumo o distribución del presupuesto.' },
+    { label:'CTR', actual:a.ctr, target:ctrTarget, direction:'min', tolerance:.10, format:fmtPct,
+      reading: cls => !cls ? 'Sin impresiones suficientes para calcular CTR.' : cls === 'green' ? 'Los anuncios generan interés suficiente.' : cls === 'yellow' ? 'Interés cerca de la referencia.' : 'Probar nuevos hooks, copies o creativos.' },
+    { label:'CPC', actual:a.cpc, target:cpcTarget, direction:'max', tolerance:.10, format:money,
+      reading: cls => !cls ? 'Sin clics suficientes para calcular CPC.' : cls === 'green' ? 'Costo de tráfico controlado.' : cls === 'yellow' ? 'Costo de tráfico cerca del límite.' : 'Revisar CTR, segmentación y calidad creativa.' },
+    { label:'CPM', actual:a.cpm, target:cpmTarget, direction:'max', tolerance:.10, format:money,
+      reading: cls => !cls ? 'Sin impresiones suficientes para calcular CPM.' : cls === 'green' ? 'Costo de exposición controlado.' : cls === 'yellow' ? 'Costo de exposición cerca del límite.' : 'Revisar audiencia, competencia y ubicaciones.' },
   ].filter(r => r.target != null);
   renderTargetRows('ads-targets-content', rows,
-    `Referencias de piloto para Party Ride. Presupuesto y resultados se prorratean a ${days} días; CTR, CPC y CPM requieren validación de Paid Media.`);
+    `${cfg.mode === 'prior_3_calendar_months' ? 'Referencia histórica propia' : 'Referencias de piloto para Party Ride'}: ${targetSource}`);
 }
 
 function escapeHtml(value) {

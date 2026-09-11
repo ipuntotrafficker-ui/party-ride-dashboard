@@ -249,6 +249,7 @@
   .creative-name { font-size: 13px; font-weight: 600; margin: 0 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .creative-metric { font-size: 13px; color: var(--text-primary); font-weight: 600; margin: 0 0 3px; }
   .creative-spend { font-size: 12px; color: var(--text-secondary); margin: 0; }
+  .creative-campaign { font-size: 11px; color: var(--text-muted); margin: 3px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .organic-performance-group { margin-bottom: 18px; }
   .organic-performance-group:last-child { margin-bottom: 0; }
   .organic-performance-title {
@@ -319,7 +320,7 @@
       <div class="brand">Insights organicos</div>
       <button class="nav-btn active" data-tab="dashboard" type="button">Orgánico</button>
       <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
-      <p class="subtitle">Generado el 2026-09-11 18:58 UTC</p>
+      <p class="subtitle">Generado el 2026-09-11 19:43 UTC</p>
     </nav>
     <main class="content">
       <section id="tab-dashboard" class="tab-panel active">
@@ -398,7 +399,7 @@
       </thead>
       <tbody>
         <tr data-date="2026-04-09">
-          <td><img class="thumb" src="https://scontent.fpbc1-1.fna.fbcdn.net/v/t39.30808-6/670492649_122183364098752511_4439403393714212335_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zn3Wqmn55bwQ7kNvwHBbOcw&_nc_oc=AdoYIzX5fVOZpg1IqLQZTxov6rQCyMVhs2nT3ctdJZWLVOuXZhbgavYIWW-iVxdc5de-SxSESkCpS1XqfE-WciVT&_nc_zt=23&_nc_ht=scontent.fpbc1-1.fna&edm=AKIiGfEEAAAA&_nc_gid=wyHIivn4nPfPBJ5mCYxvlQ&_nc_tpa=Q5bMBQKrPgReW2HLcKd2YmWUCguy9fR5vJoCfGb2ZsBkna50yYGvfWMt5eelq6KcrDlJ8sl27TphAnulMw&oh=00_AQIOEV8Dz08mo9Ndb4dQ0MmGLlasSDUonJdvTgvHtvrCPQ&oe=6AAA193C" loading="lazy" /></td>
+          <td><img class="thumb" src="https://scontent.fpbc1-1.fna.fbcdn.net/v/t39.30808-6/670492649_122183364098752511_4439403393714212335_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zn3Wqmn55bwQ7kNvwHBbOcw&_nc_oc=AdoYIzX5fVOZpg1IqLQZTxov6rQCyMVhs2nT3ctdJZWLVOuXZhbgavYIWW-iVxdc5de-SxSESkCpS1XqfE-WciVT&_nc_zt=23&_nc_ht=scontent.fpbc1-1.fna&edm=AKIiGfEEAAAA&_nc_gid=XVL8jJ3VjIzmijNiVybTNg&_nc_tpa=Q5bMBQIqe7nHRIDnZo2iHFgHF4LGwsoMaTILnR8pAijmzk-u9zPCqkfedi9qK_LvRoonKOvPigYl8gERaQ&oh=00_AQK3NIzYND6osheIAoRKnjM2xBuOHly2VYxYjetklQ5tsA&oe=6AAA193C" loading="lazy" /></td>
           <td><span class="dot fb"></span> Facebook</td>
           <td class="post-caption" title="Abril llegó para recordarte algo: también mereces verte y sentirte espectacular ">Abril llegó para recordarte algo: también mereces verte y sentirte espectacular </td>
           <td>2026-04-09</td>
@@ -582,10 +583,10 @@ const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026
 // (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
 const ADS = {"hasData": false, "fullRange": {"since": "2026-01-01", "until": "2026-09-11"}};
 // Posts (organico) con su fecha, para recalcular el resumen por rango.
-const POSTS = [{"date": "2026-04-09", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "Abril llegó para recordarte algo: también mereces verte y sentirte espectacular ", "thumbnail": "https://scontent.fpbc1-1.fna.fbcdn.net/v/t39.30808-6/670492649_122183364098752511_4439403393714212335_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zn3Wqmn55bwQ7kNvwHBbOcw&_nc_oc=AdoYIzX5fVOZpg1IqLQZTxov6rQCyMVhs2nT3ctdJZWLVOuXZhbgavYIWW-iVxdc5de-SxSESkCpS1XqfE-WciVT&_nc_zt=23&_nc_ht=scontent.fpbc1-1.fna&edm=AKIiGfEEAAAA&_nc_gid=wyHIivn4nPfPBJ5mCYxvlQ&_nc_tpa=Q5bMBQKrPgReW2HLcKd2YmWUCguy9fR5vJoCfGb2ZsBkna50yYGvfWMt5eelq6KcrDlJ8sl27TphAnulMw&oh=00_AQIOEV8Dz08mo9Ndb4dQ0MmGLlasSDUonJdvTgvHtvrCPQ&oe=6AAA193C", "permalink": "https://www.facebook.com/122194902014752511/posts/122183365208752511", "format": "Publicacion"}];
+const POSTS = [{"date": "2026-04-09", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "Abril llegó para recordarte algo: también mereces verte y sentirte espectacular ", "thumbnail": "https://scontent.fpbc1-1.fna.fbcdn.net/v/t39.30808-6/670492649_122183364098752511_4439403393714212335_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zn3Wqmn55bwQ7kNvwHBbOcw&_nc_oc=AdoYIzX5fVOZpg1IqLQZTxov6rQCyMVhs2nT3ctdJZWLVOuXZhbgavYIWW-iVxdc5de-SxSESkCpS1XqfE-WciVT&_nc_zt=23&_nc_ht=scontent.fpbc1-1.fna&edm=AKIiGfEEAAAA&_nc_gid=XVL8jJ3VjIzmijNiVybTNg&_nc_tpa=Q5bMBQIqe7nHRIDnZo2iHFgHF4LGwsoMaTILnR8pAijmzk-u9zPCqkfedi9qK_LvRoonKOvPigYl8gERaQ&oh=00_AQK3NIzYND6osheIAoRKnjM2xBuOHly2VYxYjetklQ5tsA&oe=6AAA193C", "permalink": "https://www.facebook.com/122194902014752511/posts/122183365208752511", "format": "Publicacion"}];
 // Incluye tres meses anteriores al inicio visible exclusivamente para calcular
 // la referencia del semaforo de enero y febrero.
-const ORGANIC_HISTORY = [{"date": "2026-04-09", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "Abril llegó para recordarte algo: también mereces verte y sentirte espectacular ", "thumbnail": "https://scontent.fpbc1-1.fna.fbcdn.net/v/t39.30808-6/670492649_122183364098752511_4439403393714212335_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zn3Wqmn55bwQ7kNvwHBbOcw&_nc_oc=AdoYIzX5fVOZpg1IqLQZTxov6rQCyMVhs2nT3ctdJZWLVOuXZhbgavYIWW-iVxdc5de-SxSESkCpS1XqfE-WciVT&_nc_zt=23&_nc_ht=scontent.fpbc1-1.fna&edm=AKIiGfEEAAAA&_nc_gid=wyHIivn4nPfPBJ5mCYxvlQ&_nc_tpa=Q5bMBQKrPgReW2HLcKd2YmWUCguy9fR5vJoCfGb2ZsBkna50yYGvfWMt5eelq6KcrDlJ8sl27TphAnulMw&oh=00_AQIOEV8Dz08mo9Ndb4dQ0MmGLlasSDUonJdvTgvHtvrCPQ&oe=6AAA193C", "permalink": "https://www.facebook.com/122194902014752511/posts/122183365208752511", "format": "Publicacion"}];
+const ORGANIC_HISTORY = [{"date": "2026-04-09", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "Abril llegó para recordarte algo: también mereces verte y sentirte espectacular ", "thumbnail": "https://scontent.fpbc1-1.fna.fbcdn.net/v/t39.30808-6/670492649_122183364098752511_4439403393714212335_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zn3Wqmn55bwQ7kNvwHBbOcw&_nc_oc=AdoYIzX5fVOZpg1IqLQZTxov6rQCyMVhs2nT3ctdJZWLVOuXZhbgavYIWW-iVxdc5de-SxSESkCpS1XqfE-WciVT&_nc_zt=23&_nc_ht=scontent.fpbc1-1.fna&edm=AKIiGfEEAAAA&_nc_gid=XVL8jJ3VjIzmijNiVybTNg&_nc_tpa=Q5bMBQIqe7nHRIDnZo2iHFgHF4LGwsoMaTILnR8pAijmzk-u9zPCqkfedi9qK_LvRoonKOvPigYl8gERaQ&oh=00_AQK3NIzYND6osheIAoRKnjM2xBuOHly2VYxYjetklQ5tsA&oe=6AAA193C", "permalink": "https://www.facebook.com/122194902014752511/posts/122183365208752511", "format": "Publicacion"}];
 const TARGETS = {"status": "referencia_historica", "source": "Promedio de los 3 meses calendario anteriores", "organic": {"mode": "prior_3_calendar_months"}, "ads": {"mode": "prior_3_calendar_months"}};
 
 function renderLineChart(containerId, points, color) {

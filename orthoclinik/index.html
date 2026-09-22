@@ -1,0 +1,1931 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Insights organicos - Meta</title>
+<style>
+  :root {
+    /* Paleta de marca i.punto Marketing Digital: negro + amarillo del logo. */
+    --surface-1:      #161616;
+    --page-plane:     #0a0a0a;
+    --text-primary:   #ffffff;
+    --text-secondary: #b9b8b2;
+    --text-muted:     #8a8a83;
+    --gridline:       #2a2a2a;
+    --baseline:       #3a3a3a;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #f4dc00;
+    --accent-contrast:#0a0a0a;
+    --fb:             #3987e5;
+    --ig:             #199e70;
+    --positive:       #199e70;
+    --warning:        #e0a349;
+    --negative:       #e5534b;
+    /* Acentos multicolor para los tiles y graficas (sobre la base negro+amarillo
+       de i.punto), para el look dinamico tipo dashboard de agencia. */
+    --c-purple:       #8b5cf6;
+    --c-blue:         #3987e5;
+    --c-teal:         #2dd4bf;
+    --c-pink:         #ff7a90;
+    --c-green:        #199e70;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .app-shell { display: flex; align-items: flex-start; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .content { flex: 1; min-width: 0; padding: 24px; }
+  .brand { font-size: 15px; font-weight: 600; margin: 0 0 16px; padding: 0 12px; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left; background: transparent; border: none;
+    color: var(--text-secondary); padding: 10px 12px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; margin-bottom: 4px; font-family: inherit;
+  }
+  .nav-btn:hover { background: var(--page-plane); }
+  .nav-btn.active { background: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+  .nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin: 20px 0 0; padding: 0 12px; }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 14px; display:flex; align-items:center; gap:8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+  .dot.fb { background: var(--fb); }
+  .dot.ig { background: var(--ig); }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi {
+    position: relative; overflow: hidden;
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 16px 16px;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .kpi:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.22); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+  /* Barra de acento superior que cicla colores para el look multicolor. */
+  .kpi::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); }
+  .kpi-row .kpi:nth-child(6n+1)::before { background: var(--accent); }
+  .kpi-row .kpi:nth-child(6n+2)::before { background: var(--c-purple); }
+  .kpi-row .kpi:nth-child(6n+3)::before { background: var(--c-teal); }
+  .kpi-row .kpi:nth-child(6n+4)::before { background: var(--c-blue); }
+  .kpi-row .kpi:nth-child(6n+5)::before { background: var(--c-pink); }
+  .kpi-row .kpi:nth-child(6n+6)::before { background: var(--c-green); }
+  .kpi .value { font-size: 30px; font-weight: 700; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+  .kpi .label { font-size: 11px; color: var(--text-secondary); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .kpi .note { font-size: 10px; color: var(--text-muted); margin-top: 6px; display: block; line-height: 1.4; }
+  .network-title { font-size: 15px; margin: 24px 0 12px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+  .delta {
+    display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700;
+    margin-top: 8px; border-radius: 999px; padding: 2px 8px; font-variant-numeric: tabular-nums;
+  }
+  .delta.up { color: var(--positive); background: rgba(25,158,112,0.15); }
+  .delta.down { color: var(--negative); background: rgba(229,83,75,0.15); }
+  .delta.flat { color: var(--text-muted); background: rgba(255,255,255,0.06); }
+  .delta-legend { color: var(--text-muted); font-size: 11px; margin: -8px 0 16px; padding: 0 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--gridline); }
+  .post-caption { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  a.permalink { color: var(--accent); text-decoration: none; }
+  .chart-wrap { position: relative; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
+    font-size: 11px; padding: 4px 8px; border-radius: 6px; opacity: 0; transform: translate(-50%, -120%);
+    white-space: nowrap; transition: opacity 0.1s;
+  }
+  .empty { color: var(--text-muted); font-size: 13px; }
+  /* Marcas solo-pauta (el token no administra su Pagina): no hay nada organico
+     que enseñar, asi que se oculta la pestaña Organico en vez de dejarla vacia.
+     (Las recomendaciones ahora viven DENTRO de la pestaña Organico.) */
+  .app-shell.pauta-only .nav-btn[data-tab="dashboard"],
+  .app-shell.pauta-only #tab-dashboard { display: none; }
+  .range-note {
+    color: var(--text-muted); font-size: 12px; line-height: 1.5;
+    margin: -6px 0 18px; padding: 0 4px;
+  }
+  .kpi .value.na { color: var(--text-muted); }
+  .date-filter { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px; }
+  .date-range-picker { position: relative; }
+  .date-pill {
+    background: var(--page-plane); color: var(--text-primary); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 14px; font-size: 13px; font-family: inherit; cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-pill:hover { border-color: var(--accent); }
+  #filter-reset {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  #filter-reset:hover { background: var(--accent); color: var(--accent-contrast); }
+  .calendar-popup {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .calendar-header button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 6px; line-height: 1;
+  }
+  .calendar-header button:hover { background: var(--page-plane); }
+  .calendar-header span { font-size: 13px; font-weight: 600; }
+  .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .calendar-weekdays span { font-size: 10px; color: var(--text-muted); padding: 4px 0; }
+  .calendar-grid button {
+    background: transparent; border: none; color: var(--text-primary); font-size: 12px;
+    padding: 6px 0; border-radius: 6px; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .calendar-grid button:hover:not(:disabled) { background: var(--page-plane); }
+  .calendar-grid button:disabled { color: var(--text-muted); opacity: 0.35; cursor: default; }
+  /* !important: estas dos marcan el estado de seleccion vigente y no deben
+     desaparecer si el mouse queda posicionado encima (:hover tiene mas
+     especificidad que una sola clase de estado). */
+  .calendar-grid button.in-range { background: rgba(244,220,0,0.15) !important; }
+  .calendar-grid button.range-endpoint {
+    background: var(--accent) !important; color: var(--accent-contrast) !important; font-weight: 700;
+  }
+  .calendar-hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; text-align: center; min-height: 14px; }
+  .section-title { font-size: 18px; margin: 30px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  /* Pauta: banner de la campaña ACTIVA (estado en vivo de Meta) */
+  .active-banner {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: linear-gradient(90deg, rgba(25,158,112,0.16), transparent);
+    border: 1px solid rgba(25,158,112,0.35); border-left: 4px solid var(--positive);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;
+  }
+  .active-banner.none { background: none; border-color: var(--border); border-left-color: var(--baseline); }
+  .active-banner .pulse {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--positive); flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(25,158,112,0.6); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(25,158,112,0.6); }
+    70% { box-shadow: 0 0 0 9px rgba(25,158,112,0); }
+    100% { box-shadow: 0 0 0 0 rgba(25,158,112,0); }
+  }
+  .active-banner .ab-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .active-banner .ab-names { font-size: 15px; font-weight: 700; }
+  .active-chip {
+    background: rgba(25,158,112,0.18); color: var(--positive); border-radius: 999px;
+    padding: 3px 11px; font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  /* Pauta: dona + barras lado a lado */
+  .mini-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .mini-title { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: var(--text-secondary); }
+  .donut-legend { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12px; }
+  .donut-legend li { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .donut-legend .sw { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .donut-legend .lg-val { margin-left: auto; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar-row { margin-bottom: 11px; }
+  .bar-head { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; margin-bottom: 4px; }
+  .bar-head .bar-val { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+  .bar-track { background: var(--page-plane); border-radius: 5px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 5px; }
+  /* Pauta: tarjeta de diagnostico (analisis de la campaña) */
+  .diag-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .diag-sem { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; }
+  .diag-sem .dot { width: 12px; height: 12px; }
+  .sem-Rojo { color: #e5534b; } .sem-Rojo .dot { background: #e5534b; }
+  .sem-Amarillo { color: var(--warning); } .sem-Amarillo .dot { background: var(--warning); }
+  .sem-Verde { color: var(--positive); } .sem-Verde .dot { background: var(--positive); }
+  .sem-none { color: var(--text-muted); } .sem-none .dot { background: var(--text-muted); }
+  .diag-badge { font-size: 11px; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+  .diag-summary { font-size: 13px; color: var(--text-primary); margin: 0 0 14px; line-height: 1.55; }
+  .diag-anoms { margin: 0 0 14px; padding: 0; list-style: none; }
+  .diag-anoms li { font-size: 13px; color: var(--text-secondary); padding: 7px 0 7px 20px; position: relative; border-bottom: 1px solid var(--gridline); }
+  .diag-anoms li:before { content: "⚠"; position: absolute; left: 0; }
+  .diag-anoms b { color: var(--text-primary); font-weight: 600; }
+  .diag-rec { border: 1px solid var(--border); border-radius: 10px; padding: 4px 14px; margin: 0 0 14px; }
+  .diag-rec table { width: 100%; }
+  .diag-rec td { border-bottom: 1px solid var(--gridline); font-size: 13px; }
+  .diag-rec td.k { color: var(--text-muted); width: 130px; }
+  .diag-evidence { font-size: 12px; color: var(--text-muted); white-space: pre-line; margin: 10px 0 0; line-height: 1.5; }
+  /* Pauta: tarjetas de mejor/peor anuncio (creativo) */
+  .creative-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .creative-card { border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+  .creative-card.best { border-color: rgba(25,158,112,0.4); background: rgba(25,158,112,0.06); }
+  .creative-card.worst { border-color: rgba(229,83,75,0.4); background: rgba(229,83,75,0.06); }
+  .creative-badge { display: inline-block; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+  .creative-card.best .creative-badge { color: var(--positive); }
+  .creative-card.worst .creative-badge { color: var(--negative); }
+  .creative-thumb {
+    width: 100%; height: 140px; object-fit: cover; border-radius: 8px;
+    background: var(--gridline); display: block; margin-bottom: 10px;
+  }
+  .creative-media { position: relative; margin-bottom: 10px; }
+  .creative-media .creative-thumb { margin-bottom: 0; }
+  .creative-play-btn {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(10,10,10,0.72); color: var(--text-primary); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .creative-play-btn:hover { background: var(--accent); color: var(--accent-contrast); transform: translate(-50%, -50%) scale(1.08); }
+  .creative-video-note { font-size: 11px; color: var(--text-muted); margin: 0 0 10px; }
+  .creative-format { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 3px; }
+  .creative-name { font-size: 13px; font-weight: 600; margin: 0 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .creative-metric { font-size: 13px; color: var(--text-primary); font-weight: 600; margin: 0 0 3px; }
+  .creative-spend { font-size: 12px; color: var(--text-secondary); margin: 0; }
+  .creative-campaign { font-size: 11px; color: var(--text-muted); margin: 3px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .organic-performance-group { margin-bottom: 18px; }
+  .organic-performance-group:last-child { margin-bottom: 0; }
+  .organic-performance-title {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
+    color: var(--text-secondary); font-size: 13px; font-weight: 700;
+  }
+  .organic-performance-card .creative-name { white-space: normal; line-height: 1.4; }
+  .organic-performance-card .creative-metric { line-height: 1.5; }
+  .organic-performance-card .score {
+    color: var(--text-muted); font-size: 11px; font-weight: 500; margin-left: 6px;
+  }
+  .health-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .health-head h2 { margin-bottom: 3px; }
+  .health-period { color: var(--text-muted); font-size: 12px; margin: 0; }
+  .health-badge {
+    display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
+    padding: 5px 12px; font-size: 12px; font-weight: 700;
+  }
+  .health-badge.green { color: var(--positive); background: rgba(25,158,112,0.15); }
+  .health-badge.yellow { color: var(--warning); background: rgba(224,163,73,0.15); }
+  .health-badge.red { color: var(--negative); background: rgba(229,83,75,0.15); }
+  .health-badge.gray { color: var(--text-muted); background: rgba(255,255,255,0.06); }
+  .health-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+  .health-layout { display: grid; grid-template-columns: minmax(150px,.65fr) minmax(360px,2fr); gap: 18px; }
+  .health-score {
+    display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+  }
+  .health-score-label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
+  .health-score-value { font-size: 38px; font-weight: 700; line-height: 1.15; }
+  .health-score-value small { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+  .health-score-change { color: var(--text-secondary); font-size: 12px; margin-top: 5px; }
+  .health-metric {
+    display: grid; grid-template-columns: minmax(145px,1.4fr) .8fr .9fr .65fr;
+    gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--gridline);
+    font-size: 12px;
+  }
+  .health-metric:last-child { border-bottom: none; }
+  .health-metric.head { color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
+  .health-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .health-diagnosis {
+    margin: 16px 0 0; padding: 10px 12px; border-left: 3px solid var(--baseline);
+    background: rgba(255,255,255,.025); color: var(--text-secondary); font-size: 13px; line-height: 1.5;
+  }
+  .health-diagnosis.green { border-left-color: var(--positive); }
+  .health-diagnosis.yellow { border-left-color: var(--warning); }
+  .health-diagnosis.red { border-left-color: var(--negative); }
+  .target-table td, .target-table th { vertical-align: middle; }
+  .target-status { display:inline-flex; align-items:center; gap:7px; font-weight:700; }
+  .target-status .dot { width:9px; height:9px; border-radius:50%; background:var(--text-muted); }
+  .target-status.green .dot { background:var(--positive); }
+  .target-status.yellow .dot { background:var(--warning); }
+  .target-status.red .dot { background:var(--negative); }
+  .target-reading { color:var(--text-secondary); line-height:1.45; }
+  @media (max-width: 720px) {
+    .health-layout { grid-template-columns: 1fr; }
+    .health-metric { grid-template-columns: minmax(120px,1.2fr) .8fr .8fr; }
+    .health-metric > :last-child { grid-column: 2 / 4; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-shell ">
+    <nav class="sidebar">
+      <div class="brand">Insights organicos</div>
+      <button class="nav-btn active" data-tab="dashboard" type="button">Orgánico</button>
+      <button class="nav-btn" data-tab="pautas" type="button">Pauta</button>
+      <p class="subtitle">Generado el 2026-09-22 20:43 UTC</p>
+    </nav>
+    <main class="content">
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="filter-trigger" class="date-pill"></button>
+            <div id="calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="cal-month-label"></span>
+                <button type="button" id="cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="cal-grid" class="calendar-grid"></div>
+              <p id="cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="filter-reset" type="button">Ver todo</button>
+        </div>
+
+        <h1 class="section-title" style="margin-top:0;padding-top:0;border-top:none;">Métricas de interacción</h1>
+        <div class="kpi-row" id="organic-summary-row"><div class="kpi"><div class="value">30</div><div class="label">Posts publicados en el periodo</div></div><div class="kpi"><div class="value">42.057</div><div class="label">Alcance total (Instagram)</div></div><div class="kpi"><div class="value">2.274</div><div class="label">Interacciones totales (FB + IG)</div></div><div class="kpi"><div class="value">80.350</div><div class="label">Visualizaciones (Instagram)</div></div><div class="kpi"><div class="value">507</div><div class="label">Visitas al perfil (Instagram)</div></div><div class="kpi"><div class="value">Febrero 2026</div><div class="label">Mejor mes</div></div><div class="kpi"><div class="value">Junio 2026</div><div class="label">Mes mas flojo</div></div></div>
+        <p class="delta-legend">Los indicadores ▲▼ comparan cada métrica contra el periodo anterior de la misma duración (aparecen al elegir un rango).</p>
+        <p class="range-note">Los totales de arriba siguen el rango de fechas elegido.
+        El desglose mensual analiza siempre el periodo completo.</p>
+
+        <h2 class="network-title"><span class="dot fb"></span>Facebook</h2>
+        <div class="kpi-row"><div class="kpi"><div class="value">1.068</div><div class="label">Fans actuales - Ortho Klinic Rehab (hoy)</div></div><div class="kpi"><div class="value na">N/D</div><div class="label">Seguidores ganados - Ortho Klinic Rehab</div><span class="note">Requiere Advanced Access de Meta (App Review) para page_fan_adds.</span></div></div>
+
+        <h2 class="network-title"><span class="dot ig"></span>Instagram</h2>
+        <div class="kpi-row"><div class="kpi"><div class="value">6.110</div><div class="label">Seguidores actuales - @orthoklinicfisio (hoy)</div></div><div class="kpi"><div class="value">+46</div><div class="label">Seguidores ganados - @orthoklinicfisio</div><span class="note">Ultimos 30 dias (ventana fija de Meta, no sigue el filtro de fechas).</span></div></div>
+
+        
+  <div class="card">
+    <h2><span class="dot fb"></span>Ortho Klinic Rehab (Facebook) - engagement diario</h2>
+    <div class="chart-wrap"><div id="fb_chart_0"></div></div>
+  </div>
+  <div class="card">
+    <h2><span class="dot ig"></span>@orthoklinicfisio (Instagram) - alcance diario</h2>
+    <div class="chart-wrap"><div id="ig_chart_0"></div></div>
+  </div>
+
+        
+        <div class="card"><h2>Métricas ideales vs. mes / rango actual</h2><p class="range-note">Comparación automática para decidir si conviene mantener o ajustar.</p><div id="organic-targets-content"></div></div>
+
+        <div class="card" id="organic-performance-section">
+          <h2>Mejor y peor contenido por plataforma</h2>
+          <p class="range-note">La evaluación combina las métricas disponibles de cada publicación dentro del rango seleccionado. El puntaje es comparativo dentro de cada plataforma.</p>
+          <div id="organic-performance-cards"></div>
+        </div>
+
+        
+  <div class="card">
+    <h2>Posts (ordenados por alcance)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th></th><th>Plataforma</th><th>Contenido</th><th>Fecha</th>
+          <th class="num">Alcance</th><th class="num">Interacciones</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-date="2026-09-16">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/808431086_18111845192032090_1579705378017688576_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=-1D1ct3dJaMQ7kNvwGLintL&_nc_oc=Ado_E41l9tHR12-yvNLivzuUBsfUewkcQRHXNXo-8KMNNA_moa0xMwi40zW8tB3jZFc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQLjhsBid3LELPa3-bZtili0X4dcK82Mp-1rr_W9nolB9g&oe=6AB8BA94" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🇲🇽 ¡Hoy se juega a la mexicana! 🃏
+
+En ORTHOKLINIC celebramos este 15 de septiemb">🇲🇽 ¡Hoy se juega a la mexicana! 🃏
+
+En ORTHOKLINIC celebramos este 15 de septiemb</td>
+          <td>2026-09-16</td>
+          <td class="num">11.081</td>
+          <td class="num">1.294</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DdU9jv9jKHj/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-02-16">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/629736828_18090642839032090_2449422601192253039_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=Ac9sf0TgBOsQ7kNvwHgtXs9&_nc_oc=AdpdkatZMhESExtMXis6Yw9u1Vw2wcZKNFSC1jSyvXwJZ1Q0k6FH4Q5OtZUYlIfO0zs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQL4CBlKdOjnfT1atrVEXOA4nm5CM25ea2FHvyKWX5LszA&oe=6AB8CC12" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia ">El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia </td>
+          <td>2026-02-16</td>
+          <td class="num">6.683</td>
+          <td class="num">148</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DU1DLVsiRUV/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/728606783_18103570328032090_4668215454861155282_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Thsk16EbEGYQ7kNvwFOJbfK&_nc_oc=Adr6wY7dYE3LEK4QlMBQU1P6zTgaYb0mNq74gIkyl4-3nRyG3QgWR3ghlHWciwY1ifg&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQI8Q1wizxSkTc-wVGnxOQnT_DVw4uBfndTViOXTvbKSiqiPYV2Y3_wKMjB3xE1I3tdO3gUR6d6dvA&oh=00_AQLpfU1evWs25a3mX0hmdxO68lUG7ff3bPK_GgJKb7CaIQ&oe=6AB8C8DC" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+">🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+</td>
+          <td>2026-06-23</td>
+          <td class="num">5.209</td>
+          <td class="num">142</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DZ8KW7Jpqtw/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-02-13">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.71878-15/626297638_25518874894475323_336936166274682174_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Bc78IW72xPQQ7kNvwGDY9mm&_nc_oc=Adp2ygCvWw925m0b71er9rXKQjgebQc6_T_1tUrQ3z_BYJo3bh6FA5zgpaFWjwsjJWw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQLGx_m6lys-mLtWEb3--rWQN1rXkZMeVV-Q8lU7WZM_7uKL1TuQbh3WE_oNXbu2P2_4peoVk6oAyg&oh=00_AQJBxSBGGptXAPe8wpRjdT-TMYC65_yoa1kEBUJfC2fQUQ&oe=6AB8BBA0" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.
+
+Este ">Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.
+
+Este </td>
+          <td>2026-02-13</td>
+          <td class="num">3.412</td>
+          <td class="num">67</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DUrVQuxDCpo/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-02-23">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/642139635_18091197461032090_4676945124013452329_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=ltAdrh122mAQ7kNvwG1NwQQ&_nc_oc=AdqXpVFmKMOEsulbsVav5T1x-RZpJxIxzcFSAKzPvKu0JXKDN9LZFLRq8tr_CySjk0s&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQIXZ6UAQXFrGKgaM7Ge43ewRLH9qU4--k-OabhcpOWVlQ&oe=6AB8D3C4" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="⚠️🚨 AVISO 🚨⚠️">⚠️🚨 AVISO 🚨⚠️</td>
+          <td>2026-02-23</td>
+          <td class="num">3.041</td>
+          <td class="num">64</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DVFcf39jKzl/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-01-01">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/610633592_18086230838032090_3108016391580681634_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=JD4IQ2tpPoQQ7kNvwEMxNTG&_nc_oc=AdrzOan_P4ycWwrwQkqB4nLZWdYQs1DsgC4HrXQFJZEcSsq99xeIVGCsqncI_iptXX4&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQIer0nnVVAgkNAciqnwN8R7IEhMhDFmdY32bcBx1ibWww&oe=6AB8CF40" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l">✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l</td>
+          <td>2026-01-01</td>
+          <td class="num">2.993</td>
+          <td class="num">23</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DS8zYJSDNKn/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-29">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/728704254_18104166308032090_848565649688582386_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=xEda3Uo3WDsQ7kNvwFNaTZk&_nc_oc=AdqJG2JTndc2GKfvfhdhlcqJNdo_M-4Nqu16j-KgWStdgOJ5CiSAvNjCwaOpDBnb0jc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJXwTKG-CM-jR1784-MjWyLZ2q3RuvInFDOJwjffXH-ZA&oe=6AB8CE5D" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="¿Cuánto tiempo llevas viviendo con ese dolor? 🤔
+
+Dolor de espalda, cuello, rodil">¿Cuánto tiempo llevas viviendo con ese dolor? 🤔
+
+Dolor de espalda, cuello, rodil</td>
+          <td>2026-06-29</td>
+          <td class="num">2.366</td>
+          <td class="num">22</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DaLzwTDJgCE/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-24">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/728833583_18103649810032090_4547641937563551682_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Sq1mVUfidMMQ7kNvwGm9XoZ&_nc_oc=AdpuCltiCED2hpBbQBtbgjaFKfYbhByH0zL5kF_Q1DdZuEqJexG2Ch-tcAzaFBikyyU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQL8bOfCAey6FKOLMqElxkuUNHysYeYQVowN36JjuGqhWXNX-VhUW1E8A9cKO17khyXh3ySmAjbmhQ&oh=00_AQIY3nqkThat1bWsTt2VDx6JqP78pZp91Xw4Idp_vgJzWg&oe=6AB8CDD9" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+">🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+</td>
+          <td>2026-06-24</td>
+          <td class="num">2.341</td>
+          <td class="num">110</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DZ-ZSp0pZ2U/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-22">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/727864446_18103471787032090_3216342138845562343_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=kn8RPGiKqBYQ7kNvwGUMp_s&_nc_oc=Adojkn3mqaQR21JWM2PyGoLClzPMc_cRu0vrSB8-Ua92yfRImmpf7tSu5USE4qjJjzE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQKmUyNPq3cTTNyzdchycSE7tMGgrGY556BGG8-ghu5Z5p1WUmAkaeAAdSr0m7OJb_0NNjsBo2obmA&oh=00_AQI754b-qYZca3Pp_bT7SkKIUji-yj7hd4irvA-YcfvL0Q&oe=6AB8C17A" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Detrás de cada entrenamiento existe un proceso de recuperación.
+
+Hoy tocó descar">Detrás de cada entrenamiento existe un proceso de recuperación.
+
+Hoy tocó descar</td>
+          <td>2026-06-22</td>
+          <td class="num">1.709</td>
+          <td class="num">21</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DZ5jgNjpUh4/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/730515877_18103490348032090_7486081964894089313_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=dMP9Zxr_gYAQ7kNvwGuCzMm&_nc_oc=AdoSiTcMsK1yU7Lgr1s_bt5eg5midh6g1n0d_CoDL6Iq2HsJn7d4Fp8IARnZG_s9FcM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQLLVgmt-XT9zhRX9F1X_MOW7SXiYUDkiS68znEANVclOw&oe=6AB8D0DD" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui">🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui</td>
+          <td>2026-06-23</td>
+          <td class="num">1.121</td>
+          <td class="num">14</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DZ6JhkvsvY5/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-18">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/797744792_1745603697565316_3243890647049340882_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=nYj0N3R3vccQ7kNvwFdp0s9&_nc_oc=Adrftx2SuH2lsKNo5ozz4XgK7TxEpu0EJxo2XCz5h7MlErVX-qBXNsYRdfEQWztfUMc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJMW9qJJyJiydCz2PMfw25jcpS7oJAG5HpWyEpBdRMQ4w&oe=6AB8C6DA" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a">Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a</td>
+          <td>2026-09-18</td>
+          <td class="num">1.107</td>
+          <td class="num">15</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DdcGh6kGKsu/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-21">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t39.30808-6/812281292_1745667044225648_990522973487940547_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=HJt-nDcp9NcQ7kNvwGQF06W&_nc_oc=AdqdsK1JWTyjnkrkH9BG_FvmgB0Zx3-pgwe-I5fl_R4gCRs6u62rz_ZqPuUfflz4mcM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJ5tBvc8yxGtp993zZzYmkLb0z3slPmYsx0w_EYgbx7ZA&oe=6AB8B306" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN
+
+¿Una lesión o molesti">🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN
+
+¿Una lesión o molesti</td>
+          <td>2026-09-21</td>
+          <td class="num">546</td>
+          <td class="num">14</td>
+          <td><a class="permalink" href="https://www.instagram.com/p/DdjU_RajX5N/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-20">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/819684226_18112386521032090_658079681941642881_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=sn98NRNOJncQ7kNvwFoNxy7&_nc_oc=AdqoDXTnRLa7wXD9WkkqHJiMz9nfgTIjUSekF-sxtJ_ui7xQT8bJcfEdsjA2ykw8Mak&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQKSM8unCQiLmcrjqv-KK098IGg6ZKzBUi5PsWreWFra-bY92BasKzLIKhc7HF2d_-hxTfiE52GXnA&oh=00_AQKxIVw2MQ_5CXFfS77FsjWZftUOFkC5u6jHWsJwseHUXw&oe=6AB8A2FC" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🏷️ Descarga muscular por $399 MXN
+
+¿Sientes tensión, cansancio muscular o molest">🏷️ Descarga muscular por $399 MXN
+
+¿Sientes tensión, cansancio muscular o molest</td>
+          <td>2026-09-20</td>
+          <td class="num">290</td>
+          <td class="num">4</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DdgwIf6DyCr/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-19">
+          <td><img class="thumb" src="https://scontent.cdninstagram.com/v/t51.82787-15/819714592_18112385966032090_2583891121882958092_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=m4IGXohZjDwQ7kNvwE3PqSs&_nc_oc=AdpLWH6MZNw05tRG0T0OcpnABYYy6j1z9LFIAVAw8EQLoTPNjS_A_WhAemiLMIphlqA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQL6PmRSlXCwrtI1gwfkRF-oeGJ6oyE57LzGMigID2DH8szh9KLNg3lUqJzNCqmLEyEkhL6OpDH8TA&oh=00_AQKAqhtR73ClF8u2Ll9GGRaqn5iEcI5LqB-_5jOCsIEJKQ&oe=6AB8D60C" loading="lazy" /></td>
+          <td><span class="dot ig"></span> Instagram</td>
+          <td class="post-caption" title="🩺 10 sesiones de cámara hiperbárica por $5,900 MXN
+
+Dale a tu recuperación atenc">🩺 10 sesiones de cámara hiperbárica por $5,900 MXN
+
+Dale a tu recuperación atenc</td>
+          <td>2026-09-19</td>
+          <td class="num">158</td>
+          <td class="num">6</td>
+          <td><a class="permalink" href="https://www.instagram.com/reel/DdeLTw-j67q/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-21">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/812281292_1745667044225648_990522973487940547_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=HJt-nDcp9NcQ7kNvwGQF06W&_nc_oc=AdqdsK1JWTyjnkrkH9BG_FvmgB0Zx3-pgwe-I5fl_R4gCRs6u62rz_ZqPuUfflz4mcM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJU_I0ujyRliyFTjnKltAU62r3hdbkNOjwYiHqRBpEAAHXwYi9SeXWzC0v_4FSVAIW4KagKwvFOnQ&oh=00_AQLmZQtuY-o0mKCr0-wfrgGMftWs_HNZR8nFsH2YWBK2vA&oe=6AB8B306" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN
+
+¿Una lesión o molesti">🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN
+
+¿Una lesión o molesti</td>
+          <td>2026-09-21</td>
+          <td class="num">-</td>
+          <td class="num">2</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1748384827287203" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-20">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/816994566_2553329611852276_3356645561409416928_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=XPqcN9lNvdIQ7kNvwHpHJ15&_nc_oc=AdqZWqlayswjj3j-WFRhJXR0rPIuXlb1y8GsNOROdqKSjXfdgI2OzGOkM5hmh6jzvXg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLnkDBKE-YMaEXHIVEK6Gm01IMA6YaEK1kJ3C6FOQD0GFESpn7wGpZFDiLk9O7FPVz87eTuuTKkxw&oh=00_AQL0BeQiMcEGVAdY_KUfoIRKom7rxCjUX_XQTP4ELFBK2g&oe=6AB8B099" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🏷️ Descarga muscular por $399 MXN
+
+¿Sientes tensión, cansancio muscular o molest">🏷️ Descarga muscular por $399 MXN
+
+¿Sientes tensión, cansancio muscular o molest</td>
+          <td>2026-09-20</td>
+          <td class="num">-</td>
+          <td class="num">2</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1401234715476460/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-19">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/813891562_1455918396356588_1306860496429471192_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=ink56nL7vVAQ7kNvwFW4lIa&_nc_oc=Adrie8fzpzf8WO0pCablHbAQD1d7omojFIR572-NzTm78tSqybnMZmbtizzqov6scWM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLm5h1zfoGGlYposjZOceyty5eegt-E_mychtwfuYFGxKr-c4nmIdo_s5ihIh4_UyR7EbjEUVTlWA&oh=00_AQIyMkDS31HEwjHthwg-L_5d6D-w4cYTn9FnYluTcg4cUQ&oe=6AB8A18F" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🩺 10 sesiones de cámara hiperbárica por $5,900 MXN
+
+Dale a tu recuperación atenc">🩺 10 sesiones de cámara hiperbárica por $5,900 MXN
+
+Dale a tu recuperación atenc</td>
+          <td>2026-09-19</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/2592632381199141/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-18">
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/815268103_1745778170881202_7229406028036750443_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=lKWzpk4PHM0Q7kNvwFVMthq&_nc_oc=AdpzV4b3_Yl-OvH-q0iLSyOoACXftdnQq4AmwnBjA682Ce87S9NSwJ95LCfpP6LIGlA&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLtN1f0m9afDDk00Ek2mZ1199JepQPIkZLGiZjsLj3OJ3EcqrGFOwnS2HYlbHh2US6Nzo5AmvCaYQ&oh=00_AQLHXpflx2ewQYkd2py6DmakGwUwrMZ5cklR9HDyEI2UiA&oe=6AB8D104" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="(sin texto)">(sin texto)</td>
+          <td>2026-09-18</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1099487802627588?substory_index=1099487802627588" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-18">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/815469397_1745771180881901_518033070738207711_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=KLht5du6pwIQ7kNvwHeozc_&_nc_oc=AdoL8P87riSJ3BkePncbKHAK7nZ4U3AC1Zd7HVRIDFYR3NvINJv_OauAG8ZFyUFM3u0&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQL-jJjY7Seb0i0DUwnunuKlrYLq560B-CKHIcP1mb9tigEOwuX8sHb4rTT-VOl5qzT3KYsf6lLQbw&oh=00_AQKbmU6_DbeLLoKyB1wEpA64XvjGSRatK2TNbuWpSKJypw&oe=6AB8A164" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="(sin texto)">(sin texto)</td>
+          <td>2026-09-18</td>
+          <td class="num">-</td>
+          <td class="num">7</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1745771490881870?substory_index=1595142561441810" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-18">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/797744792_1745603697565316_3243890647049340882_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=nYj0N3R3vccQ7kNvwFdp0s9&_nc_oc=Adrftx2SuH2lsKNo5ozz4XgK7TxEpu0EJxo2XCz5h7MlErVX-qBXNsYRdfEQWztfUMc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJlgPkcJhLfzn2QigR5LcwMBRQnAsQxI3QxY_F_tEHao_BUKjETFluP8hKoobgd4OdJ-oZ4-2qvjA&oh=00_AQL76LqrxkcOYjl43PepgBK6ZGjFwiGsDj_ugJ61rHNI7w&oe=6AB8C6DA" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a">Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a</td>
+          <td>2026-09-18</td>
+          <td class="num">-</td>
+          <td class="num">3</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1745603997565286" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-09-16">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/808431086_18111845192032090_1579705378017688576_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=-1D1ct3dJaMQ7kNvwGLintL&_nc_oc=Ado_E41l9tHR12-yvNLivzuUBsfUewkcQRHXNXo-8KMNNA_moa0xMwi40zW8tB3jZFc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJ3IcuGJX3TEvHPmyQXsq45jYdk06k7Z9XHpe0BnirMtPPKaDXSbm5M7vxyOl-EJ27Yc1yWvdusKw&oh=00_AQKTtu2yfPR0zy8SKYF-HntzzaWj4_zog1qXXLDOiAauTg&oe=6AB8BA94" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🇲🇽 ¡Hoy se juega a la mexicana! 🃏
+
+En ORTHOKLINIC celebramos este 15 de septiemb">🇲🇽 ¡Hoy se juega a la mexicana! 🃏
+
+En ORTHOKLINIC celebramos este 15 de septiemb</td>
+          <td>2026-09-16</td>
+          <td class="num">-</td>
+          <td class="num">7</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1742673991191620" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-29">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/728704254_18104166308032090_848565649688582386_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xEda3Uo3WDsQ7kNvwFNaTZk&_nc_oc=AdqJG2JTndc2GKfvfhdhlcqJNdo_M-4Nqu16j-KgWStdgOJ5CiSAvNjCwaOpDBnb0jc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLo4LffNEhOWKswvZyEdTYpElL8ljxwUCvaiO1mK7rkBF4ol5zDKOYD8kcyuTLc9Q6oxblgRGJPIA&oh=00_AQLm6Qns46kLfCxki_UM7JGw2MJmft-CDeQ5dMPwcGWJwg&oe=6AB8CE5D" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="¿Cuánto tiempo llevas viviendo con ese dolor? 🤔
+
+Dolor de espalda, cuello, rodil">¿Cuánto tiempo llevas viviendo con ese dolor? 🤔
+
+Dolor de espalda, cuello, rodil</td>
+          <td>2026-06-29</td>
+          <td class="num">-</td>
+          <td class="num">4</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1666166918842328" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-24">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-10/728833583_18103649810032090_4547641937563551682_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=Sq1mVUfidMMQ7kNvwGm9XoZ&_nc_oc=AdpuCltiCED2hpBbQBtbgjaFKfYbhByH0zL5kF_Q1DdZuEqJexG2Ch-tcAzaFBikyyU&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJ28y4TOmi9Na4XRua46goCjDAJHPzUfvJ-WXi0pprhYuXvc3rz80jLOwG2eUhXvkYN8pNwh0xsoQ&oh=00_AQJq9B_vk2ejIuvuVZWatBYdTQkc7OYa9k1dCEVAqEZRvg&oe=6AB8A0C9" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+">🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+</td>
+          <td>2026-06-24</td>
+          <td class="num">-</td>
+          <td class="num">0</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1275573764649637/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-10/728606783_18103570328032090_4668215454861155282_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=105&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=Thsk16EbEGYQ7kNvwFOJbfK&_nc_oc=Adr6wY7dYE3LEK4QlMBQU1P6zTgaYb0mNq74gIkyl4-3nRyG3QgWR3ghlHWciwY1ifg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLPqUwqci2uITXX8-2mi471eSwXef-GutTtZdSTuyPMyWaWJ9dG_yL3Cga2fhfd4V9H2sUJHbyfqQ&oh=00_AQKS7o1gI7rltTUIlfftuA_Z5ixfApTAn9-6nveXqDsPDQ&oe=6AB8BC8C" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+">🚨 ¿Dolor de espalda, rodilla, cuello u hombro?
+
+🔥 Esta semana en Ortho Klinik:
+
+</td>
+          <td>2026-06-23</td>
+          <td class="num">-</td>
+          <td class="num">13</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/882130250983123/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-23">
+          <td><img class="thumb" src="https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/730515877_18103490348032090_7486081964894089313_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=dMP9Zxr_gYAQ7kNvwGuCzMm&_nc_oc=AdoSiTcMsK1yU7Lgr1s_bt5eg5midh6g1n0d_CoDL6Iq2HsJn7d4Fp8IARnZG_s9FcM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJbGk06IcEOed9pLkvZ_E6AR39rsLX8bzrbEvNwris74wFDbshzXwA2ua2NicAn6r-U4AM2vFgFbg&oh=00_AQISDMgyZLczqxNWM7T-80Hu3CiaD1toOIK8EDlkbJDOlA&oe=6AB8D0DD" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui">🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui</td>
+          <td>2026-06-23</td>
+          <td class="num">-</td>
+          <td class="num">3</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1659693746156312" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-06-22">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/727864446_18103471787032090_3216342138845562343_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=103&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=kn8RPGiKqBYQ7kNvwGUMp_s&_nc_oc=Adojkn3mqaQR21JWM2PyGoLClzPMc_cRu0vrSB8-Ua92yfRImmpf7tSu5USE4qjJjzE&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQK8OKLy8J4rQyY1-p65l2YPdCMaRk8X0S84foDasUgSOQxfceDld5B6g0B8mpY_D5avjsAVASZIAA&oh=00_AQIsusIpfCfe5EK2oo4D4Ufxvs4Qk72yrJnjsmHRy3bnaw&oe=6AB8C1AA" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Detrás de cada entrenamiento existe un proceso de recuperación.
+
+Hoy tocó descar">Detrás de cada entrenamiento existe un proceso de recuperación.
+
+Hoy tocó descar</td>
+          <td>2026-06-22</td>
+          <td class="num">-</td>
+          <td class="num">2</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/2317940529021457/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-02-23">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/642139635_18091197461032090_4676945124013452329_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ltAdrh122mAQ7kNvwG1NwQQ&_nc_oc=AdqXpVFmKMOEsulbsVav5T1x-RZpJxIxzcFSAKzPvKu0JXKDN9LZFLRq8tr_CySjk0s&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQKTHOC8-ys7s5Vjj0sPt_wvy-yQ4E9J3PuIqJaJiLrF-O42Q39ric09UHpmO34lckPkPFXWIgCBIg&oh=00_AQJVSkLCEwNIfH13OKG7MQ9HJ7XjRwMWxfEoYNHD8x7jEA&oe=6AB8D3C4" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="⚠️🚨 AVISO 🚨⚠️">⚠️🚨 AVISO 🚨⚠️</td>
+          <td>2026-02-23</td>
+          <td class="num">-</td>
+          <td class="num">7</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1545752830883738" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-02-16">
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t51.82787-15/629736828_18090642839032090_2449422601192253039_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Ac9sf0TgBOsQ7kNvwHgtXs9&_nc_oc=AdpdkatZMhESExtMXis6Yw9u1Vw2wcZKNFSC1jSyvXwJZ1Q0k6FH4Q5OtZUYlIfO0zs&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQI4HSH4RF6u0h2Xk6lL2t6iY6k5JmeXiBKvV9cNYgFKjIGsPDCr09R22TS8vNHPukt1tQDeQiCZ-w&oh=00_AQIDMPezWur908mk4IAUFd__DCqnu1h4FqdPYwRIA0flFw&oe=6AB8CC12" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia ">El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia </td>
+          <td>2026-02-16</td>
+          <td class="num">-</td>
+          <td class="num">272</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1539821088143579" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-02-13">
+          <td><img class="thumb" src="https://scontent.fpbc2-5.fna.fbcdn.net/v/t51.71878-10/629243533_1346949494136854_8585139277957962272_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=16fw5bcqrgoQ7kNvwGqnVjT&_nc_oc=AdqdntAsgPpMZxSTvE-6A-gSxet_RePIkmXh6qav49OydNZpIpr5B2Sfwxk0hlk6En0&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQL0MQPUF-1hI-dKLtIbA3w9cKs2Fxegi0vz2eCg_nzzPVieU7GGmLcqnDBYgYe0Lpl1WufNgenSaw&oh=00_AQJkME99xagwGa89K8WYs_bYSpPp9GWtxTBiWi13Jcl9PQ&oe=6AB8BC75" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.
+
+Este ">Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.
+
+Este </td>
+          <td>2026-02-13</td>
+          <td class="num">-</td>
+          <td class="num">5</td>
+          <td><a class="permalink" href="https://www.facebook.com/reel/1498480521798535/" target="_blank" rel="noopener">Ver</a></td>
+        </tr>
+        <tr data-date="2026-01-01">
+          <td><img class="thumb" src="https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/610633592_18086230838032090_3108016391580681634_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=JD4IQ2tpPoQQ7kNvwEMxNTG&_nc_oc=AdrzOan_P4ycWwrwQkqB4nLZWdYQs1DsgC4HrXQFJZEcSsq99xeIVGCsqncI_iptXX4&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLM5kT0I88tJF-P5tXGIthOMp7F2cZ6n-TJb2THsA-rTSn53If_VPpXeAAvmppv8OW0KyFufd8D4Q&oh=00_AQI6Jcwqdjt-d43BlD0bS-QBnhLmreay048Y19yd6YBiGA&oe=6AB8CF40" loading="lazy" /></td>
+          <td><span class="dot fb"></span> Facebook</td>
+          <td class="post-caption" title="✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l">✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l</td>
+          <td>2026-01-01</td>
+          <td class="num">-</td>
+          <td class="num">3</td>
+          <td><a class="permalink" href="https://www.facebook.com/1749779003814452/posts/1496433779148977" target="_blank" rel="noopener">Ver</a></td>
+        </tr></tbody>
+    </table>
+  </div>
+
+        
+  <div class="card">
+    <h2>Analisis mensual</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th><th class="num">Posts FB</th><th class="num">Posts IG</th>
+          <th class="num">Engagement prom. FB</th><th class="num">Alcance prom. IG</th>
+          <th class="num">Cadencia (post/sem)</th><th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Enero 2026</td>
+          <td class="num">1</td>
+          <td class="num">1</td>
+          <td class="num">3</td>
+          <td class="num">2.993</td>
+          <td class="num">0.2</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Febrero 2026</td>
+          <td class="num">3</td>
+          <td class="num">3</td>
+          <td class="num">95</td>
+          <td class="num">4.379</td>
+          <td class="num">0.8</td>
+          <td>+46% vs mes anterior</td>
+        </tr>
+        <tr>
+          <td>Marzo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Abril 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Mayo 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Junio 2026</td>
+          <td class="num">5</td>
+          <td class="num">5</td>
+          <td class="num">4</td>
+          <td class="num">2.549</td>
+          <td class="num">0.9</td>
+          <td>-42% vs mes anterior</td>
+        </tr>
+        <tr>
+          <td>Julio 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Agosto 2026</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td class="num">0.0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Septiembre 2026</td>
+          <td class="num">7</td>
+          <td class="num">5</td>
+          <td class="num">3</td>
+          <td class="num">2.636</td>
+          <td class="num">1.6</td>
+          <td>mes en curso</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+        
+  <div class="card">
+    <h2>Análisis orgánico</h2>
+    <div class="diag-head">
+      <span class="diag-sem sem-Rojo"><span class="dot"></span>Rojo</span>
+      <span class="diag-badge">Prioridad: Critica</span>
+      <span class="diag-badge">Confianza: Alto</span>
+    </div>
+    <p class="diag-summary">En el periodo: 30 posts, interacciones totales 2274, alcance total 42057; poca frecuencia de publicacion en facebook.</p>
+    <ul class="diag-anoms"><li><b>Poca frecuencia de publicacion en Facebook</b> — 1.2 dias con post/semana en los ultimos 28 dias (referencia operativa: 3). En la ventana reciente hubo posts en 5 dias distintos. Si el calendario de 3 publicaciones semanales ya esta en implementacion, conviene sostenerlo hasta que la cadencia se refleje de forma consistente en los datos.</li><li><b>Poca frecuencia de publicacion en Instagram</b> — 1.2 dias con post/semana en los ultimos 28 dias (referencia operativa: 3). En la ventana reciente hubo posts en 5 dias distintos. Si el calendario de 3 publicaciones semanales ya esta en implementacion, conviene sostenerlo hasta que la cadencia se refleje de forma consistente en los datos.</li><li><b>Poca conversacion en Instagram</b> — 7 comentarios / 1418 likes (0.5%). Muy pocos comentarios respecto a los likes. Preguntas directas o llamados a comentar en el copy pueden ayudar a generar mas conversacion.</li></ul>
+    <div class="diag-rec"><table><tr><td class="k">Acción</td><td>Consolidar el calendario en implementacion hasta sostener 3 publicaciones por semana.</td></tr><tr><td class="k">Motivo</td><td>En la ventana reciente hubo posts en 5 dias distintos. Si el calendario de 3 publicaciones semanales ya esta en implementacion, conviene sostenerlo hasta que la cadencia se refleje de forma consistente en los datos.</td></tr><tr><td class="k">Métrica</td><td>Cadencia</td></tr><tr><td class="k">Riesgo de no actuar</td><td>Interrumpir la implementacion antes de consolidarla puede mantener una cadencia irregular.</td></tr><tr><td class="k">Resultado esperado</td><td>Una frecuencia estable y medible que permita evaluar despues la calidad y el rendimiento.</td></tr><tr><td class="k">Responsable</td><td>Contenido y Diseño</td></tr></table></div>
+    <p class="diag-evidence">Periodo -> 30 posts, interacciones totales 2274, alcance total 42057 (IG).
+- Poca frecuencia de publicacion en Facebook: 1.2 dias con post/semana en los ultimos 28 dias (referencia operativa: 3).
+- Poca frecuencia de publicacion en Instagram: 1.2 dias con post/semana en los ultimos 28 dias (referencia operativa: 3).
+- Poca conversacion en Instagram: 7 comentarios / 1418 likes (0.5%).
+- Engagement en alza para Ortho Klinic Rehab (Facebook): ultimos 30 dias: 0.9 vs 0.1 de los 30 dias previos (+1200%).
+- Alcance en alza para @orthoklinicfisio (Instagram): ultimos 30 dias: 556.3 vs 186.5 de los 30 dias previos (+198%).</p>
+    <p class="diag-evidence" style="margin-top:12px;">Generado automáticamente por organico_analysis.py · datos orgánicos de Meta. Toda recomendación es sugerencia; la ejecución la aprueba Paid Media / Contenido.</p>
+  </div>
+      </section>
+      <section id="tab-pautas" class="tab-panel">
+        <h1>Pauta (anuncios pagados)</h1>
+        <p class="subtitle" style="padding:0;margin:2px 0 18px;">Cuenta: CP ORTHO KINE · Moneda: MXN · Sin campañas con actividad en el periodo (la cuenta se leyo correctamente; no hubo entrega en estas fechas).</p>
+        <div class="active-banner none"><span class="ab-label">Ahora mismo</span><span style="font-size:13px;color:var(--text-secondary);">Sin campañas activas en este momento.</span></div>
+        <div class="card date-filter">
+          <div class="date-range-picker">
+            <button type="button" id="p-filter-trigger" class="date-pill"></button>
+            <div id="p-calendar-popup" class="calendar-popup" hidden>
+              <div class="calendar-header">
+                <button type="button" id="p-cal-prev" aria-label="Mes anterior">‹</button>
+                <span id="p-cal-month-label"></span>
+                <button type="button" id="p-cal-next" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
+              </div>
+              <div id="p-cal-grid" class="calendar-grid"></div>
+              <p id="p-cal-hint" class="calendar-hint"></p>
+            </div>
+          </div>
+          <button id="p-filter-reset" type="button">Ver todo</button>
+        </div>
+        <div class="card" id="ads-active-results-section" hidden>
+          <h2><span class="dot" style="background:var(--accent)"></span>Resultados por campaña activa</h2>
+          <div class="kpi-row" id="ads-active-results-row"></div>
+        </div>
+        <div class="kpi-row" id="ads-kpi-row"><p class="empty">Sin datos de pautas todavia.</p></div>
+        <p class="delta-legend">Los indicadores ▲▼ comparan cada métrica contra el periodo anterior de la misma duración (aparecen al elegir un rango).</p>
+        <p id="ads-range-note" class="range-note" hidden></p>
+        
+        
+        <div class="card"><h2>Campañas</h2><p class="empty">No hay campañas con datos en el rango.</p></div>
+        
+        <div class="card"><h2>Métricas ideales vs. mes / rango actual</h2><p class="range-note">Comparación automática para decidir si conviene mantener o ajustar.</p><div id="ads-targets-content"></div></div>
+        
+  <div class="card">
+    <h2>Análisis de la campaña</h2>
+    <div class="diag-head">
+      <span class="diag-sem sem-none"><span class="dot"></span>Sin datos suficientes</span>
+      <span class="diag-badge">Prioridad: Sin accion requerida</span>
+      <span class="diag-badge">Confianza: Bajo</span>
+    </div>
+    <p class="diag-summary">La cuenta es accesible pero no tuvo entrega en el periodo.</p>
+    
+    
+    <p class="diag-evidence">La cuenta es accesible pero no tuvo entrega en el periodo.</p>
+    <p class="diag-evidence" style="margin-top:12px;">Generado automáticamente por pauta_analysis.py · datos vía Meta Ads. Toda recomendación es sugerencia; la ejecución la aprueba Paid Media / Contenido.</p>
+  </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const chartData = {"fb_chart_0": {"color": "#2a78d6", "points": [{"label": "2026-01-02", "value": 0}, {"label": "2026-01-03", "value": 0}, {"label": "2026-01-04", "value": 0}, {"label": "2026-01-05", "value": 4}, {"label": "2026-01-06", "value": 0}, {"label": "2026-01-07", "value": 0}, {"label": "2026-01-08", "value": 0}, {"label": "2026-01-09", "value": 0}, {"label": "2026-01-10", "value": 0}, {"label": "2026-01-11", "value": 0}, {"label": "2026-01-12", "value": 0}, {"label": "2026-01-13", "value": 0}, {"label": "2026-01-14", "value": 90}, {"label": "2026-01-15", "value": 33}, {"label": "2026-01-16", "value": 20}, {"label": "2026-01-17", "value": 10}, {"label": "2026-01-18", "value": 14}, {"label": "2026-01-19", "value": 4}, {"label": "2026-01-20", "value": 5}, {"label": "2026-01-21", "value": 8}, {"label": "2026-01-22", "value": 0}, {"label": "2026-01-23", "value": 0}, {"label": "2026-01-24", "value": 0}, {"label": "2026-01-25", "value": 0}, {"label": "2026-01-26", "value": 0}, {"label": "2026-01-27", "value": 1}, {"label": "2026-01-28", "value": 1}, {"label": "2026-01-29", "value": 0}, {"label": "2026-01-30", "value": 0}, {"label": "2026-01-31", "value": 0}, {"label": "2026-02-01", "value": 0}, {"label": "2026-02-02", "value": 0}, {"label": "2026-02-03", "value": 0}, {"label": "2026-02-04", "value": 0}, {"label": "2026-02-05", "value": 0}, {"label": "2026-02-06", "value": 0}, {"label": "2026-02-07", "value": 0}, {"label": "2026-02-08", "value": 0}, {"label": "2026-02-09", "value": 0}, {"label": "2026-02-10", "value": 0}, {"label": "2026-02-11", "value": 0}, {"label": "2026-02-12", "value": 0}, {"label": "2026-02-13", "value": 4}, {"label": "2026-02-14", "value": 0}, {"label": "2026-02-15", "value": 0}, {"label": "2026-02-16", "value": 0}, {"label": "2026-02-17", "value": 50}, {"label": "2026-02-18", "value": 193}, {"label": "2026-02-19", "value": 25}, {"label": "2026-02-20", "value": 12}, {"label": "2026-02-21", "value": 3}, {"label": "2026-02-22", "value": 2}, {"label": "2026-02-23", "value": 8}, {"label": "2026-02-24", "value": 2}, {"label": "2026-02-25", "value": 0}, {"label": "2026-02-26", "value": 0}, {"label": "2026-02-27", "value": 0}, {"label": "2026-02-28", "value": 0}, {"label": "2026-03-01", "value": 0}, {"label": "2026-03-02", "value": 0}, {"label": "2026-03-03", "value": 0}, {"label": "2026-03-04", "value": 0}, {"label": "2026-03-05", "value": 0}, {"label": "2026-03-06", "value": 0}, {"label": "2026-03-07", "value": 0}, {"label": "2026-03-08", "value": 0}, {"label": "2026-03-09", "value": 0}, {"label": "2026-03-10", "value": 3}, {"label": "2026-03-11", "value": 0}, {"label": "2026-03-12", "value": 0}, {"label": "2026-03-13", "value": 0}, {"label": "2026-03-14", "value": 0}, {"label": "2026-03-15", "value": 0}, {"label": "2026-03-16", "value": 0}, {"label": "2026-03-17", "value": 0}, {"label": "2026-03-18", "value": 0}, {"label": "2026-03-19", "value": 0}, {"label": "2026-03-20", "value": 0}, {"label": "2026-03-21", "value": 0}, {"label": "2026-03-22", "value": 0}, {"label": "2026-03-23", "value": 0}, {"label": "2026-03-24", "value": 0}, {"label": "2026-03-25", "value": 0}, {"label": "2026-03-26", "value": 0}, {"label": "2026-03-27", "value": 0}, {"label": "2026-03-28", "value": 0}, {"label": "2026-03-29", "value": 0}, {"label": "2026-03-30", "value": 0}, {"label": "2026-04-01", "value": 0}, {"label": "2026-04-02", "value": 0}, {"label": "2026-04-03", "value": 0}, {"label": "2026-04-04", "value": 0}, {"label": "2026-04-05", "value": 0}, {"label": "2026-04-06", "value": 0}, {"label": "2026-04-07", "value": 0}, {"label": "2026-04-08", "value": 0}, {"label": "2026-04-09", "value": 0}, {"label": "2026-04-10", "value": 0}, {"label": "2026-04-11", "value": 0}, {"label": "2026-04-12", "value": 0}, {"label": "2026-04-13", "value": 0}, {"label": "2026-04-14", "value": 0}, {"label": "2026-04-15", "value": 0}, {"label": "2026-04-16", "value": 1}, {"label": "2026-04-17", "value": 0}, {"label": "2026-04-18", "value": 0}, {"label": "2026-04-19", "value": 0}, {"label": "2026-04-20", "value": 0}, {"label": "2026-04-21", "value": 0}, {"label": "2026-04-22", "value": 0}, {"label": "2026-04-23", "value": 0}, {"label": "2026-04-24", "value": 0}, {"label": "2026-04-25", "value": 0}, {"label": "2026-04-26", "value": 0}, {"label": "2026-04-27", "value": 0}, {"label": "2026-04-28", "value": 0}, {"label": "2026-04-29", "value": 0}, {"label": "2026-04-30", "value": 0}, {"label": "2026-05-01", "value": 0}, {"label": "2026-05-02", "value": 0}, {"label": "2026-05-03", "value": 0}, {"label": "2026-05-04", "value": 0}, {"label": "2026-05-05", "value": 0}, {"label": "2026-05-06", "value": 0}, {"label": "2026-05-07", "value": 0}, {"label": "2026-05-08", "value": 0}, {"label": "2026-05-09", "value": 0}, {"label": "2026-05-10", "value": 0}, {"label": "2026-05-11", "value": 0}, {"label": "2026-05-12", "value": 0}, {"label": "2026-05-13", "value": 0}, {"label": "2026-05-14", "value": 0}, {"label": "2026-05-15", "value": 0}, {"label": "2026-05-16", "value": 0}, {"label": "2026-05-17", "value": 0}, {"label": "2026-05-18", "value": 0}, {"label": "2026-05-19", "value": 0}, {"label": "2026-05-20", "value": 0}, {"label": "2026-05-21", "value": 0}, {"label": "2026-05-22", "value": 0}, {"label": "2026-05-23", "value": 0}, {"label": "2026-05-24", "value": 0}, {"label": "2026-05-25", "value": 0}, {"label": "2026-05-26", "value": 0}, {"label": "2026-05-27", "value": 0}, {"label": "2026-05-28", "value": 0}, {"label": "2026-05-29", "value": 0}, {"label": "2026-05-30", "value": 0}, {"label": "2026-05-31", "value": 0}, {"label": "2026-06-01", "value": 0}, {"label": "2026-06-02", "value": 0}, {"label": "2026-06-03", "value": 0}, {"label": "2026-06-04", "value": 0}, {"label": "2026-06-05", "value": 0}, {"label": "2026-06-06", "value": 0}, {"label": "2026-06-07", "value": 0}, {"label": "2026-06-08", "value": 0}, {"label": "2026-06-09", "value": 0}, {"label": "2026-06-10", "value": 0}, {"label": "2026-06-11", "value": 0}, {"label": "2026-06-12", "value": 0}, {"label": "2026-06-13", "value": 0}, {"label": "2026-06-14", "value": 0}, {"label": "2026-06-15", "value": 0}, {"label": "2026-06-16", "value": 0}, {"label": "2026-06-17", "value": 0}, {"label": "2026-06-18", "value": 0}, {"label": "2026-06-19", "value": 0}, {"label": "2026-06-20", "value": 0}, {"label": "2026-06-21", "value": 0}, {"label": "2026-06-22", "value": 0}, {"label": "2026-06-23", "value": 7}, {"label": "2026-06-24", "value": 10}, {"label": "2026-06-25", "value": 8}, {"label": "2026-06-26", "value": 0}, {"label": "2026-06-27", "value": 0}, {"label": "2026-06-29", "value": 0}, {"label": "2026-06-30", "value": 6}, {"label": "2026-07-01", "value": 0}, {"label": "2026-07-02", "value": 0}, {"label": "2026-07-03", "value": 0}, {"label": "2026-07-04", "value": 1}, {"label": "2026-07-05", "value": 0}, {"label": "2026-07-06", "value": 0}, {"label": "2026-07-07", "value": 0}, {"label": "2026-07-08", "value": 0}, {"label": "2026-07-09", "value": 0}, {"label": "2026-07-10", "value": 0}, {"label": "2026-07-11", "value": 0}, {"label": "2026-07-12", "value": 0}, {"label": "2026-07-13", "value": 0}, {"label": "2026-07-14", "value": 0}, {"label": "2026-07-15", "value": 0}, {"label": "2026-07-16", "value": 0}, {"label": "2026-07-17", "value": 0}, {"label": "2026-07-18", "value": 0}, {"label": "2026-07-19", "value": 0}, {"label": "2026-07-20", "value": 0}, {"label": "2026-07-21", "value": 0}, {"label": "2026-07-22", "value": 0}, {"label": "2026-07-23", "value": 0}, {"label": "2026-07-24", "value": 0}, {"label": "2026-07-25", "value": 0}, {"label": "2026-07-26", "value": 0}, {"label": "2026-07-27", "value": 0}, {"label": "2026-07-28", "value": 0}, {"label": "2026-07-29", "value": 0}, {"label": "2026-07-30", "value": 0}, {"label": "2026-07-31", "value": 0}, {"label": "2026-08-01", "value": 0}, {"label": "2026-08-02", "value": 0}, {"label": "2026-08-03", "value": 0}, {"label": "2026-08-04", "value": 0}, {"label": "2026-08-05", "value": 0}, {"label": "2026-08-06", "value": 0}, {"label": "2026-08-07", "value": 0}, {"label": "2026-08-08", "value": 0}, {"label": "2026-08-09", "value": 0}, {"label": "2026-08-10", "value": 0}, {"label": "2026-08-11", "value": 0}, {"label": "2026-08-12", "value": 1}, {"label": "2026-08-13", "value": 0}, {"label": "2026-08-14", "value": 1}, {"label": "2026-08-15", "value": 0}, {"label": "2026-08-16", "value": 0}, {"label": "2026-08-17", "value": 0}, {"label": "2026-08-18", "value": 0}, {"label": "2026-08-19", "value": 0}, {"label": "2026-08-20", "value": 0}, {"label": "2026-08-21", "value": 0}, {"label": "2026-08-22", "value": 0}, {"label": "2026-08-23", "value": 0}, {"label": "2026-08-24", "value": 0}, {"label": "2026-08-25", "value": 0}, {"label": "2026-08-26", "value": 0}, {"label": "2026-08-27", "value": 0}, {"label": "2026-08-28", "value": 0}, {"label": "2026-08-29", "value": 0}, {"label": "2026-08-30", "value": 0}, {"label": "2026-08-31", "value": 0}, {"label": "2026-09-01", "value": 0}, {"label": "2026-09-02", "value": 0}, {"label": "2026-09-03", "value": 0}, {"label": "2026-09-04", "value": 0}, {"label": "2026-09-05", "value": 0}, {"label": "2026-09-06", "value": 0}, {"label": "2026-09-07", "value": 0}, {"label": "2026-09-08", "value": 0}, {"label": "2026-09-09", "value": 0}, {"label": "2026-09-10", "value": 0}, {"label": "2026-09-11", "value": 0}, {"label": "2026-09-12", "value": 0}, {"label": "2026-09-13", "value": 0}, {"label": "2026-09-14", "value": 0}, {"label": "2026-09-15", "value": 0}, {"label": "2026-09-16", "value": 9}, {"label": "2026-09-17", "value": 0}, {"label": "2026-09-18", "value": 0}, {"label": "2026-09-19", "value": 11}, {"label": "2026-09-20", "value": 0}, {"label": "2026-09-21", "value": 3}, {"label": "2026-09-22", "value": 3}]}, "ig_chart_0": {"color": "#1baf7a", "points": [{"label": "2026-01-01", "value": 674}, {"label": "2026-01-02", "value": 1554}, {"label": "2026-01-03", "value": 300}, {"label": "2026-01-04", "value": 48}, {"label": "2026-01-05", "value": 192}, {"label": "2026-01-06", "value": 68}, {"label": "2026-01-07", "value": 52}, {"label": "2026-01-08", "value": 49}, {"label": "2026-01-09", "value": 170}, {"label": "2026-01-10", "value": 64}, {"label": "2026-01-11", "value": 169}, {"label": "2026-01-12", "value": 79}, {"label": "2026-01-13", "value": 181}, {"label": "2026-01-14", "value": 86}, {"label": "2026-01-15", "value": 43}, {"label": "2026-01-16", "value": 254}, {"label": "2026-01-17", "value": 244}, {"label": "2026-01-18", "value": 82}, {"label": "2026-01-19", "value": 28}, {"label": "2026-01-20", "value": 150}, {"label": "2026-01-21", "value": 278}, {"label": "2026-01-22", "value": 279}, {"label": "2026-01-23", "value": 343}, {"label": "2026-01-24", "value": 246}, {"label": "2026-01-25", "value": 160}, {"label": "2026-01-26", "value": 218}, {"label": "2026-01-27", "value": 293}, {"label": "2026-01-28", "value": 379}, {"label": "2026-01-29", "value": 346}, {"label": "2026-01-31", "value": 122}, {"label": "2026-02-01", "value": 36}, {"label": "2026-02-02", "value": 46}, {"label": "2026-02-03", "value": 49}, {"label": "2026-02-04", "value": 309}, {"label": "2026-02-05", "value": 333}, {"label": "2026-02-06", "value": 316}, {"label": "2026-02-07", "value": 213}, {"label": "2026-02-08", "value": 66}, {"label": "2026-02-09", "value": 418}, {"label": "2026-02-10", "value": 69}, {"label": "2026-02-11", "value": 369}, {"label": "2026-02-12", "value": 1119}, {"label": "2026-02-13", "value": 1079}, {"label": "2026-02-14", "value": 343}, {"label": "2026-02-15", "value": 285}, {"label": "2026-02-16", "value": 4003}, {"label": "2026-02-17", "value": 2181}, {"label": "2026-02-18", "value": 391}, {"label": "2026-02-19", "value": 397}, {"label": "2026-02-20", "value": 321}, {"label": "2026-02-21", "value": 361}, {"label": "2026-02-22", "value": 1760}, {"label": "2026-02-23", "value": 942}, {"label": "2026-02-24", "value": 365}, {"label": "2026-02-25", "value": 365}, {"label": "2026-02-26", "value": 391}, {"label": "2026-02-27", "value": 596}, {"label": "2026-02-28", "value": 170}, {"label": "2026-03-02", "value": 46}, {"label": "2026-03-03", "value": 48}, {"label": "2026-03-04", "value": 350}, {"label": "2026-03-05", "value": 434}, {"label": "2026-03-06", "value": 310}, {"label": "2026-03-07", "value": 140}, {"label": "2026-03-08", "value": 39}, {"label": "2026-03-09", "value": 35}, {"label": "2026-03-10", "value": 348}, {"label": "2026-03-11", "value": 249}, {"label": "2026-03-12", "value": 445}, {"label": "2026-03-13", "value": 299}, {"label": "2026-03-14", "value": 315}, {"label": "2026-03-15", "value": 113}, {"label": "2026-03-16", "value": 39}, {"label": "2026-03-17", "value": 39}, {"label": "2026-03-18", "value": 212}, {"label": "2026-03-19", "value": 298}, {"label": "2026-03-20", "value": 315}, {"label": "2026-03-21", "value": 85}, {"label": "2026-03-22", "value": 39}, {"label": "2026-03-23", "value": 225}, {"label": "2026-03-24", "value": 241}, {"label": "2026-03-25", "value": 35}, {"label": "2026-03-26", "value": 93}, {"label": "2026-03-27", "value": 303}, {"label": "2026-03-28", "value": 112}, {"label": "2026-03-29", "value": 30}, {"label": "2026-03-30", "value": 46}, {"label": "2026-04-01", "value": 381}, {"label": "2026-04-02", "value": 371}, {"label": "2026-04-03", "value": 254}, {"label": "2026-04-04", "value": 30}, {"label": "2026-04-05", "value": 42}, {"label": "2026-04-06", "value": 47}, {"label": "2026-04-07", "value": 267}, {"label": "2026-04-08", "value": 132}, {"label": "2026-04-09", "value": 228}, {"label": "2026-04-10", "value": 380}, {"label": "2026-04-11", "value": 139}, {"label": "2026-04-12", "value": 35}, {"label": "2026-04-13", "value": 36}, {"label": "2026-04-14", "value": 38}, {"label": "2026-04-15", "value": 293}, {"label": "2026-04-16", "value": 259}, {"label": "2026-04-17", "value": 132}, {"label": "2026-04-18", "value": 31}, {"label": "2026-04-19", "value": 39}, {"label": "2026-04-20", "value": 367}, {"label": "2026-04-21", "value": 456}, {"label": "2026-04-22", "value": 299}, {"label": "2026-04-23", "value": 169}, {"label": "2026-04-24", "value": 34}, {"label": "2026-04-25", "value": 51}, {"label": "2026-04-26", "value": 749}, {"label": "2026-04-27", "value": 18}, {"label": "2026-04-28", "value": 305}, {"label": "2026-04-29", "value": 781}, {"label": "2026-05-01", "value": 291}, {"label": "2026-05-02", "value": 330}, {"label": "2026-05-03", "value": 702}, {"label": "2026-05-04", "value": 157}, {"label": "2026-05-05", "value": 46}, {"label": "2026-05-06", "value": 408}, {"label": "2026-05-07", "value": 366}, {"label": "2026-05-08", "value": 150}, {"label": "2026-05-09", "value": 33}, {"label": "2026-05-10", "value": 39}, {"label": "2026-05-11", "value": 38}, {"label": "2026-05-12", "value": 292}, {"label": "2026-05-13", "value": 484}, {"label": "2026-05-14", "value": 145}, {"label": "2026-05-15", "value": 198}, {"label": "2026-05-16", "value": 189}, {"label": "2026-05-17", "value": 489}, {"label": "2026-05-18", "value": 79}, {"label": "2026-05-19", "value": 161}, {"label": "2026-05-20", "value": 355}, {"label": "2026-05-21", "value": 6973}, {"label": "2026-05-22", "value": 2738}, {"label": "2026-05-23", "value": 30}, {"label": "2026-05-24", "value": 32}, {"label": "2026-05-25", "value": 389}, {"label": "2026-05-26", "value": 503}, {"label": "2026-05-27", "value": 262}, {"label": "2026-05-28", "value": 362}, {"label": "2026-05-29", "value": 314}, {"label": "2026-05-31", "value": 29}, {"label": "2026-06-01", "value": 27}, {"label": "2026-06-02", "value": 37}, {"label": "2026-06-03", "value": 263}, {"label": "2026-06-04", "value": 196}, {"label": "2026-06-05", "value": 60}, {"label": "2026-06-06", "value": 106}, {"label": "2026-06-07", "value": 342}, {"label": "2026-06-08", "value": 118}, {"label": "2026-06-09", "value": 66}, {"label": "2026-06-10", "value": 435}, {"label": "2026-06-11", "value": 162}, {"label": "2026-06-12", "value": 303}, {"label": "2026-06-13", "value": 115}, {"label": "2026-06-14", "value": 45}, {"label": "2026-06-15", "value": 281}, {"label": "2026-06-16", "value": 361}, {"label": "2026-06-17", "value": 262}, {"label": "2026-06-18", "value": 169}, {"label": "2026-06-19", "value": 218}, {"label": "2026-06-20", "value": 391}, {"label": "2026-06-21", "value": 162}, {"label": "2026-06-22", "value": 1364}, {"label": "2026-06-23", "value": 3739}, {"label": "2026-06-24", "value": 2030}, {"label": "2026-06-25", "value": 738}, {"label": "2026-06-26", "value": 444}, {"label": "2026-06-27", "value": 314}, {"label": "2026-06-28", "value": 122}, {"label": "2026-06-30", "value": 1102}, {"label": "2026-07-01", "value": 299}, {"label": "2026-07-02", "value": 255}, {"label": "2026-07-03", "value": 86}, {"label": "2026-07-04", "value": 334}, {"label": "2026-07-05", "value": 91}, {"label": "2026-07-06", "value": 46}, {"label": "2026-07-07", "value": 70}, {"label": "2026-07-08", "value": 702}, {"label": "2026-07-09", "value": 540}, {"label": "2026-07-10", "value": 350}, {"label": "2026-07-11", "value": 99}, {"label": "2026-07-12", "value": 43}, {"label": "2026-07-13", "value": 41}, {"label": "2026-07-14", "value": 292}, {"label": "2026-07-15", "value": 88}, {"label": "2026-07-16", "value": 27}, {"label": "2026-07-17", "value": 408}, {"label": "2026-07-18", "value": 526}, {"label": "2026-07-19", "value": 314}, {"label": "2026-07-20", "value": 362}, {"label": "2026-07-21", "value": 144}, {"label": "2026-07-22", "value": 298}, {"label": "2026-07-23", "value": 450}, {"label": "2026-07-24", "value": 333}, {"label": "2026-07-25", "value": 381}, {"label": "2026-07-26", "value": 37}, {"label": "2026-07-27", "value": 23}, {"label": "2026-07-28", "value": 264}, {"label": "2026-07-30", "value": 385}, {"label": "2026-07-31", "value": 66}, {"label": "2026-08-01", "value": 28}, {"label": "2026-08-02", "value": 60}, {"label": "2026-08-03", "value": 38}, {"label": "2026-08-04", "value": 413}, {"label": "2026-08-05", "value": 359}, {"label": "2026-08-06", "value": 127}, {"label": "2026-08-07", "value": 36}, {"label": "2026-08-08", "value": 39}, {"label": "2026-08-09", "value": 55}, {"label": "2026-08-10", "value": 41}, {"label": "2026-08-11", "value": 52}, {"label": "2026-08-12", "value": 56}, {"label": "2026-08-13", "value": 198}, {"label": "2026-08-14", "value": 146}, {"label": "2026-08-15", "value": 346}, {"label": "2026-08-16", "value": 463}, {"label": "2026-08-17", "value": 85}, {"label": "2026-08-18", "value": 323}, {"label": "2026-08-19", "value": 379}, {"label": "2026-08-20", "value": 80}, {"label": "2026-08-21", "value": 35}, {"label": "2026-08-22", "value": 25}, {"label": "2026-08-23", "value": 31}, {"label": "2026-08-24", "value": 40}, {"label": "2026-08-25", "value": 32}, {"label": "2026-08-26", "value": 20}, {"label": "2026-08-27", "value": 23}, {"label": "2026-08-29", "value": 28}, {"label": "2026-08-30", "value": 28}, {"label": "2026-08-31", "value": 302}, {"label": "2026-09-01", "value": 221}, {"label": "2026-09-02", "value": 231}, {"label": "2026-09-03", "value": 232}, {"label": "2026-09-04", "value": 151}, {"label": "2026-09-05", "value": 29}, {"label": "2026-09-06", "value": 33}, {"label": "2026-09-07", "value": 27}, {"label": "2026-09-08", "value": 249}, {"label": "2026-09-09", "value": 420}, {"label": "2026-09-10", "value": 117}, {"label": "2026-09-11", "value": 135}, {"label": "2026-09-12", "value": 81}, {"label": "2026-09-13", "value": 26}, {"label": "2026-09-14", "value": 23}, {"label": "2026-09-15", "value": 3314}, {"label": "2026-09-16", "value": 6251}, {"label": "2026-09-17", "value": 1121}, {"label": "2026-09-18", "value": 1436}, {"label": "2026-09-19", "value": 733}, {"label": "2026-09-20", "value": 557}, {"label": "2026-09-21", "value": 773}]}};
+// Datos de pauta con granularidad DIARIA: permiten recalcular los KPIs y la
+// tabla de campañas para cualquier rango sin volver a llamar a la Graph API
+// (el dashboard es un archivo estatico que tiene que funcionar sin conexion).
+const ADS = {"hasData": false, "fullRange": {"since": "2026-01-01", "until": "2026-09-22"}};
+// Posts (organico) con su fecha, para recalcular el resumen por rango.
+const POSTS = [{"date": "2026-09-21", "platform": "Facebook", "engagement": 2, "reach": null, "views": null, "profileVisits": null, "caption": "🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN\n\n¿Una lesión o molesti", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/812281292_1745667044225648_990522973487940547_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=HJt-nDcp9NcQ7kNvwGQF06W&_nc_oc=AdqdsK1JWTyjnkrkH9BG_FvmgB0Zx3-pgwe-I5fl_R4gCRs6u62rz_ZqPuUfflz4mcM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJU_I0ujyRliyFTjnKltAU62r3hdbkNOjwYiHqRBpEAAHXwYi9SeXWzC0v_4FSVAIW4KagKwvFOnQ&oh=00_AQLmZQtuY-o0mKCr0-wfrgGMftWs_HNZR8nFsH2YWBK2vA&oe=6AB8B306", "permalink": "https://www.facebook.com/1749779003814452/posts/1748384827287203", "format": "Publicacion"}, {"date": "2026-09-20", "platform": "Facebook", "engagement": 2, "reach": null, "views": null, "profileVisits": null, "caption": "🏷️ Descarga muscular por $399 MXN\n\n¿Sientes tensión, cansancio muscular o molest", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/816994566_2553329611852276_3356645561409416928_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=XPqcN9lNvdIQ7kNvwHpHJ15&_nc_oc=AdqZWqlayswjj3j-WFRhJXR0rPIuXlb1y8GsNOROdqKSjXfdgI2OzGOkM5hmh6jzvXg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLnkDBKE-YMaEXHIVEK6Gm01IMA6YaEK1kJ3C6FOQD0GFESpn7wGpZFDiLk9O7FPVz87eTuuTKkxw&oh=00_AQL0BeQiMcEGVAdY_KUfoIRKom7rxCjUX_XQTP4ELFBK2g&oe=6AB8B099", "permalink": "https://www.facebook.com/reel/1401234715476460/", "format": "Publicacion"}, {"date": "2026-09-19", "platform": "Facebook", "engagement": 0, "reach": null, "views": null, "profileVisits": null, "caption": "🩺 10 sesiones de cámara hiperbárica por $5,900 MXN\n\nDale a tu recuperación atenc", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/813891562_1455918396356588_1306860496429471192_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=ink56nL7vVAQ7kNvwFW4lIa&_nc_oc=Adrie8fzpzf8WO0pCablHbAQD1d7omojFIR572-NzTm78tSqybnMZmbtizzqov6scWM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLm5h1zfoGGlYposjZOceyty5eegt-E_mychtwfuYFGxKr-c4nmIdo_s5ihIh4_UyR7EbjEUVTlWA&oh=00_AQIyMkDS31HEwjHthwg-L_5d6D-w4cYTn9FnYluTcg4cUQ&oe=6AB8A18F", "permalink": "https://www.facebook.com/reel/2592632381199141/", "format": "Publicacion"}, {"date": "2026-09-18", "platform": "Facebook", "engagement": 0, "reach": null, "views": null, "profileVisits": null, "caption": "(sin texto)", "thumbnail": "https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/815268103_1745778170881202_7229406028036750443_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=lKWzpk4PHM0Q7kNvwFVMthq&_nc_oc=AdpzV4b3_Yl-OvH-q0iLSyOoACXftdnQq4AmwnBjA682Ce87S9NSwJ95LCfpP6LIGlA&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLtN1f0m9afDDk00Ek2mZ1199JepQPIkZLGiZjsLj3OJ3EcqrGFOwnS2HYlbHh2US6Nzo5AmvCaYQ&oh=00_AQLHXpflx2ewQYkd2py6DmakGwUwrMZ5cklR9HDyEI2UiA&oe=6AB8D104", "permalink": "https://www.facebook.com/1749779003814452/posts/1099487802627588?substory_index=1099487802627588", "format": "Publicacion"}, {"date": "2026-09-18", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "(sin texto)", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/815469397_1745771180881901_518033070738207711_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=KLht5du6pwIQ7kNvwHeozc_&_nc_oc=AdoL8P87riSJ3BkePncbKHAK7nZ4U3AC1Zd7HVRIDFYR3NvINJv_OauAG8ZFyUFM3u0&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQL-jJjY7Seb0i0DUwnunuKlrYLq560B-CKHIcP1mb9tigEOwuX8sHb4rTT-VOl5qzT3KYsf6lLQbw&oh=00_AQKbmU6_DbeLLoKyB1wEpA64XvjGSRatK2TNbuWpSKJypw&oe=6AB8A164", "permalink": "https://www.facebook.com/1749779003814452/posts/1745771490881870?substory_index=1595142561441810", "format": "Publicacion"}, {"date": "2026-09-18", "platform": "Facebook", "engagement": 3, "reach": null, "views": null, "profileVisits": null, "caption": "Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/797744792_1745603697565316_3243890647049340882_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=nYj0N3R3vccQ7kNvwFdp0s9&_nc_oc=Adrftx2SuH2lsKNo5ozz4XgK7TxEpu0EJxo2XCz5h7MlErVX-qBXNsYRdfEQWztfUMc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJlgPkcJhLfzn2QigR5LcwMBRQnAsQxI3QxY_F_tEHao_BUKjETFluP8hKoobgd4OdJ-oZ4-2qvjA&oh=00_AQL76LqrxkcOYjl43PepgBK6ZGjFwiGsDj_ugJ61rHNI7w&oe=6AB8C6DA", "permalink": "https://www.facebook.com/1749779003814452/posts/1745603997565286", "format": "Publicacion"}, {"date": "2026-09-16", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "🇲🇽 ¡Hoy se juega a la mexicana! 🃏\n\nEn ORTHOKLINIC celebramos este 15 de septiemb", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/808431086_18111845192032090_1579705378017688576_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=-1D1ct3dJaMQ7kNvwGLintL&_nc_oc=Ado_E41l9tHR12-yvNLivzuUBsfUewkcQRHXNXo-8KMNNA_moa0xMwi40zW8tB3jZFc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJ3IcuGJX3TEvHPmyQXsq45jYdk06k7Z9XHpe0BnirMtPPKaDXSbm5M7vxyOl-EJ27Yc1yWvdusKw&oh=00_AQKTtu2yfPR0zy8SKYF-HntzzaWj4_zog1qXXLDOiAauTg&oe=6AB8BA94", "permalink": "https://www.facebook.com/1749779003814452/posts/1742673991191620", "format": "Publicacion"}, {"date": "2026-06-29", "platform": "Facebook", "engagement": 4, "reach": null, "views": null, "profileVisits": null, "caption": "¿Cuánto tiempo llevas viviendo con ese dolor? 🤔\n\nDolor de espalda, cuello, rodil", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/728704254_18104166308032090_848565649688582386_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xEda3Uo3WDsQ7kNvwFNaTZk&_nc_oc=AdqJG2JTndc2GKfvfhdhlcqJNdo_M-4Nqu16j-KgWStdgOJ5CiSAvNjCwaOpDBnb0jc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLo4LffNEhOWKswvZyEdTYpElL8ljxwUCvaiO1mK7rkBF4ol5zDKOYD8kcyuTLc9Q6oxblgRGJPIA&oh=00_AQLm6Qns46kLfCxki_UM7JGw2MJmft-CDeQ5dMPwcGWJwg&oe=6AB8CE5D", "permalink": "https://www.facebook.com/1749779003814452/posts/1666166918842328", "format": "Publicacion"}, {"date": "2026-06-24", "platform": "Facebook", "engagement": 0, "reach": null, "views": null, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-10/728833583_18103649810032090_4547641937563551682_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=Sq1mVUfidMMQ7kNvwGm9XoZ&_nc_oc=AdpuCltiCED2hpBbQBtbgjaFKfYbhByH0zL5kF_Q1DdZuEqJexG2Ch-tcAzaFBikyyU&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJ28y4TOmi9Na4XRua46goCjDAJHPzUfvJ-WXi0pprhYuXvc3rz80jLOwG2eUhXvkYN8pNwh0xsoQ&oh=00_AQJq9B_vk2ejIuvuVZWatBYdTQkc7OYa9k1dCEVAqEZRvg&oe=6AB8A0C9", "permalink": "https://www.facebook.com/reel/1275573764649637/", "format": "Publicacion"}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 13, "reach": null, "views": null, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-10/728606783_18103570328032090_4668215454861155282_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=105&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=Thsk16EbEGYQ7kNvwFOJbfK&_nc_oc=Adr6wY7dYE3LEK4QlMBQU1P6zTgaYb0mNq74gIkyl4-3nRyG3QgWR3ghlHWciwY1ifg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLPqUwqci2uITXX8-2mi471eSwXef-GutTtZdSTuyPMyWaWJ9dG_yL3Cga2fhfd4V9H2sUJHbyfqQ&oh=00_AQKS7o1gI7rltTUIlfftuA_Z5ixfApTAn9-6nveXqDsPDQ&oe=6AB8BC8C", "permalink": "https://www.facebook.com/reel/882130250983123/", "format": "Publicacion"}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 3, "reach": null, "views": null, "profileVisits": null, "caption": "🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/730515877_18103490348032090_7486081964894089313_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=dMP9Zxr_gYAQ7kNvwGuCzMm&_nc_oc=AdoSiTcMsK1yU7Lgr1s_bt5eg5midh6g1n0d_CoDL6Iq2HsJn7d4Fp8IARnZG_s9FcM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJbGk06IcEOed9pLkvZ_E6AR39rsLX8bzrbEvNwris74wFDbshzXwA2ua2NicAn6r-U4AM2vFgFbg&oh=00_AQISDMgyZLczqxNWM7T-80Hu3CiaD1toOIK8EDlkbJDOlA&oe=6AB8D0DD", "permalink": "https://www.facebook.com/1749779003814452/posts/1659693746156312", "format": "Publicacion"}, {"date": "2026-06-22", "platform": "Facebook", "engagement": 2, "reach": null, "views": null, "profileVisits": null, "caption": "Detrás de cada entrenamiento existe un proceso de recuperación.\n\nHoy tocó descar", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/727864446_18103471787032090_3216342138845562343_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=103&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=kn8RPGiKqBYQ7kNvwGUMp_s&_nc_oc=Adojkn3mqaQR21JWM2PyGoLClzPMc_cRu0vrSB8-Ua92yfRImmpf7tSu5USE4qjJjzE&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQK8OKLy8J4rQyY1-p65l2YPdCMaRk8X0S84foDasUgSOQxfceDld5B6g0B8mpY_D5avjsAVASZIAA&oh=00_AQIsusIpfCfe5EK2oo4D4Ufxvs4Qk72yrJnjsmHRy3bnaw&oe=6AB8C1AA", "permalink": "https://www.facebook.com/reel/2317940529021457/", "format": "Publicacion"}, {"date": "2026-02-23", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "⚠️🚨 AVISO 🚨⚠️", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/642139635_18091197461032090_4676945124013452329_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ltAdrh122mAQ7kNvwG1NwQQ&_nc_oc=AdqXpVFmKMOEsulbsVav5T1x-RZpJxIxzcFSAKzPvKu0JXKDN9LZFLRq8tr_CySjk0s&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQKTHOC8-ys7s5Vjj0sPt_wvy-yQ4E9J3PuIqJaJiLrF-O42Q39ric09UHpmO34lckPkPFXWIgCBIg&oh=00_AQJVSkLCEwNIfH13OKG7MQ9HJ7XjRwMWxfEoYNHD8x7jEA&oe=6AB8D3C4", "permalink": "https://www.facebook.com/1749779003814452/posts/1545752830883738", "format": "Publicacion"}, {"date": "2026-02-16", "platform": "Facebook", "engagement": 272, "reach": null, "views": null, "profileVisits": null, "caption": "El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia ", "thumbnail": "https://scontent.fpbc2-5.fna.fbcdn.net/v/t51.82787-15/629736828_18090642839032090_2449422601192253039_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Ac9sf0TgBOsQ7kNvwHgtXs9&_nc_oc=AdpdkatZMhESExtMXis6Yw9u1Vw2wcZKNFSC1jSyvXwJZ1Q0k6FH4Q5OtZUYlIfO0zs&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQI4HSH4RF6u0h2Xk6lL2t6iY6k5JmeXiBKvV9cNYgFKjIGsPDCr09R22TS8vNHPukt1tQDeQiCZ-w&oh=00_AQIDMPezWur908mk4IAUFd__DCqnu1h4FqdPYwRIA0flFw&oe=6AB8CC12", "permalink": "https://www.facebook.com/1749779003814452/posts/1539821088143579", "format": "Publicacion"}, {"date": "2026-02-13", "platform": "Facebook", "engagement": 5, "reach": null, "views": null, "profileVisits": null, "caption": "Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.\n\nEste ", "thumbnail": "https://scontent.fpbc2-5.fna.fbcdn.net/v/t51.71878-10/629243533_1346949494136854_8585139277957962272_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=16fw5bcqrgoQ7kNvwGqnVjT&_nc_oc=AdqdntAsgPpMZxSTvE-6A-gSxet_RePIkmXh6qav49OydNZpIpr5B2Sfwxk0hlk6En0&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQL0MQPUF-1hI-dKLtIbA3w9cKs2Fxegi0vz2eCg_nzzPVieU7GGmLcqnDBYgYe0Lpl1WufNgenSaw&oh=00_AQJkME99xagwGa89K8WYs_bYSpPp9GWtxTBiWi13Jcl9PQ&oe=6AB8BC75", "permalink": "https://www.facebook.com/reel/1498480521798535/", "format": "Publicacion"}, {"date": "2026-01-01", "platform": "Facebook", "engagement": 3, "reach": null, "views": null, "profileVisits": null, "caption": "✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/610633592_18086230838032090_3108016391580681634_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=JD4IQ2tpPoQQ7kNvwEMxNTG&_nc_oc=AdrzOan_P4ycWwrwQkqB4nLZWdYQs1DsgC4HrXQFJZEcSsq99xeIVGCsqncI_iptXX4&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLM5kT0I88tJF-P5tXGIthOMp7F2cZ6n-TJb2THsA-rTSn53If_VPpXeAAvmppv8OW0KyFufd8D4Q&oh=00_AQI6Jcwqdjt-d43BlD0bS-QBnhLmreay048Y19yd6YBiGA&oe=6AB8CF40", "permalink": "https://www.facebook.com/1749779003814452/posts/1496433779148977", "format": "Publicacion"}, {"date": "2026-09-21", "platform": "Instagram", "engagement": 14, "reach": 546, "views": 1282, "profileVisits": 1, "caption": "🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN\n\n¿Una lesión o molesti", "thumbnail": "https://scontent.cdninstagram.com/v/t39.30808-6/812281292_1745667044225648_990522973487940547_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=HJt-nDcp9NcQ7kNvwGQF06W&_nc_oc=AdqdsK1JWTyjnkrkH9BG_FvmgB0Zx3-pgwe-I5fl_R4gCRs6u62rz_ZqPuUfflz4mcM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJ5tBvc8yxGtp993zZzYmkLb0z3slPmYsx0w_EYgbx7ZA&oe=6AB8B306", "permalink": "https://www.instagram.com/p/DdjU_RajX5N/", "format": "FEED"}, {"date": "2026-09-20", "platform": "Instagram", "engagement": 4, "reach": 290, "views": 569, "profileVisits": null, "caption": "🏷️ Descarga muscular por $399 MXN\n\n¿Sientes tensión, cansancio muscular o molest", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/819684226_18112386521032090_658079681941642881_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=sn98NRNOJncQ7kNvwFoNxy7&_nc_oc=AdqoDXTnRLa7wXD9WkkqHJiMz9nfgTIjUSekF-sxtJ_ui7xQT8bJcfEdsjA2ykw8Mak&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQKSM8unCQiLmcrjqv-KK098IGg6ZKzBUi5PsWreWFra-bY92BasKzLIKhc7HF2d_-hxTfiE52GXnA&oh=00_AQKxIVw2MQ_5CXFfS77FsjWZftUOFkC5u6jHWsJwseHUXw&oe=6AB8A2FC", "permalink": "https://www.instagram.com/reel/DdgwIf6DyCr/", "format": "REELS"}, {"date": "2026-09-19", "platform": "Instagram", "engagement": 6, "reach": 158, "views": 318, "profileVisits": null, "caption": "🩺 10 sesiones de cámara hiperbárica por $5,900 MXN\n\nDale a tu recuperación atenc", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/819714592_18112385966032090_2583891121882958092_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=m4IGXohZjDwQ7kNvwE3PqSs&_nc_oc=AdpLWH6MZNw05tRG0T0OcpnABYYy6j1z9LFIAVAw8EQLoTPNjS_A_WhAemiLMIphlqA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQL6PmRSlXCwrtI1gwfkRF-oeGJ6oyE57LzGMigID2DH8szh9KLNg3lUqJzNCqmLEyEkhL6OpDH8TA&oh=00_AQKAqhtR73ClF8u2Ll9GGRaqn5iEcI5LqB-_5jOCsIEJKQ&oe=6AB8D60C", "permalink": "https://www.instagram.com/reel/DdeLTw-j67q/", "format": "REELS"}, {"date": "2026-09-18", "platform": "Instagram", "engagement": 15, "reach": 1107, "views": 2027, "profileVisits": 9, "caption": "Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a", "thumbnail": "https://scontent.cdninstagram.com/v/t39.30808-6/797744792_1745603697565316_3243890647049340882_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=nYj0N3R3vccQ7kNvwFdp0s9&_nc_oc=Adrftx2SuH2lsKNo5ozz4XgK7TxEpu0EJxo2XCz5h7MlErVX-qBXNsYRdfEQWztfUMc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJMW9qJJyJiydCz2PMfw25jcpS7oJAG5HpWyEpBdRMQ4w&oe=6AB8C6DA", "permalink": "https://www.instagram.com/p/DdcGh6kGKsu/", "format": "FEED"}, {"date": "2026-09-16", "platform": "Instagram", "engagement": 1294, "reach": 11081, "views": 23429, "profileVisits": 17, "caption": "🇲🇽 ¡Hoy se juega a la mexicana! 🃏\n\nEn ORTHOKLINIC celebramos este 15 de septiemb", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/808431086_18111845192032090_1579705378017688576_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=-1D1ct3dJaMQ7kNvwGLintL&_nc_oc=Ado_E41l9tHR12-yvNLivzuUBsfUewkcQRHXNXo-8KMNNA_moa0xMwi40zW8tB3jZFc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQLjhsBid3LELPa3-bZtili0X4dcK82Mp-1rr_W9nolB9g&oe=6AB8BA94", "permalink": "https://www.instagram.com/p/DdU9jv9jKHj/", "format": "FEED"}, {"date": "2026-06-29", "platform": "Instagram", "engagement": 22, "reach": 2366, "views": 4044, "profileVisits": 5, "caption": "¿Cuánto tiempo llevas viviendo con ese dolor? 🤔\n\nDolor de espalda, cuello, rodil", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/728704254_18104166308032090_848565649688582386_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=xEda3Uo3WDsQ7kNvwFNaTZk&_nc_oc=AdqJG2JTndc2GKfvfhdhlcqJNdo_M-4Nqu16j-KgWStdgOJ5CiSAvNjCwaOpDBnb0jc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJXwTKG-CM-jR1784-MjWyLZ2q3RuvInFDOJwjffXH-ZA&oe=6AB8CE5D", "permalink": "https://www.instagram.com/p/DaLzwTDJgCE/", "format": "FEED"}, {"date": "2026-06-24", "platform": "Instagram", "engagement": 110, "reach": 2341, "views": 3608, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/728833583_18103649810032090_4547641937563551682_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Sq1mVUfidMMQ7kNvwGm9XoZ&_nc_oc=AdpuCltiCED2hpBbQBtbgjaFKfYbhByH0zL5kF_Q1DdZuEqJexG2Ch-tcAzaFBikyyU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQL8bOfCAey6FKOLMqElxkuUNHysYeYQVowN36JjuGqhWXNX-VhUW1E8A9cKO17khyXh3ySmAjbmhQ&oh=00_AQIY3nqkThat1bWsTt2VDx6JqP78pZp91Xw4Idp_vgJzWg&oe=6AB8CDD9", "permalink": "https://www.instagram.com/reel/DZ-ZSp0pZ2U/", "format": "REELS"}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 142, "reach": 5209, "views": 7605, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/728606783_18103570328032090_4668215454861155282_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Thsk16EbEGYQ7kNvwFOJbfK&_nc_oc=Adr6wY7dYE3LEK4QlMBQU1P6zTgaYb0mNq74gIkyl4-3nRyG3QgWR3ghlHWciwY1ifg&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQI8Q1wizxSkTc-wVGnxOQnT_DVw4uBfndTViOXTvbKSiqiPYV2Y3_wKMjB3xE1I3tdO3gUR6d6dvA&oh=00_AQLpfU1evWs25a3mX0hmdxO68lUG7ff3bPK_GgJKb7CaIQ&oe=6AB8C8DC", "permalink": "https://www.instagram.com/reel/DZ8KW7Jpqtw/", "format": "REELS"}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 14, "reach": 1121, "views": 1978, "profileVisits": 29, "caption": "🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/730515877_18103490348032090_7486081964894089313_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=dMP9Zxr_gYAQ7kNvwGuCzMm&_nc_oc=AdoSiTcMsK1yU7Lgr1s_bt5eg5midh6g1n0d_CoDL6Iq2HsJn7d4Fp8IARnZG_s9FcM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQLLVgmt-XT9zhRX9F1X_MOW7SXiYUDkiS68znEANVclOw&oe=6AB8D0DD", "permalink": "https://www.instagram.com/p/DZ6JhkvsvY5/", "format": "FEED"}, {"date": "2026-06-22", "platform": "Instagram", "engagement": 21, "reach": 1709, "views": 2368, "profileVisits": null, "caption": "Detrás de cada entrenamiento existe un proceso de recuperación.\n\nHoy tocó descar", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/727864446_18103471787032090_3216342138845562343_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=kn8RPGiKqBYQ7kNvwGUMp_s&_nc_oc=Adojkn3mqaQR21JWM2PyGoLClzPMc_cRu0vrSB8-Ua92yfRImmpf7tSu5USE4qjJjzE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQKmUyNPq3cTTNyzdchycSE7tMGgrGY556BGG8-ghu5Z5p1WUmAkaeAAdSr0m7OJb_0NNjsBo2obmA&oh=00_AQI754b-qYZca3Pp_bT7SkKIUji-yj7hd4irvA-YcfvL0Q&oe=6AB8C17A", "permalink": "https://www.instagram.com/reel/DZ5jgNjpUh4/", "format": "REELS"}, {"date": "2026-02-23", "platform": "Instagram", "engagement": 64, "reach": 3041, "views": 7716, "profileVisits": 15, "caption": "⚠️🚨 AVISO 🚨⚠️", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/642139635_18091197461032090_4676945124013452329_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=ltAdrh122mAQ7kNvwG1NwQQ&_nc_oc=AdqXpVFmKMOEsulbsVav5T1x-RZpJxIxzcFSAKzPvKu0JXKDN9LZFLRq8tr_CySjk0s&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQIXZ6UAQXFrGKgaM7Ge43ewRLH9qU4--k-OabhcpOWVlQ&oe=6AB8D3C4", "permalink": "https://www.instagram.com/p/DVFcf39jKzl/", "format": "FEED"}, {"date": "2026-02-16", "platform": "Instagram", "engagement": 148, "reach": 6683, "views": 14806, "profileVisits": 423, "caption": "El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia ", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/629736828_18090642839032090_2449422601192253039_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=Ac9sf0TgBOsQ7kNvwHgtXs9&_nc_oc=AdpdkatZMhESExtMXis6Yw9u1Vw2wcZKNFSC1jSyvXwJZ1Q0k6FH4Q5OtZUYlIfO0zs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQL4CBlKdOjnfT1atrVEXOA4nm5CM25ea2FHvyKWX5LszA&oe=6AB8CC12", "permalink": "https://www.instagram.com/p/DU1DLVsiRUV/", "format": "FEED"}, {"date": "2026-02-13", "platform": "Instagram", "engagement": 67, "reach": 3412, "views": 5456, "profileVisits": null, "caption": "Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.\n\nEste ", "thumbnail": "https://scontent.cdninstagram.com/v/t51.71878-15/626297638_25518874894475323_336936166274682174_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Bc78IW72xPQQ7kNvwGDY9mm&_nc_oc=Adp2ygCvWw925m0b71er9rXKQjgebQc6_T_1tUrQ3z_BYJo3bh6FA5zgpaFWjwsjJWw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQLGx_m6lys-mLtWEb3--rWQN1rXkZMeVV-Q8lU7WZM_7uKL1TuQbh3WE_oNXbu2P2_4peoVk6oAyg&oh=00_AQJBxSBGGptXAPe8wpRjdT-TMYC65_yoa1kEBUJfC2fQUQ&oe=6AB8BBA0", "permalink": "https://www.instagram.com/reel/DUrVQuxDCpo/", "format": "REELS"}, {"date": "2026-01-01", "platform": "Instagram", "engagement": 23, "reach": 2993, "views": 5144, "profileVisits": 8, "caption": "✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/610633592_18086230838032090_3108016391580681634_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=JD4IQ2tpPoQQ7kNvwEMxNTG&_nc_oc=AdrzOan_P4ycWwrwQkqB4nLZWdYQs1DsgC4HrXQFJZEcSsq99xeIVGCsqncI_iptXX4&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQIer0nnVVAgkNAciqnwN8R7IEhMhDFmdY32bcBx1ibWww&oe=6AB8CF40", "permalink": "https://www.instagram.com/p/DS8zYJSDNKn/", "format": "FEED"}];
+// Incluye tres meses anteriores al inicio visible exclusivamente para calcular
+// la referencia del semaforo de enero y febrero.
+const ORGANIC_HISTORY = [{"date": "2026-09-21", "platform": "Facebook", "engagement": 2, "reach": null, "views": null, "profileVisits": null, "caption": "🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN\n\n¿Una lesión o molesti", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/812281292_1745667044225648_990522973487940547_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=HJt-nDcp9NcQ7kNvwGQF06W&_nc_oc=AdqdsK1JWTyjnkrkH9BG_FvmgB0Zx3-pgwe-I5fl_R4gCRs6u62rz_ZqPuUfflz4mcM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJU_I0ujyRliyFTjnKltAU62r3hdbkNOjwYiHqRBpEAAHXwYi9SeXWzC0v_4FSVAIW4KagKwvFOnQ&oh=00_AQLmZQtuY-o0mKCr0-wfrgGMftWs_HNZR8nFsH2YWBK2vA&oe=6AB8B306", "permalink": "https://www.facebook.com/1749779003814452/posts/1748384827287203", "format": "Publicacion"}, {"date": "2026-09-20", "platform": "Facebook", "engagement": 2, "reach": null, "views": null, "profileVisits": null, "caption": "🏷️ Descarga muscular por $399 MXN\n\n¿Sientes tensión, cansancio muscular o molest", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/816994566_2553329611852276_3356645561409416928_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=XPqcN9lNvdIQ7kNvwHpHJ15&_nc_oc=AdqZWqlayswjj3j-WFRhJXR0rPIuXlb1y8GsNOROdqKSjXfdgI2OzGOkM5hmh6jzvXg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLnkDBKE-YMaEXHIVEK6Gm01IMA6YaEK1kJ3C6FOQD0GFESpn7wGpZFDiLk9O7FPVz87eTuuTKkxw&oh=00_AQL0BeQiMcEGVAdY_KUfoIRKom7rxCjUX_XQTP4ELFBK2g&oe=6AB8B099", "permalink": "https://www.facebook.com/reel/1401234715476460/", "format": "Publicacion"}, {"date": "2026-09-19", "platform": "Facebook", "engagement": 0, "reach": null, "views": null, "profileVisits": null, "caption": "🩺 10 sesiones de cámara hiperbárica por $5,900 MXN\n\nDale a tu recuperación atenc", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t15.5256-10/813891562_1455918396356588_1306860496429471192_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=ink56nL7vVAQ7kNvwFW4lIa&_nc_oc=Adrie8fzpzf8WO0pCablHbAQD1d7omojFIR572-NzTm78tSqybnMZmbtizzqov6scWM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLm5h1zfoGGlYposjZOceyty5eegt-E_mychtwfuYFGxKr-c4nmIdo_s5ihIh4_UyR7EbjEUVTlWA&oh=00_AQIyMkDS31HEwjHthwg-L_5d6D-w4cYTn9FnYluTcg4cUQ&oe=6AB8A18F", "permalink": "https://www.facebook.com/reel/2592632381199141/", "format": "Publicacion"}, {"date": "2026-09-18", "platform": "Facebook", "engagement": 0, "reach": null, "views": null, "profileVisits": null, "caption": "(sin texto)", "thumbnail": "https://scontent.fpbc2-5.fna.fbcdn.net/v/t39.30808-6/815268103_1745778170881202_7229406028036750443_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=lKWzpk4PHM0Q7kNvwFVMthq&_nc_oc=AdpzV4b3_Yl-OvH-q0iLSyOoACXftdnQq4AmwnBjA682Ce87S9NSwJ95LCfpP6LIGlA&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLtN1f0m9afDDk00Ek2mZ1199JepQPIkZLGiZjsLj3OJ3EcqrGFOwnS2HYlbHh2US6Nzo5AmvCaYQ&oh=00_AQLHXpflx2ewQYkd2py6DmakGwUwrMZ5cklR9HDyEI2UiA&oe=6AB8D104", "permalink": "https://www.facebook.com/1749779003814452/posts/1099487802627588?substory_index=1099487802627588", "format": "Publicacion"}, {"date": "2026-09-18", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "(sin texto)", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t39.30808-6/815469397_1745771180881901_518033070738207711_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=KLht5du6pwIQ7kNvwHeozc_&_nc_oc=AdoL8P87riSJ3BkePncbKHAK7nZ4U3AC1Zd7HVRIDFYR3NvINJv_OauAG8ZFyUFM3u0&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQL-jJjY7Seb0i0DUwnunuKlrYLq560B-CKHIcP1mb9tigEOwuX8sHb4rTT-VOl5qzT3KYsf6lLQbw&oh=00_AQKbmU6_DbeLLoKyB1wEpA64XvjGSRatK2TNbuWpSKJypw&oe=6AB8A164", "permalink": "https://www.facebook.com/1749779003814452/posts/1745771490881870?substory_index=1595142561441810", "format": "Publicacion"}, {"date": "2026-09-18", "platform": "Facebook", "engagement": 3, "reach": null, "views": null, "profileVisits": null, "caption": "Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t39.30808-6/797744792_1745603697565316_3243890647049340882_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=nYj0N3R3vccQ7kNvwFdp0s9&_nc_oc=Adrftx2SuH2lsKNo5ozz4XgK7TxEpu0EJxo2XCz5h7MlErVX-qBXNsYRdfEQWztfUMc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJlgPkcJhLfzn2QigR5LcwMBRQnAsQxI3QxY_F_tEHao_BUKjETFluP8hKoobgd4OdJ-oZ4-2qvjA&oh=00_AQL76LqrxkcOYjl43PepgBK6ZGjFwiGsDj_ugJ61rHNI7w&oe=6AB8C6DA", "permalink": "https://www.facebook.com/1749779003814452/posts/1745603997565286", "format": "Publicacion"}, {"date": "2026-09-16", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "🇲🇽 ¡Hoy se juega a la mexicana! 🃏\n\nEn ORTHOKLINIC celebramos este 15 de septiemb", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/808431086_18111845192032090_1579705378017688576_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=-1D1ct3dJaMQ7kNvwGLintL&_nc_oc=Ado_E41l9tHR12-yvNLivzuUBsfUewkcQRHXNXo-8KMNNA_moa0xMwi40zW8tB3jZFc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJ3IcuGJX3TEvHPmyQXsq45jYdk06k7Z9XHpe0BnirMtPPKaDXSbm5M7vxyOl-EJ27Yc1yWvdusKw&oh=00_AQKTtu2yfPR0zy8SKYF-HntzzaWj4_zog1qXXLDOiAauTg&oe=6AB8BA94", "permalink": "https://www.facebook.com/1749779003814452/posts/1742673991191620", "format": "Publicacion"}, {"date": "2026-06-29", "platform": "Facebook", "engagement": 4, "reach": null, "views": null, "profileVisits": null, "caption": "¿Cuánto tiempo llevas viviendo con ese dolor? 🤔\n\nDolor de espalda, cuello, rodil", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/728704254_18104166308032090_848565649688582386_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xEda3Uo3WDsQ7kNvwFNaTZk&_nc_oc=AdqJG2JTndc2GKfvfhdhlcqJNdo_M-4Nqu16j-KgWStdgOJ5CiSAvNjCwaOpDBnb0jc&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLo4LffNEhOWKswvZyEdTYpElL8ljxwUCvaiO1mK7rkBF4ol5zDKOYD8kcyuTLc9Q6oxblgRGJPIA&oh=00_AQLm6Qns46kLfCxki_UM7JGw2MJmft-CDeQ5dMPwcGWJwg&oe=6AB8CE5D", "permalink": "https://www.facebook.com/1749779003814452/posts/1666166918842328", "format": "Publicacion"}, {"date": "2026-06-24", "platform": "Facebook", "engagement": 0, "reach": null, "views": null, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-10/728833583_18103649810032090_4547641937563551682_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=Sq1mVUfidMMQ7kNvwGm9XoZ&_nc_oc=AdpuCltiCED2hpBbQBtbgjaFKfYbhByH0zL5kF_Q1DdZuEqJexG2Ch-tcAzaFBikyyU&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJ28y4TOmi9Na4XRua46goCjDAJHPzUfvJ-WXi0pprhYuXvc3rz80jLOwG2eUhXvkYN8pNwh0xsoQ&oh=00_AQJq9B_vk2ejIuvuVZWatBYdTQkc7OYa9k1dCEVAqEZRvg&oe=6AB8A0C9", "permalink": "https://www.facebook.com/reel/1275573764649637/", "format": "Publicacion"}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 13, "reach": null, "views": null, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-10/728606783_18103570328032090_4668215454861155282_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=105&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=Thsk16EbEGYQ7kNvwFOJbfK&_nc_oc=Adr6wY7dYE3LEK4QlMBQU1P6zTgaYb0mNq74gIkyl4-3nRyG3QgWR3ghlHWciwY1ifg&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLPqUwqci2uITXX8-2mi471eSwXef-GutTtZdSTuyPMyWaWJ9dG_yL3Cga2fhfd4V9H2sUJHbyfqQ&oh=00_AQKS7o1gI7rltTUIlfftuA_Z5ixfApTAn9-6nveXqDsPDQ&oe=6AB8BC8C", "permalink": "https://www.facebook.com/reel/882130250983123/", "format": "Publicacion"}, {"date": "2026-06-23", "platform": "Facebook", "engagement": 3, "reach": null, "views": null, "profileVisits": null, "caption": "🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui", "thumbnail": "https://scontent.fpbc2-4.fna.fbcdn.net/v/t51.82787-15/730515877_18103490348032090_7486081964894089313_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=dMP9Zxr_gYAQ7kNvwGuCzMm&_nc_oc=AdoSiTcMsK1yU7Lgr1s_bt5eg5midh6g1n0d_CoDL6Iq2HsJn7d4Fp8IARnZG_s9FcM&_nc_zt=23&_nc_ht=scontent.fpbc2-4.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQJbGk06IcEOed9pLkvZ_E6AR39rsLX8bzrbEvNwris74wFDbshzXwA2ua2NicAn6r-U4AM2vFgFbg&oh=00_AQISDMgyZLczqxNWM7T-80Hu3CiaD1toOIK8EDlkbJDOlA&oe=6AB8D0DD", "permalink": "https://www.facebook.com/1749779003814452/posts/1659693746156312", "format": "Publicacion"}, {"date": "2026-06-22", "platform": "Facebook", "engagement": 2, "reach": null, "views": null, "profileVisits": null, "caption": "Detrás de cada entrenamiento existe un proceso de recuperación.\n\nHoy tocó descar", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-10/727864446_18103471787032090_3216342138845562343_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=103&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=kn8RPGiKqBYQ7kNvwGUMp_s&_nc_oc=Adojkn3mqaQR21JWM2PyGoLClzPMc_cRu0vrSB8-Ua92yfRImmpf7tSu5USE4qjJjzE&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQK8OKLy8J4rQyY1-p65l2YPdCMaRk8X0S84foDasUgSOQxfceDld5B6g0B8mpY_D5avjsAVASZIAA&oh=00_AQIsusIpfCfe5EK2oo4D4Ufxvs4Qk72yrJnjsmHRy3bnaw&oe=6AB8C1AA", "permalink": "https://www.facebook.com/reel/2317940529021457/", "format": "Publicacion"}, {"date": "2026-02-23", "platform": "Facebook", "engagement": 7, "reach": null, "views": null, "profileVisits": null, "caption": "⚠️🚨 AVISO 🚨⚠️", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/642139635_18091197461032090_4676945124013452329_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ltAdrh122mAQ7kNvwG1NwQQ&_nc_oc=AdqXpVFmKMOEsulbsVav5T1x-RZpJxIxzcFSAKzPvKu0JXKDN9LZFLRq8tr_CySjk0s&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQKTHOC8-ys7s5Vjj0sPt_wvy-yQ4E9J3PuIqJaJiLrF-O42Q39ric09UHpmO34lckPkPFXWIgCBIg&oh=00_AQJVSkLCEwNIfH13OKG7MQ9HJ7XjRwMWxfEoYNHD8x7jEA&oe=6AB8D3C4", "permalink": "https://www.facebook.com/1749779003814452/posts/1545752830883738", "format": "Publicacion"}, {"date": "2026-02-16", "platform": "Facebook", "engagement": 272, "reach": null, "views": null, "profileVisits": null, "caption": "El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia ", "thumbnail": "https://scontent.fpbc2-5.fna.fbcdn.net/v/t51.82787-15/629736828_18090642839032090_2449422601192253039_n.jpg?stp=dst-jpg_p720x720_tt6&_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Ac9sf0TgBOsQ7kNvwHgtXs9&_nc_oc=AdpdkatZMhESExtMXis6Yw9u1Vw2wcZKNFSC1jSyvXwJZ1Q0k6FH4Q5OtZUYlIfO0zs&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQI4HSH4RF6u0h2Xk6lL2t6iY6k5JmeXiBKvV9cNYgFKjIGsPDCr09R22TS8vNHPukt1tQDeQiCZ-w&oh=00_AQIDMPezWur908mk4IAUFd__DCqnu1h4FqdPYwRIA0flFw&oe=6AB8CC12", "permalink": "https://www.facebook.com/1749779003814452/posts/1539821088143579", "format": "Publicacion"}, {"date": "2026-02-13", "platform": "Facebook", "engagement": 5, "reach": null, "views": null, "profileVisits": null, "caption": "Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.\n\nEste ", "thumbnail": "https://scontent.fpbc2-5.fna.fbcdn.net/v/t51.71878-10/629243533_1346949494136854_8585139277957962272_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=16fw5bcqrgoQ7kNvwGqnVjT&_nc_oc=AdqdntAsgPpMZxSTvE-6A-gSxet_RePIkmXh6qav49OydNZpIpr5B2Sfwxk0hlk6En0&_nc_zt=23&_nc_ht=scontent.fpbc2-5.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQL0MQPUF-1hI-dKLtIbA3w9cKs2Fxegi0vz2eCg_nzzPVieU7GGmLcqnDBYgYe0Lpl1WufNgenSaw&oh=00_AQJkME99xagwGa89K8WYs_bYSpPp9GWtxTBiWi13Jcl9PQ&oe=6AB8BC75", "permalink": "https://www.facebook.com/reel/1498480521798535/", "format": "Publicacion"}, {"date": "2026-01-01", "platform": "Facebook", "engagement": 3, "reach": null, "views": null, "profileVisits": null, "caption": "✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l", "thumbnail": "https://scontent.fpbc2-2.fna.fbcdn.net/v/t51.82787-15/610633592_18086230838032090_3108016391580681634_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=JD4IQ2tpPoQQ7kNvwEMxNTG&_nc_oc=AdrzOan_P4ycWwrwQkqB4nLZWdYQs1DsgC4HrXQFJZEcSsq99xeIVGCsqncI_iptXX4&_nc_zt=23&_nc_ht=scontent.fpbc2-2.fna&edm=AKIiGfEEAAAA&_nc_gid=4TS6JrpRCVDPuQ0qRfTFlA&_nc_tpa=Q5bMBQLM5kT0I88tJF-P5tXGIthOMp7F2cZ6n-TJb2THsA-rTSn53If_VPpXeAAvmppv8OW0KyFufd8D4Q&oh=00_AQI6Jcwqdjt-d43BlD0bS-QBnhLmreay048Y19yd6YBiGA&oe=6AB8CF40", "permalink": "https://www.facebook.com/1749779003814452/posts/1496433779148977", "format": "Publicacion"}, {"date": "2026-09-21", "platform": "Instagram", "engagement": 14, "reach": 546, "views": 1282, "profileVisits": 1, "caption": "🩺 Valoración + 10 sesiones de fisioterapia por $4,950 MXN\n\n¿Una lesión o molesti", "thumbnail": "https://scontent.cdninstagram.com/v/t39.30808-6/812281292_1745667044225648_990522973487940547_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=HJt-nDcp9NcQ7kNvwGQF06W&_nc_oc=AdqdsK1JWTyjnkrkH9BG_FvmgB0Zx3-pgwe-I5fl_R4gCRs6u62rz_ZqPuUfflz4mcM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJ5tBvc8yxGtp993zZzYmkLb0z3slPmYsx0w_EYgbx7ZA&oe=6AB8B306", "permalink": "https://www.instagram.com/p/DdjU_RajX5N/", "format": "FEED"}, {"date": "2026-09-20", "platform": "Instagram", "engagement": 4, "reach": 290, "views": 569, "profileVisits": null, "caption": "🏷️ Descarga muscular por $399 MXN\n\n¿Sientes tensión, cansancio muscular o molest", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/819684226_18112386521032090_658079681941642881_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=sn98NRNOJncQ7kNvwFoNxy7&_nc_oc=AdqoDXTnRLa7wXD9WkkqHJiMz9nfgTIjUSekF-sxtJ_ui7xQT8bJcfEdsjA2ykw8Mak&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQKSM8unCQiLmcrjqv-KK098IGg6ZKzBUi5PsWreWFra-bY92BasKzLIKhc7HF2d_-hxTfiE52GXnA&oh=00_AQKxIVw2MQ_5CXFfS77FsjWZftUOFkC5u6jHWsJwseHUXw&oe=6AB8A2FC", "permalink": "https://www.instagram.com/reel/DdgwIf6DyCr/", "format": "REELS"}, {"date": "2026-09-19", "platform": "Instagram", "engagement": 6, "reach": 158, "views": 318, "profileVisits": null, "caption": "🩺 10 sesiones de cámara hiperbárica por $5,900 MXN\n\nDale a tu recuperación atenc", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/819714592_18112385966032090_2583891121882958092_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=m4IGXohZjDwQ7kNvwE3PqSs&_nc_oc=AdpLWH6MZNw05tRG0T0OcpnABYYy6j1z9LFIAVAw8EQLoTPNjS_A_WhAemiLMIphlqA&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQL6PmRSlXCwrtI1gwfkRF-oeGJ6oyE57LzGMigID2DH8szh9KLNg3lUqJzNCqmLEyEkhL6OpDH8TA&oh=00_AQKAqhtR73ClF8u2Ll9GGRaqn5iEcI5LqB-_5jOCsIEJKQ&oe=6AB8D60C", "permalink": "https://www.instagram.com/reel/DdeLTw-j67q/", "format": "REELS"}, {"date": "2026-09-18", "platform": "Instagram", "engagement": 15, "reach": 1107, "views": 2027, "profileVisits": 9, "caption": "Recuperar tu libertad de movimiento sin dolor sí es posible con el tratamiento a", "thumbnail": "https://scontent.cdninstagram.com/v/t39.30808-6/797744792_1745603697565316_3243890647049340882_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=nYj0N3R3vccQ7kNvwFdp0s9&_nc_oc=Adrftx2SuH2lsKNo5ozz4XgK7TxEpu0EJxo2XCz5h7MlErVX-qBXNsYRdfEQWztfUMc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJMW9qJJyJiydCz2PMfw25jcpS7oJAG5HpWyEpBdRMQ4w&oe=6AB8C6DA", "permalink": "https://www.instagram.com/p/DdcGh6kGKsu/", "format": "FEED"}, {"date": "2026-09-16", "platform": "Instagram", "engagement": 1294, "reach": 11081, "views": 23429, "profileVisits": 17, "caption": "🇲🇽 ¡Hoy se juega a la mexicana! 🃏\n\nEn ORTHOKLINIC celebramos este 15 de septiemb", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/808431086_18111845192032090_1579705378017688576_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=-1D1ct3dJaMQ7kNvwGLintL&_nc_oc=Ado_E41l9tHR12-yvNLivzuUBsfUewkcQRHXNXo-8KMNNA_moa0xMwi40zW8tB3jZFc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQLjhsBid3LELPa3-bZtili0X4dcK82Mp-1rr_W9nolB9g&oe=6AB8BA94", "permalink": "https://www.instagram.com/p/DdU9jv9jKHj/", "format": "FEED"}, {"date": "2026-06-29", "platform": "Instagram", "engagement": 22, "reach": 2366, "views": 4044, "profileVisits": 5, "caption": "¿Cuánto tiempo llevas viviendo con ese dolor? 🤔\n\nDolor de espalda, cuello, rodil", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/728704254_18104166308032090_848565649688582386_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=xEda3Uo3WDsQ7kNvwFNaTZk&_nc_oc=AdqJG2JTndc2GKfvfhdhlcqJNdo_M-4Nqu16j-KgWStdgOJ5CiSAvNjCwaOpDBnb0jc&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQJXwTKG-CM-jR1784-MjWyLZ2q3RuvInFDOJwjffXH-ZA&oe=6AB8CE5D", "permalink": "https://www.instagram.com/p/DaLzwTDJgCE/", "format": "FEED"}, {"date": "2026-06-24", "platform": "Instagram", "engagement": 110, "reach": 2341, "views": 3608, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/728833583_18103649810032090_4547641937563551682_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Sq1mVUfidMMQ7kNvwGm9XoZ&_nc_oc=AdpuCltiCED2hpBbQBtbgjaFKfYbhByH0zL5kF_Q1DdZuEqJexG2Ch-tcAzaFBikyyU&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQL8bOfCAey6FKOLMqElxkuUNHysYeYQVowN36JjuGqhWXNX-VhUW1E8A9cKO17khyXh3ySmAjbmhQ&oh=00_AQIY3nqkThat1bWsTt2VDx6JqP78pZp91Xw4Idp_vgJzWg&oe=6AB8CDD9", "permalink": "https://www.instagram.com/reel/DZ-ZSp0pZ2U/", "format": "REELS"}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 142, "reach": 5209, "views": 7605, "profileVisits": null, "caption": "🚨 ¿Dolor de espalda, rodilla, cuello u hombro?\n\n🔥 Esta semana en Ortho Klinik:\n\n", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/728606783_18103570328032090_4668215454861155282_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Thsk16EbEGYQ7kNvwFOJbfK&_nc_oc=Adr6wY7dYE3LEK4QlMBQU1P6zTgaYb0mNq74gIkyl4-3nRyG3QgWR3ghlHWciwY1ifg&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQI8Q1wizxSkTc-wVGnxOQnT_DVw4uBfndTViOXTvbKSiqiPYV2Y3_wKMjB3xE1I3tdO3gUR6d6dvA&oh=00_AQLpfU1evWs25a3mX0hmdxO68lUG7ff3bPK_GgJKb7CaIQ&oe=6AB8C8DC", "permalink": "https://www.instagram.com/reel/DZ8KW7Jpqtw/", "format": "REELS"}, {"date": "2026-06-23", "platform": "Instagram", "engagement": 14, "reach": 1121, "views": 1978, "profileVisits": 29, "caption": "🚨 ¿Te duele la espalda, rodilla, cuello u hombro y sigues esperando a que se qui", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/730515877_18103490348032090_7486081964894089313_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=dMP9Zxr_gYAQ7kNvwGuCzMm&_nc_oc=AdoSiTcMsK1yU7Lgr1s_bt5eg5midh6g1n0d_CoDL6Iq2HsJn7d4Fp8IARnZG_s9FcM&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQLLVgmt-XT9zhRX9F1X_MOW7SXiYUDkiS68znEANVclOw&oe=6AB8D0DD", "permalink": "https://www.instagram.com/p/DZ6JhkvsvY5/", "format": "FEED"}, {"date": "2026-06-22", "platform": "Instagram", "engagement": 21, "reach": 1709, "views": 2368, "profileVisits": null, "caption": "Detrás de cada entrenamiento existe un proceso de recuperación.\n\nHoy tocó descar", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/727864446_18103471787032090_3216342138845562343_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=kn8RPGiKqBYQ7kNvwGUMp_s&_nc_oc=Adojkn3mqaQR21JWM2PyGoLClzPMc_cRu0vrSB8-Ua92yfRImmpf7tSu5USE4qjJjzE&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQKmUyNPq3cTTNyzdchycSE7tMGgrGY556BGG8-ghu5Z5p1WUmAkaeAAdSr0m7OJb_0NNjsBo2obmA&oh=00_AQI754b-qYZca3Pp_bT7SkKIUji-yj7hd4irvA-YcfvL0Q&oe=6AB8C17A", "permalink": "https://www.instagram.com/reel/DZ5jgNjpUh4/", "format": "REELS"}, {"date": "2026-02-23", "platform": "Instagram", "engagement": 64, "reach": 3041, "views": 7716, "profileVisits": 15, "caption": "⚠️🚨 AVISO 🚨⚠️", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/642139635_18091197461032090_4676945124013452329_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=ltAdrh122mAQ7kNvwG1NwQQ&_nc_oc=AdqXpVFmKMOEsulbsVav5T1x-RZpJxIxzcFSAKzPvKu0JXKDN9LZFLRq8tr_CySjk0s&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQIXZ6UAQXFrGKgaM7Ge43ewRLH9qU4--k-OabhcpOWVlQ&oe=6AB8D3C4", "permalink": "https://www.instagram.com/p/DVFcf39jKzl/", "format": "FEED"}, {"date": "2026-02-16", "platform": "Instagram", "engagement": 148, "reach": 6683, "views": 14806, "profileVisits": 423, "caption": "El equipo de Ortho Klinic nos unimos al profundo dolor que embarga a la familia ", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/629736828_18090642839032090_2449422601192253039_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=Ac9sf0TgBOsQ7kNvwHgtXs9&_nc_oc=AdpdkatZMhESExtMXis6Yw9u1Vw2wcZKNFSC1jSyvXwJZ1Q0k6FH4Q5OtZUYlIfO0zs&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQL4CBlKdOjnfT1atrVEXOA4nm5CM25ea2FHvyKWX5LszA&oe=6AB8CC12", "permalink": "https://www.instagram.com/p/DU1DLVsiRUV/", "format": "FEED"}, {"date": "2026-02-13", "platform": "Instagram", "engagement": 67, "reach": 3412, "views": 5456, "profileVisits": null, "caption": "Cuando la rodilla dice “hasta aquí”, nosotros decimos “vamos a trabajar”.\n\nEste ", "thumbnail": "https://scontent.cdninstagram.com/v/t51.71878-15/626297638_25518874894475323_336936166274682174_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=Bc78IW72xPQQ7kNvwGDY9mm&_nc_oc=Adp2ygCvWw925m0b71er9rXKQjgebQc6_T_1tUrQ3z_BYJo3bh6FA5zgpaFWjwsjJWw&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&_nc_tpa=Q5bMBQLGx_m6lys-mLtWEb3--rWQN1rXkZMeVV-Q8lU7WZM_7uKL1TuQbh3WE_oNXbu2P2_4peoVk6oAyg&oh=00_AQJBxSBGGptXAPe8wpRjdT-TMYC65_yoa1kEBUJfC2fQUQ&oe=6AB8BBA0", "permalink": "https://www.instagram.com/reel/DUrVQuxDCpo/", "format": "REELS"}, {"date": "2026-01-01", "platform": "Instagram", "engagement": 23, "reach": 2993, "views": 5144, "profileVisits": 8, "caption": "✨ Gracias por permitirnos acompañarlos en su proceso, en cada avance y en cada l", "thumbnail": "https://scontent.cdninstagram.com/v/t51.82787-15/610633592_18086230838032090_3108016391580681634_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiRkVFRC5iZXN0X2ltYWdlX3VybGdlbi5DMyJ9&_nc_ohc=JD4IQ2tpPoQQ7kNvwEMxNTG&_nc_oc=AdrzOan_P4ycWwrwQkqB4nLZWdYQs1DsgC4HrXQFJZEcSsq99xeIVGCsqncI_iptXX4&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&_nc_gid=ilopJVrLAQAQgETxlRa4kg&oh=00_AQIer0nnVVAgkNAciqnwN8R7IEhMhDFmdY32bcBx1ibWww&oe=6AB8CF40", "permalink": "https://www.instagram.com/p/DS8zYJSDNKn/", "format": "FEED"}];
+const TARGETS = {"status": "referencia_historica", "source": "Promedio de los 3 meses calendario anteriores", "organic": {"mode": "prior_3_calendar_months"}, "ads": {"mode": "prior_3_calendar_months"}};
+
+function renderLineChart(containerId, points, color) {
+  const container = document.getElementById(containerId);
+  if (!points || points.length < 2) {
+    container.innerHTML = '<p class="empty">No hay suficientes datos para graficar esta serie.</p>';
+    return;
+  }
+  const width = container.clientWidth || 600;
+  const height = 180;
+  const padL = 40, padR = 12, padT = 12, padB = 24;
+  const xs = points.map((_, i) => i);
+  const ys = points.map(p => p.value);
+  const minY = Math.min(0, ...ys);
+  const maxY = Math.max(...ys) * 1.1 || 1;
+
+  const xScale = i => padL + (i / (points.length - 1)) * (width - padL - padR);
+  const yScale = v => height - padB - ((v - minY) / (maxY - minY)) * (height - padT - padB);
+
+  const path = xs.map(i => `${i === 0 ? 'M' : 'L'} ${xScale(i)},${yScale(ys[i])}`).join(' ');
+
+  const gridlines = 4;
+  let gridSvg = '';
+  for (let g = 0; g <= gridlines; g++) {
+    const v = minY + (g / gridlines) * (maxY - minY);
+    const y = yScale(v);
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${width - padR}" y2="${y}" stroke="var(--gridline)" stroke-width="1"/>`;
+    gridSvg += `<text x="${padL - 6}" y="${y + 3}" font-size="10" fill="var(--text-muted)" text-anchor="end">${Math.round(v)}</text>`;
+  }
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
+      ${gridSvg}
+      <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="tooltip"></div>
+  `;
+
+  const svg = container.querySelector('svg');
+  const tooltip = container.querySelector('.tooltip');
+  const hitLayer = document.createElementNS(svgNS, 'rect');
+  hitLayer.setAttribute('x', padL); hitLayer.setAttribute('y', 0);
+  hitLayer.setAttribute('width', width - padL - padR); hitLayer.setAttribute('height', height);
+  hitLayer.setAttribute('fill', 'transparent');
+  svg.appendChild(hitLayer);
+
+  const crosshair = document.createElementNS(svgNS, 'line');
+  crosshair.setAttribute('y1', padT); crosshair.setAttribute('y2', height - padB);
+  crosshair.setAttribute('stroke', 'var(--baseline)'); crosshair.setAttribute('stroke-width', '1');
+  crosshair.style.display = 'none';
+  svg.appendChild(crosshair);
+
+  svg.addEventListener('mousemove', (e) => {
+    const rect = svg.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (width / rect.width);
+    let idx = Math.round(((px - padL) / (width - padL - padR)) * (points.length - 1));
+    idx = Math.max(0, Math.min(points.length - 1, idx));
+    const cx = xScale(idx);
+    crosshair.setAttribute('x1', cx); crosshair.setAttribute('x2', cx);
+    crosshair.style.display = 'block';
+    tooltip.style.opacity = 1;
+    tooltip.style.left = `${(cx / width) * 100}%`;
+    tooltip.style.top = `${(yScale(ys[idx]) / height) * 100}%`;
+    tooltip.textContent = `${points[idx].label}: ${points[idx].value.toLocaleString()}`;
+  });
+  svg.addEventListener('mouseleave', () => {
+    crosshair.style.display = 'none';
+    tooltip.style.opacity = 0;
+  });
+}
+
+const MONTH_ES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+const allLabels = Object.values(chartData).flatMap(({ points }) => points.map(p => p.label)).sort();
+// El periodo consultado incluye dias sin actividad: no limitar el calendario
+// a la ultima fecha con resultados o alcance en una grafica.
+const minDate = ADS.fullRange?.since || allLabels[0];
+const maxDate = ADS.fullRange?.until || allLabels[allLabels.length - 1];
+
+// Estado del rango COMPARTIDO entre pestañas: los calendarios de Insights y de
+// Pauta controlan y reflejan el mismo [selStart, selEnd].
+let selStart = minDate;
+let selEnd = maxDate;
+// En marcas con tabla de metas, el caso principal es el mes en curso. Se abre
+// desde el primer dia del mes disponible; "Ver todo" conserva el rango anual.
+if (TARGETS && maxDate) {
+  const monthStart = maxDate.slice(0, 8) + '01';
+  selStart = monthStart < minDate ? minDate : monthStart;
+}
+
+// --- Formateo, identico al de report.py (miles con punto, decimales con coma) ---
+// No se usa toLocaleString('es-ES') porque no agrupa los numeros de 4 cifras
+// (daria "7307" donde Python escribe "7.307") y quedarian estilos mezclados.
+function groupThousands(intStr) {
+  return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function fmtNum(n) {
+  if (n === null || n === undefined) return '-';
+  return groupThousands(String(Math.round(n)));
+}
+function fmtDec(n) {
+  const [int, dec] = Math.abs(n).toFixed(2).split('.');
+  return `${n < 0 ? '-' : ''}${groupThousands(int)},${dec}`;
+}
+function fmtMoney(n) {
+  if (n === null || n === undefined) return '-';
+  return `$${fmtDec(n)} ${ADS.currency}`.trim();
+}
+function fmtPct(n) {
+  if (n === null || n === undefined) return '-';
+  return fmtDec(n) + '%';
+}
+// opts: { muted:bool, delta:htmlString, note:string }. Se mantiene compatible
+// con llamadas que solo pasan (valor, etiqueta). `note` es una segunda linea
+// chica y muted (p.ej. el nombre de la campaña a la que pertenece el tile).
+function kpiTile(valueHtml, label, opts) {
+  opts = opts || {};
+  const muted = opts.muted ? ' na' : '';
+  const delta = opts.delta || '';
+  const note = opts.note ? `<div class="note">${opts.note}</div>` : '';
+  return `<div class="kpi"><div class="value${muted}">${valueHtml}</div>` +
+         `<div class="label">${label}</div>${delta}${note}</div>`;
+}
+
+// --- Deltas vs periodo anterior equivalente ---------------------------------
+function shiftDate(iso, days) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const da = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${da}`;
+}
+function daysBetween(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000) + 1;
+}
+// Periodo anterior de la MISMA duracion, inmediatamente antes del rango actual.
+function prevPeriod(since, until) {
+  const n = daysBetween(since, until);
+  const pu = shiftDate(since, -1);
+  const ps = shiftDate(pu, -(n - 1));
+  return [ps, pu];
+}
+function pctChange(cur, prev) {
+  if (cur === null || cur === undefined || prev === null || prev === undefined || prev === 0) return null;
+  return (cur - prev) / prev * 100;
+}
+// higherBetter: true => subir es bueno (verde); false => bajar es bueno; null => neutro (gris).
+function deltaChip(cur, prev, higherBetter) {
+  const pc = pctChange(cur, prev);
+  if (pc === null) return '';
+  const arrow = pc > 0 ? '▲' : (pc < 0 ? '▼' : '■');
+  let cls = 'flat';
+  if (higherBetter !== null && pc !== 0) {
+    const good = higherBetter ? pc > 0 : pc < 0;
+    cls = good ? 'up' : 'down';
+  }
+  return `<span class="delta ${cls}">${arrow} ${fmtDec(Math.abs(pc))}%</span>`;
+}
+
+// Suma las metricas ADITIVAS de las filas diarias que caen en el rango y deriva
+// CTR/CPC/CPM/costo por resultado. Reproduce exactamente lo que reporta Meta
+// para ese rango (verificado contra sus totales del periodo completo).
+//
+// `resultActionType` es opcional: por defecto usa el de la CUENTA (la campaña
+// activa con mas gasto -- correcto para los KPIs de arriba, un solo numero
+// para toda la cuenta). Al agregar UNA campaña puntual (tabla, dona de
+// resultados) hay que pasar el propio de esa campaña -- ver
+// ADS.campaignResultTypes -- porque puede tener otro objetivo que el de la
+// cuenta (p.ej. una de seguidores dentro de una cuenta que hoy prioriza
+// mensajes) y usar el tipo equivocado la deja en 0 resultados aunque si tuvo.
+function aggregate(rows, since, until, resultActionType) {
+  const type = resultActionType !== undefined ? resultActionType : ADS.resultActionType;
+  const inRange = rows.filter(r => r.date >= since && r.date <= until);
+  const spend = inRange.reduce((a, r) => a + r.spend, 0);
+  const impressions = inRange.reduce((a, r) => a + r.impressions, 0);
+  const clicks = inRange.reduce((a, r) => a + r.clicks, 0);
+  const results = type
+    ? inRange.reduce((a, r) => a + (r.actions[type] || 0), 0)
+    : 0;
+  return {
+    spend, impressions, clicks, results,
+    ctr: impressions ? (clicks / impressions) * 100 : null,
+    cpc: clicks ? spend / clicks : null,
+    cpm: impressions ? (spend / impressions) * 1000 : null,
+    costPerResult: results ? spend / results : null,
+  };
+}
+
+// El alcance es una metrica DEDUPLICADA (personas unicas): sumar el alcance de
+// cada dia contaria varias veces a la misma persona. Solo Meta puede calcularlo,
+// y solo para el rango que se le pidio. Por eso el valor exacto existe unicamente
+// para el periodo completo; en un subrango se muestra "n/d" en vez de inventarlo.
+//
+// "Periodo completo" = los limites del calendario (lo que deja el boton "Ver
+// todo"), no las fechas con las que se llamo a la API: minDate/maxDate cubren
+// todos los dias con datos, asi que el agregado sobre ese span es identico a los
+// totales que devolvio Meta.
+function isFullRange(since, until) {
+  return since === minDate && until === maxDate;
+}
+
+// Cuando hay 2+ campañas ACTIVAS AHORA con objetivo distinto (p.ej. una de
+// mensajes y otra de seguidores corriendo al mismo tiempo, ver Oftalmica), el
+// KPI principal solo alcanza a mostrar UNO (el de mayor gasto): el resto
+// queda invisible arriba aunque la tabla de campañas si los muestre bien.
+//
+// Agrupa por action_type sumando SOLO el spend/resultados de las campañas
+// activas que persiguen ESE objetivo (no el gasto de toda la cuenta): igual
+// que aggregate() por campaña individual, evita inflar el costo por resultado
+// con gasto de una campaña que optimiza para otra cosa.
+function activeObjectiveGroups(since, until) {
+  if (!ADS.hasData) return [];
+  const byName = {};
+  ADS.campaignDaily
+    .filter(r => r.date >= since && r.date <= until)
+    .forEach(r => { (byName[r.name] = byName[r.name] || []).push(r); });
+
+  const groups = {};
+  (ADS.activeCampaignNames || []).forEach(name => {
+    const rows = byName[name];
+    const info = ADS.campaignResultTypes[name];
+    if (!rows || !info || !info.actionType) return;
+    const a = aggregate(rows, since, until, info.actionType);
+    const g = groups[info.actionType] || (groups[info.actionType] = {
+      actionType: info.actionType, label: info.label, spend: 0, results: 0, names: [],
+    });
+    g.spend += a.spend;
+    g.results += a.results;
+    g.names.push(name);
+  });
+  return Object.values(groups)
+    .map(g => ({ ...g, costPerResult: g.results ? g.spend / g.results : null }))
+    .filter(g => g.results > 0)
+    .sort((a, b) => b.results - a.results);
+}
+
+function renderAdsKpis(since, until) {
+  const row = document.getElementById('ads-kpi-row');
+  if (!row || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // En el rango completo se usan los totales EXACTOS de Meta (mismo numero que
+  // ve en el Administrador de anuncios); en un subrango se recalcula del diario.
+  const a = full ? ADS.totals : aggregate(ADS.daily, since, until);
+
+  // Periodo anterior equivalente para los deltas ▲▼. En rango completo el
+  // periodo previo cae antes del primer dia con datos -> agregados en 0 -> sin
+  // delta (no se inventa un cambio contra un periodo vacio).
+  const [ps, pu] = prevPeriod(since, until);
+  const prev = aggregate(ADS.daily, ps, pu);
+  const hasPrev = prev.spend > 0 || prev.impressions > 0;
+  const D = (cur, prv, hb) => hasPrev ? { delta: deltaChip(cur, prv, hb) } : {};
+
+  // Cuando hay 2+ campañas activas con objetivo distinto (ver Oftalmica), los
+  // resultados se muestran en su propia tarjeta ("Resultados por campaña
+  // activa"), un par por objetivo con el nombre de la campaña como nota --
+  // asi no quedan mezclados con las metricas generales de toda la cuenta
+  // (gasto, alcance, CTR...) en la misma fila, que fue lo que resulto
+  // confuso de leer. Con 0 o 1 objetivo activo se mantiene el tile unico de
+  // siempre (comportamiento sin cambios para el resto de las marcas).
+  const groups = activeObjectiveGroups(since, until);
+  const activeSection = document.getElementById('ads-active-results-section');
+  const activeRow = document.getElementById('ads-active-results-row');
+  if (activeSection && activeRow) {
+    if (groups.length > 1) {
+      activeSection.hidden = false;
+      activeRow.innerHTML = groups.map(g => {
+        const note = g.names.join(', ');
+        return kpiTile(fmtNum(g.results), g.label, { note }) +
+               kpiTile(fmtMoney(g.costPerResult), 'Costo por resultado', { note });
+      }).join('');
+    } else {
+      activeSection.hidden = true;
+      activeRow.innerHTML = '';
+    }
+  }
+
+  const tiles = [];
+  if (groups.length <= 1 && a.results) {
+    tiles.push(kpiTile(fmtNum(a.results), ADS.resultLabel || 'Resultados', D(a.results, prev.results, true)));
+    tiles.push(kpiTile(fmtMoney(a.costPerResult), 'Costo por resultado', D(a.costPerResult, prev.costPerResult, false)));
+  }
+  tiles.push(kpiTile(fmtMoney(a.spend), 'Importe gastado', D(a.spend, prev.spend, null)));
+  tiles.push(full
+    ? kpiTile(fmtNum(ADS.totals.reach), 'Alcance')
+    : kpiTile('n/d', 'Alcance', { muted: true }));
+  tiles.push(kpiTile(fmtNum(a.impressions), 'Impresiones', D(a.impressions, prev.impressions, null)));
+  tiles.push(kpiTile(fmtNum(a.clicks), 'Clics', D(a.clicks, prev.clicks, null)));
+  tiles.push(kpiTile(fmtPct(a.ctr), 'CTR', D(a.ctr, prev.ctr, true)));
+  tiles.push(kpiTile(fmtMoney(a.cpc), 'CPC', D(a.cpc, prev.cpc, false)));
+  tiles.push(kpiTile(fmtMoney(a.cpm), 'CPM', D(a.cpm, prev.cpm, false)));
+  row.innerHTML = tiles.join('');
+
+  const note = document.getElementById('ads-range-note');
+  if (note) {
+    note.hidden = full;
+    note.textContent = full ? '' :
+      'El alcance no se puede calcular para un rango personalizado: es una metrica de personas ' +
+      'unicas y sumar el alcance de cada dia contaria varias veces a la misma persona. ' +
+      'Pulsa "Ver todo" para ver el alcance real del periodo completo. El resto de metricas ' +
+      'si corresponden al rango elegido.';
+  }
+}
+
+function renderAdsCampaigns(since, until) {
+  const body = document.getElementById('ads-campaigns-body');
+  if (!body || !ADS.hasData) return;
+
+  const full = isFullRange(since, until);
+  // Agrupa las filas campaña/dia del rango y reconstruye una fila por campaña.
+  const byName = {};
+  ADS.campaignDaily
+    .filter(r => r.date >= since && r.date <= until)
+    .forEach(r => {
+      (byName[r.name] = byName[r.name] || []).push(r);
+    });
+
+  const rows = Object.keys(byName).map(name => {
+    const resultType = ADS.campaignResultTypes[name]?.actionType;
+    const a = aggregate(byName[name], since, until, resultType);
+    // El alcance por campaña tiene el mismo problema de deduplicacion: solo se
+    // muestra el de Meta cuando esta seleccionado el periodo completo.
+    const reach = full ? (ADS.reachByCampaign[name] ?? null) : null;
+    return { name, ...a, reach };
+  }).filter(c => c.spend > 0 || c.impressions > 0)
+    .sort((a, b) => b.spend - a.spend);
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="9" class="empty">No hay campañas con datos en el rango.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = rows.map(c => `
+        <tr>
+          <td class="post-caption" title="${c.name}">${c.name}</td>
+          <td class="num">${fmtMoney(c.spend)}</td>
+          <td class="num">${full ? fmtNum(c.reach) : 'n/d'}</td>
+          <td class="num">${fmtNum(c.impressions)}</td>
+          <td class="num">${fmtNum(c.clicks)}</td>
+          <td class="num">${fmtPct(c.ctr)}</td>
+          <td class="num">${fmtMoney(c.cpc)}</td>
+          <td class="num">${c.results ? fmtNum(c.results) : '-'}</td>
+          <td class="num">${c.costPerResult ? fmtMoney(c.costPerResult) : '-'}</td>
+        </tr>`).join('');
+}
+
+// Paleta para distinguir campañas en la dona y las barras (arranca con el
+// amarillo de marca y sigue con acentos que contrastan sobre el fondo oscuro).
+const CAMPAIGN_COLORS = ['#f4dc00', '#3987e5', '#199e70', '#e0a349', '#b98cff', '#ff7a90', '#4dd0e1', '#9ccc65'];
+
+// Agrega spend/resultados por campaña dentro del rango, reusando la misma
+// logica aditiva de aggregate() sobre ADS.campaignDaily (ya embebido).
+function campaignAggregates(since, until) {
+  if (!ADS.hasData) return [];
+  const byName = {};
+  ADS.campaignDaily
+    .filter(r => r.date >= since && r.date <= until)
+    .forEach(r => { (byName[r.name] = byName[r.name] || []).push(r); });
+  return Object.keys(byName)
+    .map(name => {
+      const resultType = ADS.campaignResultTypes[name]?.actionType;
+      const a = aggregate(byName[name], since, until, resultType);
+      return { name, spend: a.spend, results: a.results };
+    })
+    .filter(c => c.spend > 0)
+    .sort((a, b) => b.spend - a.spend);
+}
+
+// Dona de participacion (inversion por campaña). Se dibuja con segmentos de
+// circulo via stroke-dasharray: cada campaña ocupa su fraccion del total.
+function renderDonutChart(containerId, rows, key, fmt) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!rows.length) { el.innerHTML = '<p class="empty">Sin datos en el rango.</p>'; return; }
+  const total = rows.reduce((a, r) => a + r[key], 0) || 1;
+  const r = 52, cx = 70, cy = 70, C = 2 * Math.PI * r;
+  let offset = 0;
+  const segs = rows.map((row, i) => {
+    const dash = (row[key] / total) * C;
+    const color = CAMPAIGN_COLORS[i % CAMPAIGN_COLORS.length];
+    const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="18" stroke-dasharray="${dash} ${C - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"><title>${row.name}: ${fmt(row[key])}</title></circle>`;
+    offset += dash;
+    return seg;
+  }).join('');
+  const legend = rows.map((row, i) => {
+    const color = CAMPAIGN_COLORS[i % CAMPAIGN_COLORS.length];
+    const pct = (row[key] / total) * 100;
+    return `<li><span class="sw" style="background:${color}"></span><span class="post-caption" title="${row.name}" style="max-width:150px;">${row.name}</span><span class="lg-val">${fmt(row[key])} · ${fmtDec(pct)}%</span></li>`;
+  }).join('');
+  el.innerHTML = `<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;">
+    <svg viewBox="0 0 140 140" width="140" height="140">${segs}
+      <text x="70" y="66" text-anchor="middle" font-size="10" fill="var(--text-muted)">Total</text>
+      <text x="70" y="82" text-anchor="middle" font-size="12" fill="var(--text-primary)" font-weight="700">${fmt(total)}</text>
+    </svg>
+    <ul class="donut-legend" style="flex:1;min-width:170px;">${legend}</ul>
+  </div>`;
+}
+
+// Barras horizontales (resultados por campaña), normalizadas al maximo.
+function renderBarChart(containerId, rows, key, fmt, color) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const data = rows.filter(r => r[key] > 0);
+  if (!data.length) { el.innerHTML = '<p class="empty">Sin datos en el rango.</p>'; return; }
+  const max = Math.max(...data.map(r => r[key])) || 1;
+  el.innerHTML = data.map((r, i) => {
+    const w = (r[key] / max) * 100;
+    const c = color || CAMPAIGN_COLORS[i % CAMPAIGN_COLORS.length];
+    return `<div class="bar-row">
+      <div class="bar-head"><span class="post-caption" title="${r.name}" style="max-width:70%;">${r.name}</span><span class="bar-val">${fmt(r[key])}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${c};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderAdsCharts(since, until) {
+  const rows = campaignAggregates(since, until);
+  renderDonutChart('ads_spend_donut', rows, 'spend', v => fmtMoney(v));
+  renderBarChart('ads_results_bar', rows, 'results', v => fmtNum(v), 'var(--accent)');
+}
+
+// Resumen organico: cuenta los posts del rango y suma su engagement/alcance.
+function renderOrganicSummary(since, until) {
+  const row = document.getElementById('organic-summary-row');
+  if (!row) return;
+
+  const inRange = POSTS.filter(p => p.date >= since && p.date <= until);
+  const hasIg = inRange.some(p => p.platform === 'Instagram');
+  const engagement = inRange.reduce((a, p) => a + (p.engagement || 0), 0);
+  const reach = inRange.reduce((a, p) => a + (p.reach || 0), 0);
+  // views/profileVisits solo los reporta Instagram (Facebook Standard Access
+  // no expone reproducciones ni visitas al perfil por post).
+  const views = inRange.reduce((a, p) => a + (p.views || 0), 0);
+  const visits = inRange.reduce((a, p) => a + (p.profileVisits || 0), 0);
+
+  // Deltas vs el periodo anterior equivalente (mas posts/interacciones/alcance = mejor).
+  const [ps, pu] = prevPeriod(since, until);
+  const prevRows = POSTS.filter(p => p.date >= ps && p.date <= pu);
+  const hasPrev = prevRows.length > 0;
+  const pEng = prevRows.reduce((a, p) => a + (p.engagement || 0), 0);
+  const pReach = prevRows.reduce((a, p) => a + (p.reach || 0), 0);
+  const pViews = prevRows.reduce((a, p) => a + (p.views || 0), 0);
+  const pVisits = prevRows.reduce((a, p) => a + (p.profileVisits || 0), 0);
+  const D = (cur, prv) => hasPrev ? { delta: deltaChip(cur, prv, true) } : {};
+
+  const tiles = [kpiTile(fmtNum(inRange.length), 'Posts publicados en el periodo', D(inRange.length, prevRows.length))];
+  if (hasIg) tiles.push(kpiTile(fmtNum(reach), 'Alcance total (Instagram)', D(reach, pReach)));
+  tiles.push(kpiTile(fmtNum(engagement), hasIg ? 'Interacciones totales (FB + IG)' : 'Interacciones totales (Facebook)', D(engagement, pEng)));
+  if (hasIg) {
+    tiles.push(kpiTile(fmtNum(views), 'Visualizaciones (Instagram)', D(views, pViews)));
+    tiles.push(kpiTile(fmtNum(visits), 'Visitas al perfil (Instagram)', D(visits, pVisits)));
+  }
+  row.innerHTML = tiles.join('');
+}
+
+function renderOrganicHealth(since, until) {
+  const wrap = document.getElementById('organic-health-content');
+  const section = document.getElementById('organic-health-section');
+  if (!wrap || !section) return;
+
+  const currentRows = ORGANIC_HISTORY.filter(p => p.date >= since && p.date <= until);
+  const priorPeriods = [];
+  const startDate = new Date(since + 'T00:00:00');
+  // La referencia siempre son los tres meses calendario completos anteriores
+  // al inicio de la seleccion. Como las metricas son promedios por contenido,
+  // la comparacion sigue siendo justa aunque el rango actual abarque mas dias.
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(startDate.getFullYear(), startDate.getMonth() - i, 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const last = new Date(y, d.getMonth() + 1, 0).getDate();
+    priorPeriods.push([`${y}-${m}-01`, `${y}-${m}-${String(last).padStart(2, '0')}`]);
+  }
+
+  const metricDefs = [
+    { key: 'engagement', label: 'Interacciones por publicación', weight: 35,
+      rows: rows => rows, format: value => fmtNum(value) },
+    { key: 'reach', label: 'Alcance por publicación (IG)', weight: 30,
+      rows: rows => rows.filter(p => p.platform === 'Instagram' && p.reach != null),
+      format: value => fmtNum(value) },
+    { key: 'views', label: 'Reproducciones por contenido (IG)', weight: 20,
+      rows: rows => rows.filter(p => p.platform === 'Instagram' && p.views != null),
+      format: value => fmtNum(value) },
+    { key: 'profileVisits', label: 'Visitas al perfil por contenido (IG)', weight: 15,
+      rows: rows => rows.filter(p => p.platform === 'Instagram' && p.profileVisits != null),
+      format: value => fmtNum(value) },
+  ];
+
+  const meanMetric = (rows, def) => {
+    const applicable = def.rows(rows);
+    if (!applicable.length) return null;
+    return applicable.reduce((sum, p) => sum + (Number(p[def.key]) || 0), 0) / applicable.length;
+  };
+
+  const metrics = metricDefs.map(def => {
+    const current = meanMetric(currentRows, def);
+    const previous = priorPeriods.map(([start, end]) =>
+      meanMetric(ORGANIC_HISTORY.filter(p => p.date >= start && p.date <= end), def)
+    ).filter(v => v != null);
+    const baseline = previous.length
+      ? previous.reduce((sum, value) => sum + value, 0) / previous.length
+      : null;
+    const change = current != null && baseline > 0 ? (current - baseline) / baseline : null;
+    const score = change == null ? null : Math.max(0, Math.min(100, 50 + change * 200));
+    return { ...def, current, baseline, change, score, periods: previous.length };
+  }).filter(metric => metric.current != null && metric.baseline != null && metric.periods >= 2);
+
+  if (currentRows.length < 3 || !metrics.length) {
+    wrap.innerHTML = `<div class="health-head">
+      <div><h2>Salud del rendimiento orgánico</h2>
+      <p class="health-period">${fmtShort(since)} – ${fmtShort(until)}</p></div>
+      <span class="health-badge gray"><span class="health-dot"></span>Datos insuficientes</span>
+    </div>
+    <p class="empty">Se necesitan al menos 3 publicaciones en el periodo y datos comparables en dos de los tres periodos anteriores.</p>`;
+    return;
+  }
+
+  const totalWeight = metrics.reduce((sum, metric) => sum + metric.weight, 0);
+  const healthScore = metrics.reduce((sum, metric) => sum + metric.score * metric.weight, 0) / totalWeight;
+  const weightedChange = metrics.reduce((sum, metric) => sum + metric.change * metric.weight, 0) / totalWeight;
+  const status = healthScore >= 70
+    ? { cls: 'green', label: 'Verde · Buen desempeño' }
+    : healthScore >= 40
+      ? { cls: 'yellow', label: 'Amarillo · Desempeño estable' }
+      : { cls: 'red', label: 'Rojo · Desempeño bajo' };
+
+  const ranked = [...metrics].sort((a, b) => b.change - a.change);
+  const strongest = ranked[0];
+  const weakest = ranked[ranked.length - 1];
+  const pct = value => `${value >= 0 ? '+' : ''}${Math.round(value * 100)}%`;
+  const diagnosis = status.cls === 'green'
+    ? `La cuenta va bien. El mayor impulso viene de ${strongest.label.toLowerCase()} (${pct(strongest.change)}). ${weakest.change < 0 ? `La principal oportunidad es ${weakest.label.toLowerCase()} (${pct(weakest.change)}).` : 'Todas las métricas comparables se mantienen o crecen.'}`
+    : status.cls === 'yellow'
+      ? `El rendimiento está estable, pero todavía no muestra una mejora clara. La mejor señal es ${strongest.label.toLowerCase()} (${pct(strongest.change)}); conviene atender ${weakest.label.toLowerCase()} (${pct(weakest.change)}).`
+      : `La cuenta está por debajo de su rendimiento habitual. La caída principal está en ${weakest.label.toLowerCase()} (${pct(weakest.change)}); esa métrica debe ser la prioridad del siguiente periodo.`;
+
+  const metricRows = metrics.map(metric => {
+    const arrow = metric.change > 0 ? '▲' : metric.change < 0 ? '▼' : '■';
+    const deltaClass = metric.change < -0.1 ? 'down' : metric.change > 0.1 ? 'up' : 'flat';
+    return `<div class="health-metric">
+      <span>${escapeHtml(metric.label)}</span>
+      <span class="health-num">${metric.format(metric.current)}</span>
+      <span class="health-num">${metric.format(metric.baseline)}</span>
+      <span class="health-num"><span class="delta ${deltaClass}">${arrow} ${Math.abs(Math.round(metric.change * 100))}%</span></span>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = `<div class="health-head">
+    <div><h2>Salud del rendimiento orgánico</h2>
+    <p class="health-period">${fmtShort(since)} – ${fmtShort(until)} vs. promedio de los 3 meses anteriores</p></div>
+    <span class="health-badge ${status.cls}"><span class="health-dot"></span>${status.label}</span>
+  </div>
+  <div class="health-layout">
+    <div class="health-score">
+      <span class="health-score-label">Puntaje general</span>
+      <span class="health-score-value">${Math.round(healthScore)}<small>/100</small></span>
+      <span class="health-score-change">${pct(weightedChange)} frente al promedio histórico</span>
+    </div>
+    <div>
+      <div class="health-metric head"><span>Indicador</span><span class="health-num">Actual</span><span class="health-num">Promedio</span><span class="health-num">Cambio</span></div>
+      ${metricRows}
+    </div>
+  </div>
+  <p class="health-diagnosis ${status.cls}"><strong>Diagnóstico:</strong> ${diagnosis}</p>`;
+}
+
+function targetStatus(actual, target, direction, tolerance = 0.10) {
+  if (actual == null || target == null || !Number.isFinite(actual) || !Number.isFinite(target)) {
+    return { cls: '', label: 'Sin dato', delta: null };
+  }
+  const ratio = target ? (actual - target) / target : 0;
+  const good = direction === 'range'
+    ? Math.abs(ratio) <= tolerance
+    : direction === 'min' ? actual >= target : actual <= target;
+  const near = Math.abs(ratio) <= tolerance;
+  return {
+    cls: good ? 'green' : (direction !== 'range' && near) ? 'yellow' : 'red',
+    label: good ? 'En meta' : near ? 'Cerca de meta' : 'Requiere ajuste',
+    delta: ratio,
+  };
+}
+
+function renderTargetRows(containerId, rows, note) {
+  const wrap = document.getElementById(containerId);
+  if (!wrap) return;
+  if (!rows.length) {
+    wrap.innerHTML = `<p class="empty">No hay datos suficientes para comparar este rango.</p>
+      <p class="range-note">${escapeHtml(note)}</p>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="table-wrap"><table class="target-table">
+    <thead><tr><th>Métrica</th><th class="num">Referencia ideal</th><th class="num">Mes / rango actual</th><th class="num">Diferencia</th><th>Estado</th><th>Lectura</th></tr></thead>
+    <tbody>${rows.map(r => {
+      const s = targetStatus(r.actual, r.target, r.direction, r.tolerance);
+      const delta = s.delta == null ? 'n/d' : `${s.delta >= 0 ? '+' : ''}${Math.round(s.delta * 100)}%`;
+      const shown = value => value == null ? 'n/d' : r.format(value);
+      return `<tr><td>${escapeHtml(r.label)}</td><td class="num">${shown(r.target)}</td>
+        <td class="num">${shown(r.actual)}</td><td class="num">${delta}</td>
+        <td><span class="target-status ${s.cls}"><span class="dot"></span>${s.label}</span></td>
+        <td class="target-reading">${escapeHtml(r.reading(s.cls))}</td></tr>`;
+    }).join('')}</tbody></table></div><p class="range-note">${escapeHtml(note)}</p>`;
+}
+
+function renderOrganicTargets(since, until) {
+  if (!TARGETS || !TARGETS.organic) return;
+  const current = ORGANIC_HISTORY.filter(p => p.date >= since && p.date <= until);
+  const start = new Date(since + 'T00:00:00');
+  const prior = [];
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(start.getFullYear(), start.getMonth() - i, 1);
+    const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0');
+    const last = String(new Date(y, d.getMonth() + 1, 0).getDate()).padStart(2, '0');
+    prior.push(ORGANIC_HISTORY.filter(p => p.date >= `${y}-${m}-01` && p.date <= `${y}-${m}-${last}`));
+  }
+  const defs = [
+    ['engagement', 'Interacciones por publicación', rows => rows, fmtNum],
+    ['reach', 'Alcance por publicación (IG)', rows => rows.filter(p => p.platform === 'Instagram' && p.reach != null), fmtNum],
+    ['views', 'Reproducciones por contenido (IG)', rows => rows.filter(p => p.platform === 'Instagram' && p.views != null), fmtNum],
+    ['profileVisits', 'Visitas al perfil por contenido (IG)', rows => rows.filter(p => p.platform === 'Instagram' && p.profileVisits != null), fmtNum],
+  ];
+  const avg = (rows, key, pick) => {
+    const selected = pick(rows);
+    return selected.length ? selected.reduce((s, p) => s + (Number(p[key]) || 0), 0) / selected.length : null;
+  };
+  const rows = defs.map(([key, label, pick, format]) => {
+    const actual = avg(current, key, pick);
+    const bases = prior.map(items => avg(items, key, pick)).filter(v => v != null);
+    const target = bases.length >= 2 ? bases.reduce((a, v) => a + v, 0) / bases.length : null;
+    return {
+      label, actual, target, direction:'min', tolerance:.10, format,
+      reading: cls => cls === 'green' ? 'Mantener la línea de contenido actual.' :
+        cls === 'yellow' ? 'Vigilar; está dentro de una variación de 10%.' :
+        'Revisar formato, tema y cadencia del contenido.',
+    };
+  }).filter(r => r.actual != null && r.target != null);
+  renderTargetRows('organic-targets-content', rows,
+    'Referencia propuesta: promedio por publicación de los 3 meses calendario anteriores. No es un benchmark genérico.');
+}
+
+function renderAdsTargets(since, until) {
+  if (!TARGETS || !TARGETS.ads) return;
+  if (!ADS.hasData) {
+    const wrap = document.getElementById('ads-targets-content');
+    if (wrap) wrap.innerHTML = '<p class="empty">Sin actividad de pauta o sin datos suficientes en el periodo.</p>';
+    return;
+  }
+  const a = isFullRange(since, until) ? ADS.totals : aggregate(ADS.daily, since, until);
+  const cfg = TARGETS.ads;
+  const days = Math.max(1, Math.round((new Date(until) - new Date(since)) / 86400000) + 1);
+  let budgetTarget = cfg.monthly_budget ? cfg.monthly_budget * days / 30 : null;
+  let resultTarget = budgetTarget && cfg.cost_per_result_max ? budgetTarget / cfg.cost_per_result_max : null;
+  let cprTarget = cfg.cost_per_result_max;
+  let ctrTarget = cfg.ctr_min;
+  let cpcTarget = cfg.cpc_max;
+  let cpmTarget = cfg.cpm_max;
+  let targetSource = `Presupuesto y resultados se prorratean a ${days} días; CTR, CPC y CPM requieren validación de Paid Media.`;
+
+  if (cfg.mode === 'prior_3_calendar_months') {
+    const start = new Date(since + 'T00:00:00');
+    const historical = [];
+    for (let i = 1; i <= 3; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth() - i, 1);
+      const y = d.getFullYear(), month = d.getMonth();
+      const m = String(month + 1).padStart(2, '0');
+      const lastDay = new Date(y, month + 1, 0).getDate();
+      const periodStart = `${y}-${m}-01`;
+      const periodEnd = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
+      const hasCoverage = ADS.daily.some(row => row.date >= periodStart && row.date <= periodEnd);
+      if (!hasCoverage) continue;
+      const value = aggregate(ADS.daily, periodStart, periodEnd);
+      historical.push({
+        ...value,
+        spendPerDay: value.spend / lastDay,
+        resultsPerDay: value.results / lastDay,
+      });
+    }
+    if (historical.length >= 2) {
+      const mean = key => historical.reduce((sum, item) => sum + (Number(item[key]) || 0), 0) / historical.length;
+      budgetTarget = mean('spendPerDay') * days;
+      resultTarget = mean('resultsPerDay') * days;
+      const validMean = key => {
+        const values = historical.map(item => item[key]).filter(value => value != null);
+        return values.length >= 2 ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+      };
+      cprTarget = validMean('costPerResult');
+      ctrTarget = validMean('ctr');
+      cpcTarget = validMean('cpc');
+      cpmTarget = validMean('cpm');
+      targetSource = `${historical.length} meses calendario anteriores de la misma cuenta; inversión y resultados normalizados a ${days} días.`;
+    } else {
+      budgetTarget = resultTarget = cprTarget = ctrTarget = cpcTarget = cpmTarget = null;
+      targetSource = 'Se necesitan al menos 2 meses anteriores con entrega para construir una referencia histórica.';
+    }
+  }
+  const money = value => fmtMoney(value);
+  const rows = [
+    { label: ADS.resultLabel || 'Resultados', actual:a.results, target:resultTarget, direction:'min', tolerance:.10, format:fmtNum,
+      reading: cls => !cls ? 'No hay dato actual para evaluar el volumen.' : cls === 'green' ? 'El volumen esperado se está cumpliendo.' : cls === 'yellow' ? 'Volumen ligeramente debajo; vigilar el costo.' : 'Revisar entrega, creatividad y conversión.' },
+    { label:'Costo por resultado', actual:a.costPerResult, target:cprTarget, direction:'max', tolerance:.10, format:money,
+      reading: cls => !cls ? 'Aún no hay resultados para calcular el costo.' : cls === 'green' ? 'Costo dentro del objetivo configurado.' : cls === 'yellow' ? 'Costo cercano al límite.' : 'Prioridad: reducir el costo por conversación.' },
+    { label:'Inversión acumulada', actual:a.spend, target:budgetTarget, direction:'range', tolerance:.10, format:money,
+      reading: cls => !cls ? 'No hay inversión actual para comparar.' : cls === 'green' ? 'Ritmo de inversión dentro de la banda ±10%.' : 'Revisar subentrega, sobreconsumo o distribución del presupuesto.' },
+    { label:'CTR', actual:a.ctr, target:ctrTarget, direction:'min', tolerance:.10, format:fmtPct,
+      reading: cls => !cls ? 'Sin impresiones suficientes para calcular CTR.' : cls === 'green' ? 'Los anuncios generan interés suficiente.' : cls === 'yellow' ? 'Interés cerca de la referencia.' : 'Probar nuevos hooks, copies o creativos.' },
+    { label:'CPC', actual:a.cpc, target:cpcTarget, direction:'max', tolerance:.10, format:money,
+      reading: cls => !cls ? 'Sin clics suficientes para calcular CPC.' : cls === 'green' ? 'Costo de tráfico controlado.' : cls === 'yellow' ? 'Costo de tráfico cerca del límite.' : 'Revisar CTR, segmentación y calidad creativa.' },
+    { label:'CPM', actual:a.cpm, target:cpmTarget, direction:'max', tolerance:.10, format:money,
+      reading: cls => !cls ? 'Sin impresiones suficientes para calcular CPM.' : cls === 'green' ? 'Costo de exposición controlado.' : cls === 'yellow' ? 'Costo de exposición cerca del límite.' : 'Revisar audiencia, competencia y ubicaciones.' },
+  ].filter(r => r.target != null);
+  renderTargetRows('ads-targets-content', rows,
+    `${cfg.mode === 'prior_3_calendar_months' ? 'Referencia histórica propia' : 'Referencias de piloto para Party Ride'}: ${targetSource}`);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function renderOrganicPerformance(since, until) {
+  const wrap = document.getElementById('organic-performance-cards');
+  const section = document.getElementById('organic-performance-section');
+  if (!wrap || !section) return;
+
+  const rows = POSTS.filter(p => p.date >= since && p.date <= until);
+  const platforms = ['Facebook', 'Instagram'];
+  const groups = [];
+
+  platforms.forEach(platform => {
+    const items = rows.filter(p => p.platform === platform);
+    if (!items.length) return;
+
+    const metricDefs = [
+      ['engagement', 'Interacciones'],
+      ['reach', 'Alcance'],
+      ['views', 'Reproducciones']
+    ];
+    // Una métrica participa solo si Meta la reporta para al menos una pieza.
+    const active = metricDefs.filter(([key]) => items.some(p => p[key] != null));
+    const maxima = Object.fromEntries(active.map(([key]) => [
+      key, Math.max(...items.map(p => Number(p[key]) || 0))
+    ]));
+    items.forEach(p => {
+      // No penalizar una imagen porque "reproducciones" no aplica a su formato.
+      const parts = active
+        .filter(([key]) => p[key] != null)
+        .map(([key]) => maxima[key] > 0 ? (Number(p[key]) || 0) / maxima[key] : 0);
+      p._performanceScore = parts.length ? parts.reduce((a, v) => a + v, 0) / parts.length : 0;
+    });
+    items.sort((a, b) => b._performanceScore - a._performanceScore || b.engagement - a.engagement);
+
+    const best = items[0];
+    const worst = items.length > 1 ? items[items.length - 1] : null;
+    const dot = platform === 'Facebook' ? 'fb' : 'ig';
+    const criteria = active.map(([, label]) => label.toLowerCase()).join(', ');
+
+    function card(p, kind) {
+      if (!p) return '';
+      const badge = kind === 'best' ? '🏆 Mejor desempeño' : '⚠️ Menor desempeño';
+      const thumb = p.thumbnail
+        ? `<img class="creative-thumb" src="${escapeHtml(p.thumbnail)}" loading="lazy" alt="">`
+        : '<div class="creative-thumb"></div>';
+      const metrics = active.map(([key, label]) =>
+        `${label}: ${fmtNum(Number(p[key]) || 0)}`
+      ).join(' · ');
+      return `<div class="creative-card organic-performance-card ${kind}">
+        <span class="creative-badge">${badge}</span>
+        ${thumb}
+        <p class="creative-format">${escapeHtml(p.format || 'Publicación')} · ${escapeHtml(p.date)}</p>
+        <p class="creative-name">${escapeHtml(p.caption || '(sin texto)')}</p>
+        <p class="creative-metric">${metrics}<span class="score">Puntaje ${Math.round(p._performanceScore * 100)}/100</span></p>
+        <p class="creative-spend"><a class="permalink" href="${escapeHtml(p.permalink || '#')}" target="_blank" rel="noopener">Ver publicación</a></p>
+      </div>`;
+    }
+
+    const note = worst ? '' : '<p class="range-note">Solo hay una publicación en este rango; no es posible identificar la de menor desempeño.</p>';
+    groups.push(`<div class="organic-performance-group">
+      <p class="organic-performance-title"><span class="dot ${dot}"></span>${platform}</p>
+      <p class="range-note">Criterio disponible: ${criteria || 'sin métricas comparables'}.</p>
+      ${note}<div class="creative-cards">${card(best, 'best')}${card(worst, 'worst')}</div>
+    </div>`);
+  });
+
+  section.style.display = groups.length ? '' : 'none';
+  wrap.innerHTML = groups.join('');
+}
+
+function applyDateFilter() {
+  const since = selStart;
+  const until = selEnd;
+  if (!since || !until || since > until) return;
+
+  Object.keys(chartData).forEach(id => {
+    const { points, color } = chartData[id];
+    const filtered = points.filter(p => p.label >= since && p.label <= until);
+    renderLineChart(id, filtered, color);
+  });
+
+  document.querySelectorAll('tr[data-date]').forEach(row => {
+    const rowDate = row.getAttribute('data-date');
+    row.style.display = (rowDate >= since && rowDate <= until) ? '' : 'none';
+  });
+
+  renderAdsKpis(since, until);
+  renderAdsCampaigns(since, until);
+  renderAdsCharts(since, until);
+  renderOrganicSummary(since, until);
+  renderOrganicHealth(since, until);
+  renderOrganicTargets(since, until);
+  renderAdsTargets(since, until);
+  renderOrganicPerformance(since, until);
+}
+
+function fmtShort(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d} ${MONTH_ES[parseInt(m, 10) - 1].slice(0, 3)} ${y}`;
+}
+
+// Fabrica de calendarios: cada pestaña instancia el suyo con sus propios IDs,
+// pero todos comparten selStart/selEnd y sincronizan sus etiquetas al cambiar.
+const datePickers = [];
+
+function syncLabels() {
+  datePickers.forEach(p => p && p.updateTriggerLabel());
+}
+
+function createDatePicker(ids) {
+  const trigger = document.getElementById(ids.trigger);
+  const popup = document.getElementById(ids.popup);
+  const calGrid = document.getElementById(ids.grid);
+  const calMonthLabel = document.getElementById(ids.monthLabel);
+  const calHint = document.getElementById(ids.hint);
+  const resetBtn = document.getElementById(ids.reset);
+  if (!trigger) return null;
+
+  let pendingStart = null;
+  let viewDate = maxDate ? new Date(maxDate + 'T00:00:00') : new Date();
+
+  function updateTriggerLabel() {
+    trigger.textContent = (selStart && selEnd) ? `${fmtShort(selStart)} - ${fmtShort(selEnd)}` : 'Elegir rango';
+  }
+
+  function renderCalendar() {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    calMonthLabel.textContent = `${MONTH_ES[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // semana arranca en lunes
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const rangeStart = pendingStart || selStart;
+    const rangeEnd = pendingStart ? null : selEnd;
+
+    calGrid.innerHTML = '';
+    for (let i = 0; i < startOffset; i++) {
+      calGrid.appendChild(document.createElement('span'));
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = day;
+      const disabled = (minDate && iso < minDate) || (maxDate && iso > maxDate);
+      btn.disabled = disabled;
+      if (!disabled) {
+        if (iso === rangeStart || iso === rangeEnd) btn.classList.add('range-endpoint');
+        else if (rangeEnd && iso > rangeStart && iso < rangeEnd) btn.classList.add('in-range');
+        // stopPropagation: onDayClick reconstruye la grilla (renderCalendar),
+        // lo que desprende este boton del DOM antes de que el listener de
+        // "clic afuera" (a nivel document) evalue popup.contains(e.target) --
+        // sin esto, el chequeo da falso y cierra el popup por error.
+        btn.addEventListener('click', (e) => { e.stopPropagation(); onDayClick(iso); });
+      }
+      calGrid.appendChild(btn);
+    }
+  }
+
+  function onDayClick(iso) {
+    if (!pendingStart) {
+      pendingStart = iso;
+      calHint.textContent = 'Elegi la fecha final';
+      renderCalendar();
+      return;
+    }
+    selStart = iso < pendingStart ? iso : pendingStart;
+    selEnd = iso < pendingStart ? pendingStart : iso;
+    pendingStart = null;
+    calHint.textContent = '';
+    syncLabels();
+    applyDateFilter();
+    popup.hidden = true;
+  }
+
+  document.getElementById(ids.prev).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  document.getElementById(ids.next).addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+    renderCalendar();
+  });
+
+  trigger.addEventListener('click', () => {
+    popup.hidden = !popup.hidden;
+    if (!popup.hidden) {
+      pendingStart = null;
+      calHint.textContent = '';
+      viewDate = selEnd ? new Date(selEnd + 'T00:00:00') : new Date();
+      renderCalendar();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!popup.hidden && !popup.contains(e.target) && e.target !== trigger) {
+      popup.hidden = true;
+    }
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      selStart = minDate;
+      selEnd = maxDate;
+      syncLabels();
+      applyDateFilter();
+    });
+  }
+
+  return { updateTriggerLabel };
+}
+
+datePickers.push(createDatePicker({
+  trigger: 'filter-trigger', popup: 'calendar-popup', grid: 'cal-grid',
+  monthLabel: 'cal-month-label', hint: 'cal-hint',
+  prev: 'cal-prev', next: 'cal-next', reset: 'filter-reset',
+}));
+datePickers.push(createDatePicker({
+  trigger: 'p-filter-trigger', popup: 'p-calendar-popup', grid: 'p-cal-grid',
+  monthLabel: 'p-cal-month-label', hint: 'p-cal-hint',
+  prev: 'p-cal-prev', next: 'p-cal-next', reset: 'p-filter-reset',
+}));
+
+syncLabels();
+applyDateFilter();
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Marcas solo-pauta: Insights y Recomendaciones estan ocultas por CSS, asi que
+// se abre directamente en Pauta (si no, el dashboard arrancaria en blanco).
+if (document.querySelector('.app-shell').classList.contains('pauta-only')) {
+  document.querySelector('.nav-btn[data-tab="pautas"]').click();
+}
+
+// Boton "reproducir" en las tarjetas de mejor/peor anuncio: carga el video
+// REAL solo al hacer clic (no autoplay), para no pesar la pagina de entrada y
+// para que un link de Meta ya vencido solo rompa ese clic puntual, no toda
+// la tarjeta (el link del video caduca mas rapido que el de la miniatura).
+document.querySelectorAll('.creative-play-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const wrap = btn.closest('.creative-media');
+    const url = wrap && wrap.dataset.videoUrl;
+    const img = wrap && wrap.querySelector('img.creative-thumb');
+    if (!wrap || !url || !img) return;
+    const thumbSrc = img.src;
+    const video = document.createElement('video');
+    video.src = url;
+    video.controls = true;
+    video.autoplay = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.className = 'creative-thumb';
+    // Si el link del video ya vencio (mas fragil que el de la miniatura),
+    // se restaura la portada original en vez de dejar un reproductor roto.
+    video.addEventListener('error', () => {
+      const restored = document.createElement('img');
+      restored.className = 'creative-thumb';
+      restored.loading = 'lazy';
+      restored.src = thumbSrc;
+      wrap.replaceChild(restored, video);
+      const note = document.createElement('p');
+      note.className = 'creative-video-note';
+      note.textContent = 'El video ya no esta disponible (el enlace de Meta caduco). Se muestra la portada.';
+      wrap.after(note);
+    }, { once: true });
+    wrap.replaceChild(video, img);
+    btn.remove();
+  });
+});
+</script>
+</body>
+</html>
